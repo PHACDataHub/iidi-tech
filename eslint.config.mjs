@@ -254,7 +254,9 @@ export default [
     },
   },
 
-  ...['TODO-BACKENDS'].map(make_config_for_node_typescript_dir),
+  ...['TODO-SERVICE-PLACEHOLDER-BACKENDS'].map(
+    make_config_for_node_typescript_dir,
+  ),
 
-  ...['TODO-FRONTENDS'].map(make_config_for_react_spa_dir),
+  ...['TODO-SERVICE-PLACEHOLDER-FRONTENDS'].map(make_config_for_react_spa_dir),
 ];
