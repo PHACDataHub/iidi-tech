@@ -1,0 +1,8 @@
+# generated (test artifact)
+**/coverage
+
+# generated (build output)
+*/dist
+
+# TODO: May want to let prettier format any non-generated/non-third-party k8s manifests, to enforce consistent formatting
+k8s/**
