@@ -5,6 +5,9 @@
   "description": "",
   "keywords": [],
   "license": "MIT",
+  "engines": {
+    "node": "^22.0.0"
+  },
   "scripts": {
     "ci:all": "npm ci",
     "dev": "docker compose -f ./docker-compose.dev.yaml up",
