@@ -62,8 +62,8 @@ services:
       dockerfile: ./Dockerfile.node-dev
       context: ./
     volumes:
-      - ./TODO-SERVICE-PLACEHOLDER:/home/node-dev/project
-      - ./TODO-SERVICE-PLACEHOLDER/.env.dev-public:/home/node-dev/project/.env
+      - ../TODO-SERVICE-PLACEHOLDER:/home/node-dev/project
+      - ../TODO-SERVICE-PLACEHOLDER/.env.dev-public:/home/node-dev/project/.env
     command: npm run dev
     networks:
       - host-loopback
