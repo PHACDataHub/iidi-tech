@@ -1,0 +1,8 @@
+**/.env*
+!**/.env.dev-public
+
+node_modules
+
+.eslintcache
+.vscode/chrome
+**/.DS_Store

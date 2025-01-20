@@ -1,0 +1,71 @@
+version: '3.8'
+
+# good to specify the project name for a more consistent resulting environment. For example, network names
+# are prefixed by the compose file's project name https://docs.docker.com/compose/how-tos/networking/
+name: iidi
+
+networks: 
+  host-loopback:
+    driver: bridge
+    driver_opts:
+      # the default docker bridge driver behaviour is to bind exposed ports on 0.0.0.0, making them accessible
+      # from the local network. Not good, unless you're on a known-safe network (ha) and specifically want to
+      # serve dev traffic from other local devices (e.g. testing on mobile devices).
+      # Configuring this network to bind on loopback instead, so that only incoming traffic from the host machine
+      # can reach our containers on their dev ports
+      com.docker.network.bridge.host_binding_ipv4: '127.0.0.1' 
+  cluster-internal:
+    # For self-contained containers that neither need to talk to the internet, (e.g. databases) nor the host machine (e.g. dev databases).
+    # If/when access is needed, e.g. to run scripts inside a dev DB, run docker compose with a shell attached to that cluster directly
+    driver: bridge
+    internal: true
+
+configs:
+  gateway.default.conf:
+    # Configure this to mock the behaviour of the /k8s cluster's gateway configuration
+    # Note: double $'s (`$$`) below are escaped single $'s, to avoid docker compose variable interpolation
+    content: |
+      server {
+          location /example {
+              proxy_set_header Host $$host;
+              proxy_set_header X-Real-IP $$remote_addr;
+              proxy_set_header X-Forwarded-For $$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $$scheme;
+              
+              # WebSocket support
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade $$http_upgrade;
+              proxy_set_header Connection "upgrade";
+
+              proxy_pass http://TODO-PLACEHOLDER:8080;
+          }
+      }
+
+services:
+  gateway:
+    image: nginx:1.27.3
+    tty: ${DOCKER_TTY:-true}
+    restart: always
+    networks:
+      - host-loopback
+    ports:
+      - '8080:80'
+    configs:
+      - source: gateway.default.conf
+        target: /etc/nginx/conf.d/default.conf
+
+  TODO-PLACEHOLDER:
+    image: node-dev:1.0
+    tty: ${DOCKER_TTY:-true}
+    restart: always
+    build:
+      dockerfile: ./Dockerfile.node-dev
+      context: ./
+    volumes:
+      - ./TODO-PLACEHOLDER:/home/node-dev/project
+      - ./TODO-PLACEHOLDER/.env.dev-public:/home/node-dev/project/.env
+    command: npm run dev
+    networks:
+      - host-loopback
+    ports:
+      - 8000:8080
