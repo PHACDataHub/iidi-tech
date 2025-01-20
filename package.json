@@ -9,9 +9,9 @@
     "ci:all": "npm ci",
     "dev": "docker compose -f ./docker-compose.dev.yaml up",
     "predev": "npm run dev:down",
-    "dev:debug": "DOCKER_API_COMMAND=docker-debug docker compose -f ./docker-compose.dev.yaml up",
+    "dev:debug": "DOCKER_API_COMMAND=docker-debug docker compose -f ./dev_docker_env/docker-compose.dev.yaml up",
     "predev:debug": "npm run dev:down",
-    "dev:down": "docker compose -f ./docker-compose.dev.yaml down -v",
+    "dev:down": "docker compose -f ./dev_docker_env/docker-compose.dev.yaml down -v",
     "prettier": "prettier --check .",
     "prettier:write": "prettier --write --loglevel warn .",
     "eslint": "eslint --max-warnings 0 --cache .",
@@ -19,7 +19,7 @@
     "eslint:fix": "eslint --fix . || true",
     "posteslint:fix": "npm run prettier:write",
     "typecheck:TODO-SERVICE-PLACEHOLDER-1": "cd ./TODO-SERVICE-PLACEHOLDER-1 && npm run typecheck",
-    "typecheck:TODO-SERVICE-PLACEHOLDER-2": "cd ./TTODO-SERVICE-PLACEHOLDER-1&& npm run typecheck",
+    "typecheck:TODO-SERVICE-PLACEHOLDER-2": "cd ./TODO-SERVICE-PLACEHOLDER-1&& npm run typecheck",
     "typecheck": "trap 'RC=1' ERR; npm run typecheck:TODO-SERVICE-PLACEHOLDER-1; npm run typecheck:TODO-SERVICE-PLACEHOLDER-1; exit $RC"
   },
   "devDependencies": {
