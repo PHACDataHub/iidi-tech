@@ -15,4 +15,4 @@ steps:
     name: 'node:22-alpine3.21'
     entrypoint: 'npm'
     dir: ./
-    args: ['run', 'eslint:ci'] # currently allowing warnings, but could be tightened up post https://github.com/PHACDataHub/safe-inputs/issues/144
+    args: ['run', 'eslint:ci']
