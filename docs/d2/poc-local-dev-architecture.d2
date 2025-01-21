@@ -1,0 +1,81 @@
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+panorama-read-api-mock: Panorama mock (read/query operations only) {
+  
+}
+
+aggregate-read-api-mock: IDPV compliant aggrefate API mock {
+
+}
+
+acg-services: Access Control Gateway Services {
+  style: {
+    stroke-dash: 3
+  }
+
+  access-rule-governance-ui: Governance UI {
+
+  }
+  access-rule-governance-ui -> access-rule-store: Get rules
+
+  access-rule-store: Access Control Rule Store {
+    record-rules: Record field-level rules {
+
+    }
+
+    aggregate-rules: Aggregate field-level rules {
+
+    }
+  }
+  access-rule-store -> access-rule-governance-ui: Manage rules
+
+  gql-api: Rule-applying\nGraphQL API {
+    icon: ./icons/graphql/logo-pink.svg
+    icon.near: top-right
+
+    record-resolvers: Apply record rules\nto record data {
+
+    }
+
+    aggregate-resolvers: Apply aggregate rules\nto aggregate data {
+
+    }
+  }
+  gql-api.record-resolvers -> access-rule-store.record-rules: Get rules
+  gql-api.aggregate-resolvers -> access-rule-store.aggregate-rules: Get rules
+}
+acg-services.gql-api.record-resolvers -> panorama-read-api-mock: Get data
+acg-services.gql-api.aggregate-resolvers -> aggregate-read-api-mock: Get data
+
+acg-services-2: Additional ACG Instances {
+  style: {
+    stroke-dash: 3
+  }
+  1: "" {
+    icon: ./icons/graphql/logo-pink.svg
+    shape: image
+  }
+  2: "" {
+    icon: ./icons/graphql/logo-pink.svg
+    shape: image
+  }
+  3: "" {
+    icon: ./icons/graphql/logo-pink.svg
+    shape: image
+  }
+}
+
+federated-gql-api: ACG GQL API Federator {
+  icon: ./icons/graphql/logo-pink.svg
+}
+federated-gql-api -> acg-services.gql-api: Federate ACG API's
+federated-gql-api -> acg-services-2: Federate ACG API's
+
+starvax-etl: Consumer Mock {
+
+}
+starvax-etl -> federated-gql-api: Get aggregate data by province\n(mock starvax ETL?)
