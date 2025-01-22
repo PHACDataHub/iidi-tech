@@ -4,12 +4,27 @@ vars: {
   }
 }
 
-panorama-read-api-mock: Panorama mock (read/query operations only) {
-  
+title: POC Local Dev Architecture {
+  shape: text
+  near: top-center
+  style: {
+    font-size: 55
+    italic: true
+  }
 }
 
-aggregate-read-api-mock: IDPV compliant aggrefate API mock {
+api-mocks: Province API Mocks {
+  style: {
+    stroke-dash: 3
+  }
 
+  panorama-read-api-mock: Panorama mock (read/query operations only) {
+    icon: ./icons/general/server.svg
+  }
+
+  aggregate-read-api-mock: IDPV compliant aggregate API mock {
+    icon: ./icons/general/server.svg
+  }
 }
 
 acg-services: Access Control Gateway Services {
@@ -18,40 +33,42 @@ acg-services: Access Control Gateway Services {
   }
 
   access-rule-governance-ui: Governance UI {
-
+    icon: ./icons/general/react.svg
   }
   access-rule-governance-ui -> access-rule-store: Get rules
 
   access-rule-store: Access Control Rule Store {
-    record-rules: Record field-level rules {
+    shape: cylinder
 
+    record-rules: Record field-level rules {
+      shape: stored_data
     }
 
     aggregate-rules: Aggregate field-level rules {
-
+      shape: stored_data
     }
   }
   access-rule-store -> access-rule-governance-ui: Manage rules
 
   gql-api: Rule-applying\nGraphQL API {
     icon: ./icons/graphql/logo-pink.svg
-    icon.near: top-right
+    icon.near: bottom-right
 
-    record-resolvers: Apply record rules\nto record data {
-
+    record-resolvers: Resolvers apply record rules\nto record data {
+      shape: step
     }
 
-    aggregate-resolvers: Apply aggregate rules\nto aggregate data {
-
+    aggregate-resolvers: Resolvers apply aggregate rules\nto aggregate data {
+      shape: step
     }
   }
   gql-api.record-resolvers -> access-rule-store.record-rules: Get rules
   gql-api.aggregate-resolvers -> access-rule-store.aggregate-rules: Get rules
 }
-acg-services.gql-api.record-resolvers -> panorama-read-api-mock: Get data
-acg-services.gql-api.aggregate-resolvers -> aggregate-read-api-mock: Get data
+acg-services.gql-api.record-resolvers -> api-mocks.panorama-read-api-mock: Get data
+acg-services.gql-api.aggregate-resolvers -> api-mocks.aggregate-read-api-mock: Get data
 
-acg-services-2: Additional ACG Instances {
+acg-services-2: Additional ACG Instances for federation testing {
   style: {
     stroke-dash: 3
   }
@@ -68,14 +85,20 @@ acg-services-2: Additional ACG Instances {
     shape: image
   }
 }
+acg-services-2 -> api-mocks
 
-federated-gql-api: ACG GQL API Federator {
+federated-gql-api: GQL Federation Server {
   icon: ./icons/graphql/logo-pink.svg
 }
-federated-gql-api -> acg-services.gql-api: Federate ACG API's
-federated-gql-api -> acg-services-2: Federate ACG API's
+federated-gql-api -> acg-services.gql-api: Federates provincial ACG API's
+federated-gql-api -> acg-services-2: Federates provincial ACG API's
 
-starvax-etl: Consumer Mock {
+starvax-etl: Consumer Mock (optional) {
+  icon: ./icons/general/server.svg
+  icon.near: bottom-right
 
+  explanation: |md
+    Mock of a hypothetical Starvax ETL worker?
+  |
 }
-starvax-etl -> federated-gql-api: Get aggregate data by province\n(mock starvax ETL?)
+starvax-etl -> federated-gql-api: Simulate batch job requests
