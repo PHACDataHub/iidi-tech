@@ -13,3 +13,9 @@ To update a generated svg, `cd` in to this directory and run `d2 <filename>.d2`.
 How we can locally develop IIDI components. Fall back POC Demo if connections to ON and BC systems not achieved.
 
 ![POC Local Dev Architecture](poc-local-dev-architecture.svg)
+
+### POC Anticipated/Target Architecture
+
+How we can integrate this IIDI POC with available ON and BC systems to achieve the target demo state.
+
+![POC Target Architecture](poc-target-architecture.svg)

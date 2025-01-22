@@ -1,0 +1,170 @@
+vars: {
+  d2-config: {
+    layout-engine: elk
+  }
+}
+
+title: POC Anticipated/Target Architecture {
+  shape: text
+  near: top-center
+  style: {
+    font-size: 55
+    italic: true
+  }
+}
+
+provinces: {
+  style: {
+    stroke-dash: 3
+    fill: transparent
+  }
+
+  on: Ontario infrastructure {
+    dev-aggregate-endpoint: Aggregate/Analytics API (TBC) {
+  
+    }
+  }
+  
+  bc: BC infrastructure {
+    dev-panorama: Panorama CRUD API {
+  
+    }
+  }
+}
+
+federal: Federal infrastructure {
+  panorama-synthetic-populator: Synthetic Data Populator {
+    icon: ./icons/general/script.svg
+    icon.near: bottom-right
+
+    explanation: |md
+      Script, possibly one-time, to load a dev panorama server with synthetic records.  
+      Knowledge from this script will need to be retained and shared with any systems  
+      later retreiving records via the panorama CRUD API, given limitations of that API.
+    |
+  }
+
+  bc-acg: {
+    style: {
+      stroke-dash: 3
+    }
+
+    panorama-crud-crosswalk:  {
+      icon: ./icons/general/server.svg
+      icon.near: bottom-right
+    
+      explanation: |md
+        Microservice to workaround lack of aggregate BC API.  
+        Given panorama CRUD limitations, this will be a hacky shim.  
+      |
+    }
+
+    record-aggregator: Record aggregator {
+      icon: ./icons/general/server.svg
+      icon.near: bottom-right
+    
+      explanation: |md
+        Batch aggregate BC panorama data, provide ON-equivalent aggregate API.
+      |
+    }
+    record-aggregator -> panorama-crud-crosswalk: Get records
+  
+    access-rule-governance-ui: Governance UI {
+      icon: ./icons/general/react.svg
+    }
+    access-rule-governance-ui -> access-rule-store: Get rules
+  
+    access-rule-store: Access Control Rule Store {
+      shape: cylinder
+  
+      record-rules: Record field-level rules {
+        shape: stored_data
+      }
+  
+      aggregate-rules: Aggregate field-level rules {
+        shape: stored_data
+      }
+    }
+    access-rule-store -> access-rule-governance-ui: Manage\nrules
+  
+    gql-api: Rule-applying\nGraphQL API {
+      icon: ./icons/graphql/logo-pink.svg
+      icon.near: bottom-right
+  
+      record-resolvers: Resolvers apply record rules\nto record data {
+        shape: step
+      }
+  
+      aggregate-resolvers: Resolvers apply aggregate rules\nto aggregate data {
+        shape: step
+      }
+    }
+    gql-api.record-resolvers -> access-rule-store.record-rules: Get rules
+    gql-api.aggregate-resolvers -> panorama-crud-crosswalk: Get records
+    gql-api.aggregate-resolvers -> access-rule-store.aggregate-rules: Get rules
+    gql-api.aggregate-resolvers -> record-aggregator: Get aggregates
+  }
+  bc-acg.panorama-crud-crosswalk -> panorama-synthetic-populator: Knowledge for\nquery construction
+
+  on-acg: Ontario ACG Services {
+    style: {
+      stroke-dash: 3
+    }
+  
+    access-rule-governance-ui: Governance UI {
+      icon: ./icons/general/react.svg
+    }
+    access-rule-governance-ui -> access-rule-store: Get rules
+  
+    access-rule-store: Access Control Rule Store {
+      shape: cylinder
+  
+      aggregate-rules: Aggregate field-level rules {
+        shape: stored_data
+      }
+    }
+    access-rule-store -> access-rule-governance-ui: Manage\nrules
+  
+    gql-api: Rule-applying\nGraphQL API {
+      icon: ./icons/graphql/logo-pink.svg
+      icon.near: bottom-right
+  
+      aggregate-resolvers: Resolvers apply aggregate rules\nto aggregate data {
+        shape: step
+      }
+    }
+    gql-api.aggregate-resolvers -> access-rule-store.aggregate-rules: Get rules
+  }
+
+  federated-gql-api: GQL Federation Server {
+    icon: ./icons/graphql/logo-pink.svg
+  }
+  federated-gql-api -> on-acg.gql-api: Federate ON ACG API
+  federated-gql-api -> bc-acg.gql-api: Federate BC ACG API
+
+  demo-consumer: Demo Consumer Case {
+    icon: ./icons/general/server.svg
+    icon.near: bottom-right
+  
+    explanation: |md
+      Mock of a hypothetical Starvax ETL worker for demo purposes
+    |
+  }
+  demo-consumer -> federated-gql-api: Simulate batch job requests
+
+  demo-user: Demo User Case {
+    icon: ./icons/general/dev.svg
+    icon.near: bottom-right
+
+    explanation: |md
+      Mock of a hypothetical user for demo purposes. Stand in for both provincial devs  
+      (managing ACG rules) and for federal analysts (accessing federated data).
+    |
+  }
+  demo-user -> on-acg.access-rule-governance-ui: Manage ACG
+  demo-user -> bc-acg.access-rule-governance-ui: Manage ACG
+  demo-user -> federated-gql-api: Access\nfederated\data
+}
+federal.on-acg.gql-api.aggregate-resolvers -> provinces.on.dev-aggregate-endpoint: Get\naggregate\ndata
+federal.bc-acg.panorama-crud-crosswalk -> provinces.bc.dev-panorama: Get\nrecord\ndata
+provinces.bc.dev-panorama <-> federal.panorama-synthetic-populator: Populate\nsynthetic\ndata
