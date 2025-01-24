@@ -4,7 +4,7 @@ vars: {
   }
 }
 
-title: POC Local Dev Architecture {
+title: POC Local Dev Architecture\n(User Journeys 1 & 2) {
   shape: text
   near: top-center
   style: {
@@ -12,7 +12,6 @@ title: POC Local Dev Architecture {
     italic: true
   }
 }
-
 
 fhir-synthetic-populator: Synthetic Data Populator {
   icon: ./icons/general/script.svg
@@ -43,6 +42,10 @@ province-boundary: Notional Province Boundary {
     style: {
       stroke-dash: 3
       fill: transparent
+    }
+
+    identity-broker: Identity Broker {
+      icon: ./icons/general/server.svg
     }
 
     access-rule-governance-ui: Governance UI {
@@ -94,7 +97,7 @@ additional-province-boundary: Additional container sets for federation testing {
   }
 
   acg-services: ACG Services {
-    icon: ./icons/graphql/logo-pink.svg
+    icon: ./icons/general/server.svg
     shape: image
   }
   acg-services -> hapiproject/hapi
@@ -107,9 +110,28 @@ federal-boundary: Notional Federal Boundary {
     fill: transparent
   }
 
-  federated-gql-api: GQL Federation Server {
+  nats-server: Messaging System (NATS)\n(TODO: can this be decentralized?) {
+    identity-discovery: Identity Discovery {
+      shape: queue
+    }
+
+    identity-validation: Identity Validation {
+      shape: queue
+    }
+
+    data-mesh: Data Mesh {
+      shape: queue
+    }
+  }
+
+  identity-broker: Identity Broker {
+    icon: ./icons/general/server.svg
+  }
+
+  gql-api: GQL Server {
     icon: ./icons/graphql/logo-pink.svg
   }
+  gql-api -> identity-broker: Get outgoing\nidentity token
   
   starvax-etl: Consumer Mock (optional) {
     icon: ./icons/general/server.svg
@@ -119,7 +141,17 @@ federal-boundary: Notional Federal Boundary {
       Mock of a hypothetical Starvax ETL worker?
     |
   }
-  starvax-etl -> federated-gql-api: Simulate batch job requests
+  starvax-etl -> gql-api: Simulate batch job requests
 }
-federal-boundary.federated-gql-api -> province-boundary.acg-services.gql-api: Federates provincial ACG APIs
-federal-boundary.federated-gql-api -> additional-province-boundary.acg-services: Federates provincial ACG APIs
+federal-boundary.gql-api -> federal-boundary.nats-server.data-mesh: Get data
+
+federal-boundary.nats-server -> additional-province-boundary.acg-services: Federate identity\n& data
+
+federal-boundary.nats-server.identity-discovery -> federal-boundary.identity-broker: Advertise
+federal-boundary.nats-server.identity-discovery -> province-boundary.acg-services.identity-broker: Advertise
+
+federal-boundary.nats-server.identity-validation -> federal-boundary.identity-broker: Validate
+federal-boundary.nats-server.identity-validation -> province-boundary.acg-services.identity-broker: Validate
+
+
+
