@@ -6,10 +6,16 @@ The diagram is generated from [D2](https://d2lang.com/) code to allow versioning
 
 To update a generated svg, `cd` in to this directory and run `d2 <filename>.d2`. Add the `-w` flag for watch mode for a live-updating browser view while editing.
 
-## Diagrams
+## Proposed POC Local Dev Architectures
 
-### POC Local Dev Architecture/Demo Fallback
+### User Journey 2 Only
 
-How we can locally develop IIDI components. Fall back POC Demo if connections to ON and BC systems not achieved.
+Proposal for if we only need to demonstrate User Journey 2 (on-demand federal access to provincial data).
 
-![POC Local Dev Architecture](poc-local-dev-architecture.svg)
+![UJ2 Only POC Local Dev Architecture](uj2-poc-local-dev-architecture.svg)
+
+### User Journey 1 & 2
+
+Proposal for if we only need to demonstrate both user journeys (on-demand federal access to provincial data, on-demand province-to-province access).
+
+![UJ 1 & 2 POC Local Dev Architecture](uj2-poc-local-dev-architecture.svg)
