@@ -8,13 +8,13 @@ To update a generated svg, `cd` in to this directory and run `d2 <filename>.d2`.
 
 ## Diagrams
 
-### POC Local Dev Architecture
+### POC Local Dev Architecture/Demo Fallback
 
 How we can locally develop IIDI components. Fall back POC Demo if connections to ON and BC systems not achieved.
 
 ![POC Local Dev Architecture](poc-local-dev-architecture.svg)
 
-### POC Anticipated/Target Architecture
+### POC Anticipated/Target Architecture (assuming provincial support)
 
 How we can integrate this IIDI POC with available ON and BC systems to achieve the target demo state.
 

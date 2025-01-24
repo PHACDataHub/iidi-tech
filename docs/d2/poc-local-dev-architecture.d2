@@ -13,92 +13,113 @@ title: POC Local Dev Architecture {
   }
 }
 
-api-mocks: Province API Mocks {
-  style: {
-    stroke-dash: 3
-  }
 
-  panorama-read-api-mock: Panorama mock (read/query operations only) {
-    icon: ./icons/general/server.svg
-  }
-
-  aggregate-read-api-mock: IDPV compliant aggregate API mock {
-    icon: ./icons/general/server.svg
-  }
-}
-
-acg-services: Access Control Gateway Services {
-  style: {
-    stroke-dash: 3
-  }
-
-  access-rule-governance-ui: Governance UI {
-    icon: ./icons/general/react.svg
-  }
-  access-rule-governance-ui -> access-rule-store: Get rules
-
-  access-rule-store: Access Control Rule Store {
-    shape: cylinder
-
-    record-rules: Record field-level rules {
-      shape: stored_data
-    }
-
-    aggregate-rules: Aggregate field-level rules {
-      shape: stored_data
-    }
-  }
-  access-rule-store -> access-rule-governance-ui: Manage\nrules
-
-  gql-api: Rule-applying\nGraphQL API {
-    icon: ./icons/graphql/logo-pink.svg
-    icon.near: bottom-right
-
-    record-resolvers: Resolvers apply record rules\nto record data {
-      shape: step
-    }
-
-    aggregate-resolvers: Resolvers apply aggregate rules\nto aggregate data {
-      shape: step
-    }
-  }
-  gql-api.record-resolvers -> access-rule-store.record-rules: Get rules
-  gql-api.aggregate-resolvers -> access-rule-store.aggregate-rules: Get rules
-}
-acg-services.gql-api.record-resolvers -> api-mocks.panorama-read-api-mock: Get data
-acg-services.gql-api.aggregate-resolvers -> api-mocks.aggregate-read-api-mock: Get data
-
-acg-services-2: Additional ACG Instances for federation testing {
-  style: {
-    stroke-dash: 3
-  }
-  1: "" {
-    icon: ./icons/graphql/logo-pink.svg
-    shape: image
-  }
-  2: "" {
-    icon: ./icons/graphql/logo-pink.svg
-    shape: image
-  }
-  3: "" {
-    icon: ./icons/graphql/logo-pink.svg
-    shape: image
-  }
-}
-acg-services-2 -> api-mocks
-
-federated-gql-api: GQL Federation Server {
-  icon: ./icons/graphql/logo-pink.svg
-}
-federated-gql-api -> acg-services.gql-api: Federates provincial ACG APIs
-federated-gql-api -> acg-services-2: Federates provincial ACG APIs
-
-starvax-etl: Consumer Mock (optional) {
-  icon: ./icons/general/server.svg
+fhir-synthetic-populator: Synthetic Data Populator {
+  icon: ./icons/general/script.svg
   icon.near: bottom-right
 
   explanation: |md
-    Mock of a hypothetical Starvax ETL worker?
+    Script, batch population of the local HAPI FHIR system with synthetic records via  
+    the HAPI FHIR bulk APIs.
   |
 }
-starvax-etl -> federated-gql-api: Simulate batch job requests
+
+province-boundary: Notional Province Boundary {
+  style: {
+    stroke-dash: 3
+    fill: transparent
+  }
+  
+  hapiproject/hapi: HAPI FHIR JPA {
+    icon: ./icons/general/server.svg
+    icon.near: bottom-right
+
+    explanation: |md
+      hapiproject/hapi container
+    |
+  }
+
+  acg-services: Access Control Gateway Services {
+    style: {
+      stroke-dash: 3
+      fill: transparent
+    }
+
+    access-rule-governance-ui: Governance UI {
+      icon: ./icons/general/react.svg
+    }
+    access-rule-governance-ui -> access-rule-store: Manage\nrules
+
+    access-rule-store: Access Control Rule Store {
+      shape: cylinder
+
+      record-rules: Record field-level rules {
+        shape: stored_data
+      }
+
+      aggregate-rules: Aggregate field-level rules {
+        shape: stored_data
+      }
+    }
+
+    gql-api: Rule-applying\nGraphQL API {
+      icon: ./icons/graphql/logo-pink.svg
+      icon.near: bottom-right
+
+      record-resolvers: Resolvers apply record rules\nto record data {
+        shape: step
+      }
+
+      aggregate-resolvers: Resolvers apply aggregate rules\nto aggregate data {
+        shape: step
+      }
+    }
+    gql-api.record-resolvers -> access-rule-store.record-rules: Get rules
+    gql-api.aggregate-resolvers -> access-rule-store.aggregate-rules: Get rules
+  }
+  acg-services.gql-api.record-resolvers -> hapiproject/hapi: Get data
+  acg-services.gql-api.aggregate-resolvers -> hapiproject/hapi: Get data
+}
+province-boundary.hapiproject/hapi -> fhir-synthetic-populator
+
+additional-province-boundary: Additional container sets for federation testing {
+  style: {
+    stroke-dash: 3
+    fill: transparent
+  }
+
+  hapiproject/hapi: HAPI FHIR JPA {
+    icon: ./icons/general/server.svg
+    shape: image
+  }
+
+  acg-services: ACG Services {
+    icon: ./icons/graphql/logo-pink.svg
+    shape: image
+  }
+  acg-services -> hapiproject/hapi
+}
+additional-province-boundary.hapiproject/hapi -> fhir-synthetic-populator
+
+federal-boundary: Notional Federal Boundary {
+  style: {
+    stroke-dash: 3
+    fill: transparent
+  }
+
+  federated-gql-api: GQL Federation Server {
+    icon: ./icons/graphql/logo-pink.svg
+  }
+  
+  starvax-etl: Consumer Mock (optional) {
+    icon: ./icons/general/server.svg
+    icon.near: bottom-right
+  
+    explanation: |md
+      Mock of a hypothetical Starvax ETL worker?
+    |
+  }
+  starvax-etl -> federated-gql-api: Simulate batch job requests
+}
+federal-boundary.federated-gql-api -> province-boundary.acg-services.gql-api: Federates provincial ACG APIs
+federal-boundary.federated-gql-api -> additional-province-boundary.acg-services: Federates provincial ACG APIs
