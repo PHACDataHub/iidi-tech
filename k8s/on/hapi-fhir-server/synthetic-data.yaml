@@ -1,0 +1,21 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: synthetic-data-job
+  namespace: "on"
+spec:
+  backoffLimit: 4
+  template:
+    spec:
+      containers:
+      - name: synthetic-data
+        image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/synthetic-data:latest
+        imagePullPolicy: Always
+        env:
+        - name: NUM_RECORDS
+          value: "100"
+        - name: PT
+          value: "on"
+        - name: FHIR_URL
+          value: "http://hapi-fhir-svc.on.svc.cluster.local:8080/fhir"
+      restartPolicy: Never

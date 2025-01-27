@@ -12,7 +12,8 @@ spec:
         name: http
         protocol: HTTP
       hosts:
-        - "iidi.alpha.phac.gc.ca"
+        - "*.bc.iidi.alpha.phac.gc.ca"
+        - "*.on.iidi.alpha.phac.gc.ca"
       tls:
         httpsRedirect: true
     - port:
@@ -20,10 +21,8 @@ spec:
         name: https
         protocol: HTTPS
       hosts:
-        - "iidi.alpha.phac.gc.ca"
+        - "*.bc.iidi.alpha.phac.gc.ca"
+        - "*.on.iidi.alpha.phac.gc.ca"
       tls:
         mode: SIMPLE
         credentialName: tlskeys
-        privateKey: sds
-        serverCertificate: sds
-        minProtocolVersion: TLSV1_3

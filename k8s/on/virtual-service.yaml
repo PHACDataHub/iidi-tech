@@ -1,0 +1,29 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: on-virtual-service
+  namespace: istio-ingress
+spec:
+  hosts:
+    - "*.on.iidi.alpha.phac.gc.ca"
+  gateways:
+    - istio-ingress/mesh-gateway
+  http:
+    - match:
+        - headers:
+            ":authority":
+              exact: "patient-browser.on.iidi.alpha.phac.gc.ca"
+      route:
+        - destination:
+            host: patient-browser-svc.on.svc.cluster.local
+            port:
+              number: 8079
+    - match:
+        - headers:
+            ":authority":
+              exact: "fhir.on.iidi.alpha.phac.gc.ca"
+      route:
+        - destination:
+            host: hapi-fhir-svc.on.svc.cluster.local
+            port:
+              number: 8080

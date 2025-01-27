@@ -5,7 +5,8 @@ metadata:
   namespace: istio-ingress
 spec:
   dnsNames:
-    - iidi.alpha.phac.gc.ca
+    - "*.bc.iidi.alpha.phac.gc.ca"
+    - "*.on.iidi.alpha.phac.gc.ca"
   issuerRef:
     kind: ClusterIssuer
     name: letsencrypt-production
