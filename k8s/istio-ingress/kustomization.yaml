@@ -16,16 +16,5 @@ patches:
   target:
     kind: Service
     name: istio-ingressgateway
-    namespace: istio-ingress-egress
+    namespace: istio-ingress
     version: v1
-    
-- patch: |-
-    - op: add
-      path: /spec/template/spec/containers/0/env/-
-      value:
-        name: ISTIO_META_ENABLE_PROXY_ACCESS_LOG
-        value: "true"
-  target:
-    kind: Deployment
-    name: istio-ingressgateway
-    namespace: istio-ingress-egress
