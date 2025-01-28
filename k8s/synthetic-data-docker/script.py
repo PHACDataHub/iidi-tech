@@ -14,26 +14,29 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 # Initialize Faker
 faker = Faker("en_CA")
 
-# FHIR server URL
+# FHIR server URL and parameters
 FHIR_URL = os.getenv("FHIR_URL", "http://localhost:8080/fhir")
 NUM_RECORDS = int(os.getenv("NUM_RECORDS", "1"))
 PT = os.getenv("PT", "bc").lower()
 
-# Function to generate a random date
+# Generate a random date within a specified range
 def random_date(start_date, end_date):
     delta = end_date - start_date
     return (start_date + timedelta(days=random.randint(0, delta.days))).strftime("%Y-%m-%d")
 
-# Enhanced Script for Synthetic MMR Immunization Records
-
+# Create a Patient resource
 def create_patient_resource(patient_id):
     ethnicity = random.choice(["Caucasian", "Asian", "Indigenous", "African", "Hispanic", "Mixed"])
     language = random.choice(["English", "French", "Mandarin", "Punjabi", "Spanish", "Arabic"])
+    gender = random.choice(["male", "female", "other"])
+    risk_factor = random.choice(["healthcare_worker", "traveler", "military_personnel", None])
+    pregnancy_status = random.choice(["pregnant", "postpartum", None]) if gender == "female" else None
+
     return {
         "resourceType": "Patient",
         "id": patient_id,
         "name": [{"family": faker.last_name(), "given": [faker.first_name(), faker.first_name()]}],
-        "gender": random.choice(["male", "female", "other"]),
+        "gender": gender,
         "birthDate": random_date(datetime(2010, 1, 1), datetime(2020, 12, 31)),
         "address": [
             {
@@ -45,12 +48,17 @@ def create_patient_resource(patient_id):
             }
         ],
         "identifier": [
-            {"system": "http://healthcare.example.org/ids", "value": faker.uuid4()}
+            {"system": "http://healthcare.example.org/ids", "value": faker.uuid4()},
+            {"system": "http://healthcare.example.org/healthcard", "value": faker.bothify("##########")}
         ],
         "extension": [
             {
                 "url": "http://hl7.org/fhir/StructureDefinition/patient-consent",
                 "valueCode": random.choice(["accepted", "declined", "undecided"])
+            },
+            {
+                "url": "http://hl7.org/fhir/StructureDefinition/date-of-consent",
+                "valueDate": random_date(datetime(2020, 1, 1), datetime(2023, 12, 31))
             },
             {
                 "url": "http://hl7.org/fhir/StructureDefinition/patient-ethnicity",
@@ -59,10 +67,19 @@ def create_patient_resource(patient_id):
             {
                 "url": "http://hl7.org/fhir/StructureDefinition/patient-language",
                 "valueString": language
+            },
+            {
+                "url": "http://hl7.org/fhir/StructureDefinition/patient-risk-factor",
+                "valueString": risk_factor
+            },
+            {
+                "url": "http://hl7.org/fhir/StructureDefinition/patient-pregnancy-status",
+                "valueString": pregnancy_status
             }
         ]
     }
 
+# Create an AllergyIntolerance resource
 def create_allergy_resource(patient_id):
     if PT == "on":
         return None
@@ -89,10 +106,18 @@ def create_allergy_resource(patient_id):
         "onsetDateTime": random_date(datetime(2015, 1, 1), datetime(2023, 12, 31))
     }
 
-def create_immunization_resource(patient_id):
+# Create an Immunization resource
+def create_immunization_resource(patient_id, birth_date):
     manufacturer = random.choice(["Pfizer", "Moderna", "AstraZeneca"])
     lot_number = faker.uuid4()[:8].upper()
     site = random.choice(["Left Arm", "Right Arm", "Left Thigh", "Right Thigh"])
+    occurrence_date = random_date(
+        datetime.strptime(birth_date, "%Y-%m-%d") + timedelta(days=365),
+        datetime.today()
+    )
+    exemption_reason = random.choice([None, "RELIG", "MED", "PHIL"])
+    concurrent_vaccine = random.choice(["Influenza", "COVID-19", None])
+
     return {
         "resourceType": "Immunization",
         "patient": {"reference": f"Patient/{patient_id}"},
@@ -101,7 +126,7 @@ def create_immunization_resource(patient_id):
                 {"system": "http://hl7.org/fhir/sid/cvx", "code": "03", "display": "MMR"}
             ]
         },
-        "occurrenceDateTime": random_date(datetime(2021, 1, 1), datetime(2023, 12, 31)),
+        "occurrenceDateTime": occurrence_date,
         "manufacturer": {"display": manufacturer},
         "lotNumber": lot_number,
         "site": {"coding": [{"display": site}]},
@@ -112,28 +137,45 @@ def create_immunization_resource(patient_id):
         "reaction": [
             {
                 "detail": {
-                    "display": random.choice(["Fever", "Rash", "Nausea"])
+                    "coding": [
+                        {
+                            "system": "http://snomed.info/sct",
+                            "code": "271807003",
+                            "display": "Fever"
+                        }
+                    ]
                 },
                 "date": random_date(datetime(2021, 1, 1), datetime(2023, 12, 31))
             }
         ] if random.choice([True, False]) else None,
-        "extension": [] if PT == "on" else [
+        "extension": [
             {
                 "url": "http://hl7.org/fhir/StructureDefinition/immunization-exemption",
                 "valueCodeableConcept": {
                     "coding": [
                         {
                             "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
-                            "code": random.choice(["RELIG", "MED", "PHIL"]),
+                            "code": exemption_reason,
                             "display": random.choice([
                                 "Religious objection",
                                 "Medical contraindication",
                                 "Philosophical objection"
-                            ])
+                            ]) if exemption_reason else None
                         }
-                    ],
-                    "text": faker.sentence()
+                    ]
                 }
+            },
+            {
+                "url": "http://hl7.org/fhir/StructureDefinition/immunization-concurrent-administration",
+                "valueString": concurrent_vaccine
+            },
+            {
+                "url": "http://hl7.org/fhir/StructureDefinition/immunization-expiry-date",
+                "valueDate": random_date(datetime(2023, 1, 1), datetime(2025, 12, 31))
+            },
+            {
+                "url": "http://hl7.org/fhir/StructureDefinition/immunization-reporting-source",
+                "valueString": faker.company()
             }
         ]
     }
@@ -155,23 +197,20 @@ def generate_synthetic_records(num_records):
         patient_id = f"patient-{i+1}"
         patient = create_patient_resource(patient_id)
         allergy = create_allergy_resource(patient_id)
-        immunization = create_immunization_resource(patient_id)
+        immunization = create_immunization_resource(patient_id, patient["birthDate"])
         records.append({"Patient": patient, "Allergy": allergy, "Immunization": immunization})
     return records
 
-# Upload bundle to FHIR server using a persistent session
+# Upload the transaction bundle to the FHIR server
 def upload_to_fhir_server(bundle):
     headers = {"Content-Type": "application/json"}
     max_retries = 3
 
-    # Use a persistent session for efficient connection reuse
     with requests.Session() as session:
-        session.headers.update(headers)  # Set common headers
-
-        # Retry logic with exponential backoff
+        session.headers.update(headers)
         retry_strategy = Retry(
             total=max_retries,
-            backoff_factor=2,  # Wait 1s, 2s, 4s on retries
+            backoff_factor=2,
             status_forcelist=[429, 500, 502, 503, 504],
             method_whitelist=["POST"]
         )
@@ -181,9 +220,9 @@ def upload_to_fhir_server(bundle):
 
         try:
             logging.info("Uploading the bundle to the FHIR server...")
-            response = session.post(FHIR_URL, json=bundle, timeout=(5, 30))  # Add timeouts
+            response = session.post(FHIR_URL, json=bundle, timeout=(5, 30))
             if response.status_code in (200, 201):
-                logging.info(f"Successfully uploaded the bundle to the FHIR server. Response: {response.status_code}")
+                logging.info(f"Successfully uploaded the bundle. Response: {response.status_code}")
                 logging.info(f"Response Content: {response.text}")
             else:
                 logging.error(f"Failed to upload bundle: {response.status_code}")
@@ -191,7 +230,7 @@ def upload_to_fhir_server(bundle):
         except requests.RequestException as e:
             logging.error(f"Error uploading to FHIR server: {e}")
 
-# Main execution remains unchanged
+# Main execution
 if __name__ == "__main__":
     logging.info(f"Generating {NUM_RECORDS} synthetic MMR immunization records...")
     synthetic_records = generate_synthetic_records(NUM_RECORDS)
