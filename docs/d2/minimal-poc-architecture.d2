@@ -64,42 +64,37 @@ pt-a-boundary: Notional PT A Boundary {
       |
     }
 
-    transfer-service: Transfer Service {
+    outbound: Outbound Transfer API {
       icon: ./icons/general/server.svg
       icon.near: bottom-right
 
       explanation: |md
-        - Knows other PTs' transfer service inbound endpoints, has API tokens for them
-        - Validates API tokens for each other PT for access to its own inbound endpoint
-          - For dev/minimal POC purposes, each PT's tokens can be hard coded
+        - Knows other PTs' transfer service inbound endpoints, has API tokens for them  
+        - REST endpoint that takes a patient ID and and receiving PT, initiates a transfer
+        - Collects FHIR records to send (patient, immunization records, adverse reactions, etc. Specifics TBD)
+          - assuming minimal set of records/fields in scope, strip anything out of scope
+        - Sends bundle to inbound API, waits for response from inbound API
+          - on success, flags records in outbound FHIR server as transfered
+          - on either success or failure, responds to original transfer requester
       |
+    }
+    
+    inbound: Inbound Transfer API {
+      icon: ./icons/general/server.svg
+      icon.near: bottom-right
 
-      outbound: Outbound Transfer API {
-        shape: step
-        explanation: |md
-          - REST endpoint that takes a patient ID and and receiving PT, initiates a transfer
-          - Collects FHIR records to send (patient, immunization records, adverse reactions, etc. Specifics TBD)
-            - assuming minimal set of records/fields in scope, strip anything out of scope
-          - Sends bundle to inbound API, waits for response from inbound API
-            - on success, flags records in outbound FHIR server as transfered
-            - on either success or failure, responds to original transfer requester
-        |
-      }
-      
-      inbound: Inbound Transfer API {
-        shape: step
-        explanation: |md
-          - REST endpoint that takes a bundle of inbound FHIR records (patient, immunization records, etc. TBD)
-          - Infers outbound PT from the sender's identity
-          - Validates incoming records, writes via FHIR bulk API (bulk API probably performs validation already, TBC)
-          - Sends success/failure response to outbound PT API
-        |
-      }
+      explanation: |md
+        - REST endpoint that takes a bundle of inbound FHIR records (patient, immunization records, etc. TBD)
+        - Validates API token supplied by requesting outbound service
+        - Infers outbound PT from the sender's validated identity
+        - Validates incoming records, writes via FHIR bulk API (bulk API probably performs validation already, TBC)
+        - Sends success/failure response to outbound PT API
+      |
     }
   }
   iidi-services.aggregation-service -> hapi.server: Read
-  iidi-services.transfer-service.outbound -> hapi.server: Read
-  iidi-services.transfer-service.inbound -> hapi.server: Write
+  iidi-services.outbound -> hapi.server: Read
+  iidi-services.inbound -> hapi.server: Write
 }
 pt-a-boundary.hapi.server -> fhir-synthetic-populator
 
@@ -137,27 +132,24 @@ pt-b-boundary: Notional PT B Boundary {
       shape: image
     }
 
-    transfer-service: Transfer Service {
+    outbound: Outbound Transfer API {
       icon: ./icons/general/server.svg
-      icon.near: bottom-right
-
-      outbound: Outbound Transfer API {
-        shape: step
-      }
-      
-      inbound: Inbound Transfer API {
-        shape: step
-      }
+      shape: image
+    }
+    
+    inbound: Inbound Transfer API {
+      icon: ./icons/general/server.svg
+      shape: image
     }
   }
   iidi-services.aggregation-service -> hapi.server: Read
-  iidi-services.transfer-service.outbound -> hapi.server: Read
-  iidi-services.transfer-service.inbound -> hapi.server: Write
+  iidi-services.outbound -> hapi.server: Read
+  iidi-services.inbound -> hapi.server: Write
 }
 pt-b-boundary.hapi.server -> fhir-synthetic-populator
 
-pt-a-boundary.iidi-services.transfer-service.outbound -> pt-b-boundary.iidi-services.transfer-service.inbound: Transfer
-pt-b-boundary.iidi-services.transfer-service.outbound -> pt-a-boundary.iidi-services.transfer-service.inbound: Transfer
+pt-a-boundary.iidi-services.outbound -> pt-b-boundary.iidi-services.inbound: Transfer
+pt-b-boundary.iidi-services.outbound -> pt-a-boundary.iidi-services.inbound: Transfer
 
 federal-boundary: Notional Federal Boundary {
   style: {
@@ -213,4 +205,4 @@ poc-demo-only-boundary: Demo Components {
   dev -> transfer-dashboard: Demo Access
 }
 poc-demo-only-boundary.consumer-dashboard -> federal-boundary.federated-api: Get federated data
-poc-demo-only-boundary.transfer-dashboard -> pt-a-boundary.iidi-services.transfer-service.outbound: Initiate transfer
+poc-demo-only-boundary.transfer-dashboard -> pt-a-boundary.iidi-services.outbound: Initiate transfer
