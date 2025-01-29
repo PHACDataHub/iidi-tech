@@ -4,6 +4,7 @@ from flask import Flask, jsonify
 from datetime import datetime
 import logging
 import os
+from cachetools import LRUCache
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -14,13 +15,20 @@ app = Flask(__name__)
 # Environment variables
 FHIR_URL = os.getenv("FHIR_URL", "http://localhost:8080/fhir")
 AGGREGATION_INTERVAL = int(os.getenv("AGGREGATION_INTERVAL", 60))  # Default to 60 seconds if not provided
+MIN_COUNT_THRESHOLD = int(os.getenv("MIN_COUNT_THRESHOLD", 1))  # Minimum count threshold for filtering
 
 # Cache variables for aggregation
 cached_data = None
 last_aggregation_time = None
 
-# Patient cache for performance optimization
-patient_cache = {}
+# Patient cache with LRU eviction policy
+patient_cache = LRUCache(maxsize=1000)
+
+
+def validate_environment_variables():
+    """Ensure required environment variables are set."""
+    if not FHIR_URL:
+        raise ValueError("FHIR_URL environment variable is required!")
 
 
 def fetch_fhir_resources(resource_type):
@@ -79,20 +87,29 @@ def calculate_age_group(birth_date):
 def process_immunization_record(immunization):
     """Process a single Immunization record and return data for aggregation."""
     try:
-        patient_ref = immunization["patient"]["reference"]
+        patient_ref = immunization.get("patient", {}).get("reference", None)
+        if not patient_ref:
+            return None  # Skip invalid records
+
         patient = fetch_patient_data(patient_ref)
         if not patient:
             return None
 
+        # Extract doseNumber
+        dose_number = 1  # Default to 1 if not specified
+        protocol_applied = immunization.get("protocolApplied", [])
+        if protocol_applied:
+            dose_number = int(protocol_applied[0].get("doseNumberString", 1))
+
         return {
-            "ReferenceDate": immunization["occurrenceDateTime"].split("T")[0],
+            "ReferenceDate": immunization.get("occurrenceDateTime", "").split("T")[0],
             "Jurisdiction": "BC" if "bc" in FHIR_URL else "ON",
             "Sex": patient.get("gender", "Unknown").capitalize(),
             "AgeGroup": calculate_age_group(patient.get("birthDate", "Unknown")),
-            "DoseCount": 1,  # Each Immunization record represents one dose
+            "DoseCount": dose_number,
         }
-    except KeyError as e:
-        logging.error(f"Missing required field in Immunization record: {e}")
+    except (KeyError, ValueError, IndexError) as e:
+        logging.error(f"Error processing immunization record: {e}")
         return None
 
 
@@ -123,7 +140,18 @@ def aggregate_data():
     # Perform aggregation
     aggregated = df.groupby(
         ["ReferenceDate", "Jurisdiction", "Sex", "AgeGroup"]
-    ).size().reset_index(name="DoseCount")
+    ).agg(
+        DoseCount=("DoseCount", "sum"),  # Sum of doses
+        Count=("DoseCount", "size")  # Count of records
+    ).reset_index()
+
+    # Sorting for readability
+    aggregated = aggregated.sort_values(
+        by=["ReferenceDate", "AgeGroup", "Sex"], ascending=[True, True, True]
+    ).reset_index(drop=True)
+
+    # Filtering groups with low counts
+    aggregated = aggregated[aggregated["Count"] > MIN_COUNT_THRESHOLD]
 
     return aggregated.to_dict(orient="records")
 
@@ -145,9 +173,11 @@ def get_aggregated_data():
 
     return jsonify(aggregated_data)
 
+
 @app.route("/health", methods=["GET"])
 def health_check():
     return jsonify({"status": "healthy"}), 200
 
 if __name__ == "__main__":
+    validate_environment_variables()
     app.run(host="0.0.0.0", port=5000)
