@@ -1,0 +1,22 @@
+steps:
+  - id: build-and-push-if-main
+    name: 'gcr.io/cloud-builders/docker@sha256:4a320eb06b1a8f3abe1243b0aad20ad9d8455f1dbfc032a3d941340622494005'
+    entrypoint: 'bash'
+    dir: ui
+    args:
+      - '-c'
+      - |
+        if [[ "$BRANCH_NAME" == "main" ]]
+        then
+          service_name="synthetic-data"
+          
+          image_name="northamerica-northeast1-docker.pkg.dev/${PROJECT_ID}/paradire/${service_name}"
+          latest_image_tag="${image_name}:latest"
+          unique_image_tag="${image_name}:${BRANCH_NAME}-${COMMIT_SHA:-unknown_sha}-$(date +%s)"
+
+          docker build -t "${latest_image_tag}" -t "${unique_image_tag}" -f ./Dockerfile.prod .
+
+          docker push --all-tags "${unique_image_tag}"
+        else
+          exit 0
+        fi
