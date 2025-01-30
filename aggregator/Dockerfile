@@ -20,7 +20,6 @@ ARG AGGREGATION_INTERVAL=60
 # Set environment variables for Flask and FHIR configuration
 ENV FHIR_URL=$FHIR_URL
 ENV AGGREGATION_INTERVAL=$AGGREGATION_INTERVAL
-
 # Expose the Flask port
 EXPOSE 5000
 
