@@ -59,8 +59,8 @@ services:
     tty: ${DOCKER_TTY:-true}
     restart: always
     build:
-      dockerfile: ./Dockerfile.node-dev
-      context: ./
+      dockerfile: ./node-dev-docker-env/Dockerfile.node-dev
+      context: ./node-dev-docker-env
     volumes:
       - ../TODO-SERVICE-PLACEHOLDER:/home/node-dev/project
       - ../TODO-SERVICE-PLACEHOLDER/.env.dev-public:/home/node-dev/project/.env
