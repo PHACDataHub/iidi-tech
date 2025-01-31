@@ -16,3 +16,6 @@ steps:
     entrypoint: 'npm'
     dir: ./
     args: ['run', 'eslint:ci']
+
+options:
+  logging: CLOUD_LOGGING_ONLY
