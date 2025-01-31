@@ -55,6 +55,20 @@ configs:
 
               proxy_pass http://on-fhir:8080/fhir/;
           }
+          location /on/aggregator/ {
+              # set proxy headers
+              proxy_set_header Host $$host;
+              proxy_set_header X-Real-IP $$remote_addr;
+              proxy_set_header X-Forwarded-For $$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $$scheme;
+              
+              # WebSocket support
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade $$http_upgrade;
+              proxy_set_header Connection "upgrade";
+
+              proxy_pass http://on-aggregator:5000/;
+          }
           location /on/browser/ {
               # set proxy headers
               proxy_set_header Host $$host;
@@ -87,6 +101,20 @@ configs:
               proxy_set_header Connection "upgrade";
 
               proxy_pass http://bc-fhir:8080/fhir/;
+          }
+          location /bc/aggregator/ {
+              # set proxy headers
+              proxy_set_header Host $$host;
+              proxy_set_header X-Real-IP $$remote_addr;
+              proxy_set_header X-Forwarded-For $$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $$scheme;
+              
+              # WebSocket support
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade $$http_upgrade;
+              proxy_set_header Connection "upgrade";
+
+              proxy_pass http://bc-aggregator:5000/;
           }
           location /bc/browser/ {
               # set proxy headers
@@ -177,6 +205,19 @@ services:
       NUM_RECORDS: 100
       PT: on
       FHIR_URL: http://on-fhir:8080/fhir # in this case, resolved inside the container, with container networking
+  on-aggregator: &aggregator-service
+    image: aggregator:1.1
+    tty: ${DOCKER_TTY:-true}
+    restart: always
+    build:
+      context: ./aggregator
+    networks:
+      - on-internal
+    ports:
+      - 5000:5000
+    environment:
+      AGGREGATION_INTERVAL: 60
+      FHIR_URL: http://on-fhir:8080/fhir # in this case, resolved inside the container, with container networking
   on-patient-browser: &patient-browser-service
     image: patient-browser:1.1
     tty: ${DOCKER_TTY:-true}
@@ -215,6 +256,13 @@ services:
     environment:
       NUM_RECORDS: 100
       PT: bc
+      FHIR_URL: http://bc-fhir:8080/fhir # in this case, resolved inside the container, with container networking
+  bc-aggregator:
+    <<: *aggregator-service
+    networks:
+      - bc-internal
+    environment:
+      AGGREGATION_INTERVAL: 60
       FHIR_URL: http://bc-fhir:8080/fhir # in this case, resolved inside the container, with container networking
   bc-patient-browser:
     <<: *patient-browser-service
