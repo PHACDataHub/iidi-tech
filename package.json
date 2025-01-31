@@ -22,8 +22,8 @@
     "eslint:fix": "eslint --fix . || true",
     "posteslint:fix": "npm run prettier:write",
     "typecheck:TODO-SERVICE-PLACEHOLDER-1": "cd ./TODO-SERVICE-PLACEHOLDER-1 && npm run typecheck",
-    "typecheck:TODO-SERVICE-PLACEHOLDER-2": "cd ./TODO-SERVICE-PLACEHOLDER-1&& npm run typecheck",
-    "typecheck": "trap 'RC=1' ERR; npm run typecheck:TODO-SERVICE-PLACEHOLDER-1; npm run typecheck:TODO-SERVICE-PLACEHOLDER-1; exit $RC"
+    "typecheck:TODO-SERVICE-PLACEHOLDER-2": "cd ./TODO-SERVICE-PLACEHOLDER-2 && npm run typecheck",
+    "typecheck": "trap 'RC=1' ERR; npm run typecheck:TODO-SERVICE-PLACEHOLDER-1; npm run typecheck:TODO-SERVICE-PLACEHOLDER-2; exit $RC"
   },
   "devDependencies": {
     "@eslint/compat": "^1.2.4",
