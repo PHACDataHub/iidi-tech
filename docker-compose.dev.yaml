@@ -4,6 +4,12 @@ version: '3.8'
 # are prefixed by the compose file's project name https://docs.docker.com/compose/how-tos/networking/
 name: iidi
 
+volumes:
+  on-fhir-db:
+    driver: local
+  bc-fhir-db:
+    driver: local
+
 networks:
   host-loopback:
     driver: bridge
@@ -14,9 +20,18 @@ networks:
       # Configuring this network to bind on loopback instead, so that only incoming traffic from the host machine
       # can reach our containers on their dev ports
       com.docker.network.bridge.host_binding_ipv4: '127.0.0.1'
-  cluster-internal:
-    # For self-contained containers that neither need to talk to the internet, (e.g. databases) nor the host machine (e.g. dev databases).
-    # If/when access is needed, e.g. to run scripts inside a dev DB, run docker compose with a shell attached to that cluster directly
+  on-fhir-db:
+    # If/when access is needed, run docker compose with a shell attached to the db cluster directly, don't open to host network
+    driver: bridge
+    internal: true
+  on-internal:
+    driver: bridge
+    internal: true
+  bc-fhir-db:
+    # If/when access is needed, run docker compose with a shell attached to the db cluster directly, don't open to host network
+    driver: bridge
+    internal: true
+  bc-internal:
     driver: bridge
     internal: true
 
@@ -26,7 +41,8 @@ configs:
     # Note: double $'s (`$$`) below are escaped single $'s, to avoid docker compose variable interpolation
     content: |
       server {
-          location /example {
+          location /on/fhir/ {
+              # set proxy headers
               proxy_set_header Host $$host;
               proxy_set_header X-Real-IP $$remote_addr;
               proxy_set_header X-Forwarded-For $$proxy_add_x_forwarded_for;
@@ -37,9 +53,63 @@ configs:
               proxy_set_header Upgrade $$http_upgrade;
               proxy_set_header Connection "upgrade";
 
-              proxy_pass http://TODO-SERVICE-PLACEHOLDER:8080;
+              proxy_pass http://on-fhir:8080/fhir/;
+          }
+          location /on/browser/ {
+              # set proxy headers
+              proxy_set_header Host $$host;
+              proxy_set_header X-Real-IP $$remote_addr;
+              proxy_set_header X-Forwarded-For $$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $$scheme;
+              
+              # WebSocket support
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade $$http_upgrade;
+              proxy_set_header Connection "upgrade";
+
+              # fix relative paths in returned HTML/JS/CSS
+              # necessary for the patient browser as it doesn't let us directly configure a server root like the fhir servers do
+              sub_filter_once off; sub_filter_types *;
+              sub_filter '/assets' '/on/browser/assets';
+              sub_filter '/images' '/on/browser/images';
+              proxy_pass http://on-patient-browser:80/;
+          }
+          location /bc/fhir/ {
+              # set proxy headers
+              proxy_set_header Host $$host;
+              proxy_set_header X-Real-IP $$remote_addr;
+              proxy_set_header X-Forwarded-For $$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $$scheme;
+              
+              # WebSocket support
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade $$http_upgrade;
+              proxy_set_header Connection "upgrade";
+
+              proxy_pass http://bc-fhir:8080/fhir/;
+          }
+          location /bc/browser/ {
+              # set proxy headers
+              proxy_set_header Host $$host;
+              proxy_set_header X-Real-IP $$remote_addr;
+              proxy_set_header X-Forwarded-For $$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $$scheme;
+              
+              # WebSocket support
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade $$http_upgrade;
+              proxy_set_header Connection "upgrade";
+
+              # fix relative paths in returned HTML/JS/CSS
+              # necessary for the patient browser as it doesn't let us directly configure a server root like the fhir servers do
+              sub_filter_once off; sub_filter_types *;
+              sub_filter '/assets' '/bc/browser/assets';
+              sub_filter '/images' '/bc/browser/images';
+              proxy_pass http://bc-patient-browser:80/;
           }
       }
+  hapi:
+    file: ./hapi-dev.application.yaml
 
 services:
   gateway:
@@ -48,24 +118,107 @@ services:
     restart: always
     networks:
       - host-loopback
+      - on-internal
+      - bc-internal
     ports:
-      - '8080:80'
+      - 8080:80
     configs:
       - source: gateway.default.conf
         target: /etc/nginx/conf.d/default.conf
 
-  TODO-SERVICE-PLACEHOLDER:
-    image: node-dev:1.0
+  on-fhir-db: &fhir-db-service
+    image: postgres:14.11-alpine
+    tty: ${DOCKER_TTY:-true}
+    restart: always
+    networks:
+      - on-fhir-db
+    ports:
+      - 5432:5432
+    volumes:
+      - on-fhir-db:/var/lib/postgresql/data
+    environment: &fhir-db-env
+      POSTGRES_DB: hapi-fhir-db
+      POSTGRES_USER: hapi-fhir-db
+      POSTGRES_PASSWORD: local-dev-value
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U hapi-fhir-db -d hapi-fhir-db']
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
+  on-fhir: &fhir-service
+    image: hapiproject/hapi:latest
+    tty: ${DOCKER_TTY:-true}
+    restart: always
+    networks:
+      - on-fhir-db
+      - on-internal
+    ports:
+      - 8080:8080
+    configs:
+      - source: hapi
+        target: /app/config/application.yaml
+    environment:
+      # NOTE: the env vars below are interpolated in to the hapi application.yaml at run time
+      # If you add any env vars for other purposes, put them above this comment, to keep track of things
+      <<: *fhir-db-env
+      DB_PORT: 5432
+      DB_HOST: on-fhir-db
+      FHIR_SERVER_ADDRESS: http://localhost:8080/on/fhir # see proxy address via gateway.default.conf
+  on-synthesizer: &synthesizer-service
+    image: synthesizer:1.1
+    tty: ${DOCKER_TTY:-true}
+    restart: on-failure # reattempt until successful
+    build:
+      context: ./synthesizer
+    networks:
+      - on-internal
+    environment:
+      NUM_RECORDS: 100
+      PT: on
+      FHIR_URL: http://on-fhir:8080/fhir # in this case, resolved inside the container, with container networking
+  on-patient-browser: &patient-browser-service
+    image: patient-browser:1.1
     tty: ${DOCKER_TTY:-true}
     restart: always
     build:
-      dockerfile: ./node-dev-docker-env/Dockerfile.node-dev
-      context: ./node-dev-docker-env
-    volumes:
-      - ../TODO-SERVICE-PLACEHOLDER:/home/node-dev/project
-      - ../TODO-SERVICE-PLACEHOLDER/.env.dev-public:/home/node-dev/project/.env
-    command: npm run dev
+      context: ./patient-browser
     networks:
-      - host-loopback
+      - on-internal
     ports:
-      - 8000:8080
+      - 80:80
+    environment:
+      FHIR_URL: http://localhost:8080/on/fhir/ # in this case, resolved in the host browser, not container networking, see gateway.default.conf
+
+  bc-fhir-db:
+    <<: *fhir-db-service
+    networks:
+      - bc-fhir-db
+    volumes:
+      - bc-fhir-db:/var/lib/postgresql/data
+  bc-fhir:
+    <<: *fhir-service
+    networks:
+      - bc-fhir-db
+      - bc-internal
+    ports:
+      - 8080:8080
+    environment:
+      <<: *fhir-db-env
+      DB_PORT: 5432
+      DB_HOST: bc-fhir-db
+      FHIR_SERVER_ADDRESS: http://localhost:8080/bc/fhir # see proxy address via gateway.default.conf
+  bc-synthesizer:
+    <<: *synthesizer-service
+    networks:
+      - bc-internal
+    environment:
+      NUM_RECORDS: 100
+      PT: bc
+      FHIR_URL: http://bc-fhir:8080/fhir # in this case, resolved inside the container, with container networking
+  bc-patient-browser:
+    <<: *patient-browser-service
+    networks:
+      - bc-internal
+    environment:
+      FHIR_URL: http://localhost:8080/bc/fhir/ # in this case, resolved in the host browser, not container networking, see gateway.default.conf
