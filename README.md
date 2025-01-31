@@ -6,19 +6,44 @@ TODO
 
 ## Development quickstart
 
-Prerequisites:
+### Prerequisites
 
-- Node v22 (v18 may be sufficient)
 - Docker v27 (older versions may be sufficient, unverified)
-- VSCode (not strictly required, other editors could be used, but assumed in future steps)
+- Optional:
+  - Node v22
+    - v18 may be sufficient
+    - not strictly required. At the moment, it's mainly to run the script shorthands inside the root `package.json`. If you don't have Node, anywhere you see a `npm run <command>` statement below, you can look up `<command>` in package.json and run the corresponding terminal command directly (does not apply to shorthands for further `node ...` or `npm ...` commands obviously, but those are currently optional)
+  - VSCode
+    - not strictly required, other editors could be used, but assumed in future steps
 
-Quickstart:
+### Quickstart Steps
 
 - Clone repository locally
-- Run `npm run ci:all` in the repo root, to install all project and service dependencies
-- Install recommended vscode exstensions (see `.vscode/extensions.json`)
+- Open a terminal inside the repo root
+- (Optional) run `npm run ci:all` in the repo root, to install all project and service dependencies
+- (Optional) install recommended vscode exstensions (see `.vscode/extensions.json`)
 - Start the local dev docker-compose environment with `npm run dev` from the repo root
-
-At this point, all services should be available on `localhost`, at the ports configured in `dev_docker_env/docker-compose.dev.yaml`. Services running in the docker-compose envrionment will reboot/rebuild/reinstal when changes are made to their corresponding `.env.dev-public`, `package-lock.json` and `src` files on your local filesystem, to provide a live-development experience. Restarting the docker-compose environment will clear any persistent data, and should only be necessary when that is desired (TODO: specifics on this are pending whether we actually have any persistent components).
-
-To run with node debuggers attached, use `npm run dev:debug` (TODO: this and other variations are pending the specifics of our service architecture).
+  - or manually run the `predev` and `dev` commands as defined in the root `package.json`
+- Wait for docker-compose services to finish spinning up
+- The following routes should now be available
+  - Mock Ontario Services
+    - http://localhost:8080/on/fhir
+      - a HAPI FHIR JPA server, loaded with synthetic data
+    - http://localhost:8080/on/browser
+      - a FHIR patient browser pointed at the corresponding mock FHIR server
+    - http://localhost:8080/on/aggregator/aggregated-data
+      - REST endpoint for IPVD-format-compliant aggregated records from the corresponding mock FHIR server
+    - transfer routes TBD
+  - Mock B.C. Services
+    - http://localhost:8080/bc/fhir
+      - a HAPI FHIR JPA server, loaded with synthetic data
+    - http://localhost:8080/bc/browser
+      - a FHIR patient browser pointed at the corresponding mock FHIR server
+    - http://localhost:8080/bc/aggregator/aggregated-data
+      - REST endpoint for IPVD-format-compliant aggregated records from the corresponding mock FHIR server
+    - transfer routes TBD
+  - Mock Federal Services
+    - http://localhost:8080/fed/federated-aggregator/aggregated-data
+      - not yet implemented
+    - http://localhost:8080/fed/shiny-dashboard
+      - not yet implemented
