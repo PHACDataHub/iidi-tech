@@ -227,8 +227,10 @@ def upload_to_fhir_server(bundle):
             else:
                 logging.error(f"Failed to upload bundle: {response.status_code}")
                 logging.error(f"Response Content: {response.text}")
+                exit(1)
         except requests.RequestException as e:
             logging.error(f"Error uploading to FHIR server: {e}")
+            exit(1)
 
 # Main execution
 if __name__ == "__main__":
