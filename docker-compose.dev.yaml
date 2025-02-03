@@ -94,6 +94,35 @@ configs:
               sub_filter '/images' '/on/browser/images';
               proxy_pass http://on-patient-browser:80/;
           }
+          location /on/inbound/ {
+              # set proxy headers
+              proxy_set_header Host $$host;
+              proxy_set_header X-Real-IP $$remote_addr;
+              proxy_set_header X-Forwarded-For $$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $$scheme;
+              
+              # WebSocket support
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade $$http_upgrade;
+              proxy_set_header Connection "upgrade";
+
+              proxy_pass http://on-transfer-inbound:3001/;
+          }
+          location /on/outbound/ {
+              # set proxy headers
+              proxy_set_header Host $$host;
+              proxy_set_header X-Real-IP $$remote_addr;
+              proxy_set_header X-Forwarded-For $$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $$scheme;
+              
+              # WebSocket support
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade $$http_upgrade;
+              proxy_set_header Connection "upgrade";
+
+              proxy_pass http://on-transfer-outbound:3002/;
+          }
+
           location /bc/fhir/ {
               # set proxy headers
               proxy_set_header Host $$host;
@@ -140,6 +169,49 @@ configs:
               sub_filter '/assets' '/bc/browser/assets';
               sub_filter '/images' '/bc/browser/images';
               proxy_pass http://bc-patient-browser:80/;
+          }
+          location /bc/inbound/ {
+              # set proxy headers
+              proxy_set_header Host $$host;
+              proxy_set_header X-Real-IP $$remote_addr;
+              proxy_set_header X-Forwarded-For $$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $$scheme;
+              
+              # WebSocket support
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade $$http_upgrade;
+              proxy_set_header Connection "upgrade";
+
+              proxy_pass http://bc-transfer-inbound:3003/;
+          }
+          location /bc/outbound/ {
+              # set proxy headers
+              proxy_set_header Host $$host;
+              proxy_set_header X-Real-IP $$remote_addr;
+              proxy_set_header X-Forwarded-For $$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $$scheme;
+              
+              # WebSocket support
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade $$http_upgrade;
+              proxy_set_header Connection "upgrade";
+
+              proxy_pass http://bc-transfer-outbound:3004/;
+          }
+
+          location /fed/federator/ {
+              # set proxy headers
+              proxy_set_header Host $$host;
+              proxy_set_header X-Real-IP $$remote_addr;
+              proxy_set_header X-Forwarded-For $$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $$scheme;
+              
+              # WebSocket support
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade $$http_upgrade;
+              proxy_set_header Connection "upgrade";
+
+              proxy_pass http://federator:3000/;
           }
       }
   hapi:
@@ -238,6 +310,46 @@ services:
       - 80:80
     environment:
       FHIR_URL: http://localhost:8080/on/fhir/ # in this case, resolved in the host browser, not container networking, see gateway.default.conf
+  on-transfer-inbound: &transfer-inbound-service
+    image: node-dev:1.0
+    tty: ${DOCKER_TTY:-true}
+    restart: always
+    build:
+      context: ./node-dev-docker-env
+      dockerfile: ./Dockerfile.node-dev
+    volumes:
+      - ./transfer-inbound:/home/node-dev/project
+      - ./transfer-inbound/.env.dev-public:/home/node-dev/project/.env
+    command: npm run dev:${DOCKER_API_COMMAND:-docker} # 'docker' or 'docker-debug'
+    networks:
+      - gateway
+      - on-internal
+        # node-dev images need to reach the internet for installing packages at run time, and to surface debug servers directly.
+        # For docker networking and prod-parity purposes, service-to-service communications should still go through the nginx gateway
+      - host-loopback
+    ports:
+      - 3001:3000
+      - 9231:9229 # for the node debug server, when active; see node-dev-docker-env/package.json `dev:docker-debug` script
+  on-transfer-outbound: &transfer-outbound-service
+    image: node-dev:1.0
+    tty: ${DOCKER_TTY:-true}
+    restart: always
+    build:
+      context: ./node-dev-docker-env
+      dockerfile: ./Dockerfile.node-dev
+    volumes:
+      - ./transfer-outbound:/home/node-dev/project
+      - ./transfer-outbound/.env.dev-public:/home/node-dev/project/.env
+    command: npm run dev:${DOCKER_API_COMMAND:-docker} # 'docker' or 'docker-debug'
+    networks:
+      - gateway
+      - on-internal
+        # node-dev images need to reach the internet for installing packages at run time, and to surface debug servers directly.
+        # For docker networking and prod-parity purposes, service-to-service communications should still go through the nginx gateway
+      - host-loopback
+    ports:
+      - 3002:3000
+      - 9232:9229 # for the node debug server, when active; see node-dev-docker-env/package.json `dev:docker-debug` script
 
   bc-fhir-db:
     <<: *fhir-db-service
@@ -281,6 +393,28 @@ services:
       - bc-internal
     environment:
       FHIR_URL: http://localhost:8080/bc/fhir/ # in this case, resolved in the host browser, not container networking, see gateway.default.conf
+  bc-transfer-inbound:
+    <<: *transfer-inbound-service
+    command: npm run dev # note: only opening debug ports on the ON services
+    networks:
+      - gateway
+      - bc-internal
+        # node-dev images need to reach the internet for installing packages at run time, and to surface debug servers directly.
+        # For docker networking and prod-parity purposes, service-to-service communications should still go through the nginx gateway
+      - host-loopback
+    ports:
+      - 3003:3000
+  bc-transfer-outbound:
+    <<: *transfer-outbound-service
+    command: npm run dev # note: only opening debug ports on the ON services
+    networks:
+      - gateway
+      - bc-internal
+        # node-dev images need to reach the internet for installing packages at run time, and to surface debug servers directly.
+        # For docker networking and prod-parity purposes, service-to-service communications should still go through the nginx gateway
+      - host-loopback
+    ports:
+      - 3004:3000
 
   federator:
     image: node-dev:1.0

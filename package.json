@@ -22,7 +22,9 @@
     "eslint:fix": "eslint --fix . || true",
     "posteslint:fix": "npm run prettier:write",
     "typecheck:federator": "cd ./federator && npm run typecheck",
-    "typecheck": "trap 'RC=1' ERR; npm run typecheck:federator; exit $RC"
+    "typecheck:transfer-inbound": "cd ./transfer-inbound && npm run typecheck",
+    "typecheck:transfer-outbound": "cd ./transfer-outbound && npm run typecheck",
+    "typecheck": "trap 'RC=1' ERR; npm run typecheck:federator; npm run typecheck:transfer-inbound; npm run typecheck:transfer-outbound; exit $RC"
   },
   "devDependencies": {
     "@eslint/compat": "^1.2.4",
