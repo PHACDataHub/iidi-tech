@@ -1,0 +1,4 @@
+{
+  "watch": ["./src/**", "./package-lock.json", "./.env*", "./tsconfig.json"],
+  "ignore": ["./**/__test__/**"]
+}
