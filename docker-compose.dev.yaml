@@ -20,6 +20,9 @@ networks:
       # Configuring this network to bind on loopback instead, so that only incoming traffic from the host machine
       # can reach our containers on their dev ports
       com.docker.network.bridge.host_binding_ipv4: '127.0.0.1'
+  gateway:
+    driver: bridge
+    internal: true
   on-fhir-db:
     # If/when access is needed, run docker compose with a shell attached to the db cluster directly, don't open to host network
     driver: bridge
@@ -32,6 +35,9 @@ networks:
     driver: bridge
     internal: true
   bc-internal:
+    driver: bridge
+    internal: true
+  federal-internal:
     driver: bridge
     internal: true
 
@@ -145,9 +151,8 @@ services:
     tty: ${DOCKER_TTY:-true}
     restart: always
     networks:
+      - gateway
       - host-loopback
-      - on-internal
-      - bc-internal
     ports:
       - 8080:80
     configs:
@@ -179,6 +184,7 @@ services:
     tty: ${DOCKER_TTY:-true}
     restart: always
     networks:
+      - gateway
       - on-fhir-db
       - on-internal
     ports:
@@ -212,6 +218,7 @@ services:
     build:
       context: ./aggregator
     networks:
+      - gateway
       - on-internal
     ports:
       - 5000:5000
@@ -225,6 +232,7 @@ services:
     build:
       context: ./patient-browser
     networks:
+      - gateway
       - on-internal
     ports:
       - 80:80
@@ -240,6 +248,7 @@ services:
   bc-fhir:
     <<: *fhir-service
     networks:
+      - gateway
       - bc-fhir-db
       - bc-internal
     ports:
@@ -260,6 +269,7 @@ services:
   bc-aggregator:
     <<: *aggregator-service
     networks:
+      - gateway
       - bc-internal
     environment:
       AGGREGATION_INTERVAL: 60
@@ -267,6 +277,31 @@ services:
   bc-patient-browser:
     <<: *patient-browser-service
     networks:
+      - gateway
       - bc-internal
     environment:
       FHIR_URL: http://localhost:8080/bc/fhir/ # in this case, resolved in the host browser, not container networking, see gateway.default.conf
+
+  federator:
+    image: node-dev:1.0
+    tty: ${DOCKER_TTY:-true}
+    restart: always
+    build:
+      context: ./node-dev-docker-env
+      dockerfile: ./Dockerfile.node-dev
+    volumes:
+      - ./federator:/home/node-dev/project
+      - ./federator/.env.dev-public:/home/node-dev/project/.env
+    command: npm run dev:${DOCKER_API_COMMAND:-docker} # 'docker' or 'docker-debug'
+    networks:
+      - gateway
+      - federal-internal
+        # node-dev images need to reach the internet for installing packages at run time, and to surface debug servers directly.
+        # For docker networking and prod-parity purposes, service-to-service communications should still go through the nginx gateway
+      - host-loopback
+    ports:
+      - 3000:3000
+      - 9229:9229 # for the node debug server, when active; see node-dev-docker-env/package.json `dev:docker-debug` script
+    environment:
+      EXPRESS_PORT: 3000
+      AGGREGATOR_URLS: 'http://gateway/on/aggregator,http://gateway/bc/aggregator'
