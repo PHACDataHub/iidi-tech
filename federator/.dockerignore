@@ -5,7 +5,6 @@ coverage
 .*rc
 Dockerfile.*
 README.md
-dev-db-init.js
 nodemon.json
 .eslintrc
 jest.config.ts
