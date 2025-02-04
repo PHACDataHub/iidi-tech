@@ -6,3 +6,6 @@
 
 # TODO: May want to let prettier format any non-generated/non-third-party k8s manifests, to enforce consistent formatting
 k8s/**
+
+# treating as an external artifact, not written or maintained by us
+patient-browser/default.json5
