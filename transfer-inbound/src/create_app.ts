@@ -21,7 +21,7 @@ export const create_app = async () => {
 
   app.get('/healthcheck', (_req, res) => {
     // TODO consider if a non-trivial healthcheck is appropriate/useful
-    res.send(200);
+    res.status(200).send();
   });
 
   // TODO service-specific-endpoints-go-here
