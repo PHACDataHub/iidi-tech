@@ -32,9 +32,9 @@ steps:
           latest_image_tag="${image_name}:latest"
           unique_image_tag="${image_name}:${BRANCH_NAME}-${COMMIT_SHA:-unknown_sha}-$(date +%s)"
 
-          docker build -t "${latest_image_tag}" -t "${unique_image_tag}" -f ./Dockerfile.prod .
+          docker build -t "${latest_image_tag}" -t "${unique_image_tag}" -f ./Dockerfile .
 
-          docker push --all-tags "${unique_image_tag}"
+          docker push --all-tags "${image_name}"
         else
           exit 0
         fi
