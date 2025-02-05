@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import { create_app } from './create_app.ts';
 import { get_env } from './env.ts';
 
-dotenv.config({ path: '.env' }); // relative to the call point, e.g. the service root
+dotenv.config({ path: '.env', override: true }); // relative to the call point, e.g. the service root
 
 const { EXPRESS_HOST, EXPRESS_PORT } = get_env();
 
