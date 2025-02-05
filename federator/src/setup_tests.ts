@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 
-dotenv.config({ path: '.env.dev-public' }); // relative to the call point, e.g. the service root
+dotenv.config({ path: '.env.node-dev-docker-env-overrides' }); // relative to the call point, e.g. the service root
 process.env.DEV_IS_TEST_ENV = 'true';
 
 // placeholder so env.ts' validation passes by default. Individual tests that depend on a specific AGGREGATOR_URLS

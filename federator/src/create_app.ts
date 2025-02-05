@@ -1,15 +1,10 @@
 import express from 'express';
 
 import { get_env } from './env.ts';
-import { expressErrorHandler } from './error_utils.ts';
+import { AppError, expressErrorHandler } from './error_utils.ts';
 
 export const create_app = async () => {
-  const { DEV_IS_LOCAL_ENV } = get_env();
-
-  // TODO delete later, just here so the TS compiler doesn't complain about DEV_IS_LOCAL_ENV being unused.
-  // I want the get_env import and usage demonstrated here, which is why I'm leaving it in when it's not
-  // yet used
-  console.log(`DEV_IS_LOCAL_ENV: ${DEV_IS_LOCAL_ENV}`);
+  const { AGGREGATOR_URLS } = get_env();
 
   const app = express();
 
@@ -21,10 +16,46 @@ export const create_app = async () => {
 
   app.get('/healthcheck', (_req, res) => {
     // TODO consider if a non-trivial healthcheck is appropriate/useful
-    res.send(200);
+    res.status(200).send();
   });
 
-  // TODO service-specific-endpoints-go-here
+  app.get('/aggregates/all', async (_req, res) => {
+    const aggregator_results = await Promise.allSettled(
+      AGGREGATOR_URLS.map(async (url) => {
+        const aggregator_endpoint = `${url}/aggregated-data`;
+
+        const response = await fetch(aggregator_endpoint);
+
+        if (response.status === 200) {
+          const aggregated_data = await response.json();
+
+          // TODO assert expected format of aggregate_data, enforcing a more meaningful type here
+          return aggregated_data as any[];
+        } else {
+          throw new AppError(
+            response.status,
+            `Aggregator at ${aggregator_endpoint} responded with non-200 code (${response.status})`,
+          );
+        }
+      }),
+    );
+
+    const processed_aggregates = aggregator_results.reduce<{
+      data: any[]; // TODO better typing as part of data format validation
+      errors: string[];
+    }>(
+      ({ data, errors }, result) =>
+        result.status === 'fulfilled'
+          ? { data: [...data, ...result.value], errors }
+          : { data, errors: [...errors, result.reason.message] },
+      { data: [], errors: [] },
+    );
+
+    res
+      .type('json')
+      .status(processed_aggregates.errors.length === 0 ? 200 : 500)
+      .send(processed_aggregates);
+  });
 
   app.use(expressErrorHandler);
 
