@@ -67,10 +67,10 @@ def fetch_patient_data(patient_reference):
         return None
 
 
-def calculate_age_group(birth_date):
+def calculate_age_group(birth_date, reference_date: datetime.now()):
     """Calculate age group based on birthDate."""
     try:
-        age = (datetime.now() - datetime.strptime(birth_date, "%Y-%m-%d")).days // 365
+        age = (reference_date - datetime.strptime(birth_date, "%Y-%m-%d")).days // 365
         if age < 2:
             return "0-2 years"
         elif age < 5:
@@ -84,7 +84,7 @@ def calculate_age_group(birth_date):
         return "Unknown"
 
 
-def process_immunization_record(immunization):
+def process_immunization_record(immunization, reference_date: datetime.now()):
     """Process a single Immunization record and return data for aggregation."""
     try:
         patient_ref = immunization.get("patient", {}).get("reference", None)
@@ -102,10 +102,10 @@ def process_immunization_record(immunization):
             dose_number = int(protocol_applied[0].get("doseNumberString", 1))
 
         return {
-            "ReferenceDate": immunization.get("occurrenceDateTime", "").split("T")[0],
+            "ReferenceDate": reference_date.strftime('%Y-%m-%d'),
             "Jurisdiction": "BC" if "bc" in FHIR_URL else "ON",
             "Sex": patient.get("gender", "Unknown").capitalize(),
-            "AgeGroup": calculate_age_group(patient.get("birthDate", "Unknown")),
+            "AgeGroup": calculate_age_group(patient.get("birthDate", "Unknown"), reference_date),
             "DoseCount": dose_number,
         }
     except (KeyError, ValueError, IndexError) as e:
@@ -113,7 +113,7 @@ def process_immunization_record(immunization):
         return None
 
 
-def aggregate_data():
+def aggregate_data(reference_date: datetime.now()):
     """Fetch and aggregate data from the FHIR server."""
     # Fetch Immunization resources
     logging.info("Fetching Immunization resources...")
@@ -126,7 +126,7 @@ def aggregate_data():
     records = []
     for entry in immunizations:
         immunization = entry.get("resource", {})
-        processed_record = process_immunization_record(immunization)
+        processed_record = process_immunization_record(immunization, reference_date)
         if processed_record:
             records.append(processed_record)
 
@@ -161,13 +161,16 @@ def get_aggregated_data():
     """API endpoint to return aggregated data."""
     global cached_data, last_aggregation_time
 
-    current_time = datetime.now().timestamp()
+    # Consistent reference date for use across the processing of this request
+    reference_date = datetime.now()
+
+    current_time = reference_date.timestamp()
     if cached_data and last_aggregation_time and (current_time - last_aggregation_time < AGGREGATION_INTERVAL):
         logging.info("Returning cached aggregated data...")
         return jsonify(cached_data)
 
     logging.info("Calculating new aggregated data...")
-    aggregated_data = aggregate_data()
+    aggregated_data = aggregate_data(reference_date)
     cached_data = aggregated_data
     last_aggregation_time = current_time
 
