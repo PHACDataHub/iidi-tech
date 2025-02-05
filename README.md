@@ -44,6 +44,6 @@ TODO
     - transfer routes TBD
   - Mock Federal Services
     - http://localhost:8080/fed/federated-aggregator/aggregated-data
-      - not yet implemented
+      - REST endpoint for IPVD-format-compliant aggregated records, federated from each PT aggregator
     - http://localhost:8080/fed/shiny-dashboard
       - not yet implemented

@@ -19,7 +19,7 @@ export const create_app = async () => {
     res.status(200).send();
   });
 
-  app.get('/aggregates/all', async (_req, res) => {
+  app.get('/aggregated-data', async (_req, res) => {
     const aggregator_results = await Promise.allSettled(
       AGGREGATOR_URLS.map(async (url) => {
         const aggregator_endpoint = `${url}/aggregated-data`;
