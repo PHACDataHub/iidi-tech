@@ -1,7 +1,9 @@
 import express from 'express';
 
+import { is_valid_aggregated_data } from './aggregation_validation_utils.ts';
+import type { AggregationGroupedData } from './aggregation_validation_utils.ts';
 import { get_env } from './env.ts';
-import { AppError, expressErrorHandler } from './error_utils.ts';
+import { expressErrorHandler } from './error_utils.ts';
 
 export const create_app = async () => {
   const { AGGREGATOR_URLS } = get_env();
@@ -29,11 +31,15 @@ export const create_app = async () => {
         if (response.status === 200) {
           const aggregated_data = await response.json();
 
-          // TODO assert expected format of aggregate_data, enforcing a more meaningful type here
-          return aggregated_data as any[];
+          if (is_valid_aggregated_data(aggregated_data)) {
+            return aggregated_data;
+          } else {
+            throw new Error(
+              `Aggregator at ${aggregator_endpoint} responded with incorrectly formatted data`,
+            );
+          }
         } else {
-          throw new AppError(
-            response.status,
+          throw new Error(
             `Aggregator at ${aggregator_endpoint} responded with non-200 code (${response.status})`,
           );
         }
@@ -41,7 +47,7 @@ export const create_app = async () => {
     );
 
     const processed_aggregates = aggregator_results.reduce<{
-      data: any[]; // TODO better typing as part of data format validation
+      data: AggregationGroupedData[];
       errors: string[];
     }>(
       ({ data, errors }, result) =>

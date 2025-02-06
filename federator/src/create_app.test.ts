@@ -108,6 +108,8 @@ describe('create_app', () => {
     });
 
     it('Handles errors per-endpoint, returns what data it can alongside any error messages', async () => {
+      // TODO add coverage for invalid data case
+
       const pt_1_test_url = 'https://pt-1/aggregator';
       const pt_1_test_response_data = [
         {
