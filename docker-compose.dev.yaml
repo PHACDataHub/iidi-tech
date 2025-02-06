@@ -439,3 +439,16 @@ services:
     environment:
       EXPRESS_PORT: 3000
       AGGREGATOR_URLS: 'http://gateway/on/aggregator,http://gateway/bc/aggregator'
+  dashboard:
+    image: rshiny-dashboard:1.0
+    tty: ${DOCKER_TTY:-true}
+    restart: always
+    build:
+      context: ./rshiny-dashboard
+    networks:
+      - on-internal
+      - host-loopback
+    ports:
+      - 3838:3838
+    environment:
+      AGGREGATOR_URL: http://on-aggregator:5000/aggregated-data

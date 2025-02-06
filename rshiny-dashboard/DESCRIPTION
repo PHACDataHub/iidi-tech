@@ -1,0 +1,10 @@
+Package: iidi-dashboard
+Title: IIDI Immunization Coverage Dashboard
+Version: 0.1.0
+Depends: R (>= 4.3.0)
+Imports:
+    shiny,
+    ggplot2,
+    httr,
+    jsonlite,
+    shinythemes
