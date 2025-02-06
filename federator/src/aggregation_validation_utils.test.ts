@@ -14,6 +14,7 @@ const valid_sample_data = [
     DoseCount: 4,
     Jurisdiction: expected_jurisdictions[0],
     ReferenceDate: '2025-02-05',
+    OccurenceYear: '2025',
     Sex: expected_sexes[0],
   },
   {
@@ -23,6 +24,7 @@ const valid_sample_data = [
     Jurisdiction:
       expected_jurisdictions[_.random(1, expected_jurisdictions.length - 1)],
     ReferenceDate: '2025-03-06',
+    OccurenceYear: '2024',
     Sex: expected_sexes[_.random(1, expected_sexes.length - 1)],
   },
 ];
@@ -72,6 +74,14 @@ describe('is_valid_aggregated_data', () => {
     ];
     expect(
       is_valid_aggregated_data(sample_with_invalid_reference_date_format),
+    ).toBe(false);
+
+    const sample_with_invalid_occurence_year_format = [
+      ...valid_sample_data,
+      { ...valid_sample_data[0], ReferenceDate: '2025/22/02' },
+    ];
+    expect(
+      is_valid_aggregated_data(sample_with_invalid_occurence_year_format),
     ).toBe(false);
 
     const sample_with_invalid_sex = [

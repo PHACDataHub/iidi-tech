@@ -1,7 +1,33 @@
 import _ from 'lodash';
 import request from 'supertest';
 
+import {
+  expected_age_groups,
+  expected_jurisdictions,
+  expected_sexes,
+} from './aggregation_validation_utils.ts';
 import { create_app } from './create_app.ts';
+
+const valid_sample_data = [
+  {
+    AgeGroup: expected_age_groups[0],
+    Count: 3,
+    DoseCount: 4,
+    Jurisdiction: expected_jurisdictions[0],
+    ReferenceDate: '2025-02-05',
+    OccurenceYear: '2025',
+    Sex: expected_sexes[0],
+  },
+  {
+    AgeGroup: expected_age_groups[_.random(1, expected_age_groups.length - 1)],
+    Count: 4,
+    DoseCount: 7,
+    Jurisdiction: expected_jurisdictions[0],
+    ReferenceDate: '2025-03-06',
+    OccurenceYear: '2024',
+    Sex: expected_sexes[_.random(1, expected_sexes.length - 1)],
+  },
+];
 
 describe('create_app', () => {
   describe('/healthcheck', () => {
@@ -27,43 +53,12 @@ describe('create_app', () => {
 
     it('Returns merged data from across endpoints derived from the AGGREGATOR_URLS env var', async () => {
       const pt_1_test_url = 'https://pt-1/aggregator';
-      const pt_1_test_response_data = [
-        {
-          AgeGroup: '3-5 years',
-          Count: 3,
-          DoseCount: 4,
-          Jurisdiction: 'BC',
-          ReferenceDate: '2025-02-05',
-          Sex: 'Female',
-        },
-        {
-          AgeGroup: '3-5 years',
-          Count: 4,
-          DoseCount: 7,
-          Jurisdiction: 'BC',
-          ReferenceDate: '2025-02-05',
-          Sex: 'Male',
-        },
-      ];
+      const pt_1_test_response_data = valid_sample_data;
 
       const pt_2_test_url = 'https://pt-2/aggregator';
       const pt_2_test_response_data = [
-        {
-          AgeGroup: '3-5 years',
-          Count: 5,
-          DoseCount: 8,
-          Jurisdiction: 'ON',
-          ReferenceDate: '2025-02-05',
-          Sex: 'Female',
-        },
-        {
-          AgeGroup: '3-5 years',
-          Count: 2,
-          DoseCount: 3,
-          Jurisdiction: 'ON',
-          ReferenceDate: '2025-02-05',
-          Sex: 'Male',
-        },
+        { ...valid_sample_data[0], Jurisdiction: expected_jurisdictions[1] },
+        { ...valid_sample_data[1], Jurisdiction: expected_jurisdictions[1] },
       ];
 
       const test_urls = [pt_1_test_url, pt_2_test_url];
@@ -109,43 +104,12 @@ describe('create_app', () => {
 
     it('Handles errors per-endpoint, returns what data it can alongside any error messages', async () => {
       const pt_1_test_url = 'https://pt-1/aggregator';
-      const pt_1_test_response_data = [
-        {
-          AgeGroup: '3-5 years',
-          Count: 3,
-          DoseCount: 4,
-          Jurisdiction: 'BC',
-          ReferenceDate: '2025-02-05',
-          Sex: 'Female',
-        },
-        {
-          AgeGroup: '3-5 years',
-          Count: 4,
-          DoseCount: 7,
-          Jurisdiction: 'BC',
-          ReferenceDate: '2025-02-05',
-          Sex: 'Male',
-        },
-      ];
+      const pt_1_test_response_data = valid_sample_data;
 
       const pt_2_test_url = 'https://pt-2/aggregator';
       const pt_2_test_response_data_invalid = [
-        {
-          AgeGroup: '3-5 asdasfd',
-          Count: 3,
-          DoseCount: 4,
-          Jurisdiction: 'afadsf',
-          ReferenceDate: '2025-02-05',
-          Sex: 'Female',
-        },
-        {
-          AgeGroup: '3-5 years',
-          Count: 4,
-          DoseCount: -1,
-          Jurisdiction: 'BC',
-          ReferenceDate: '2025-02-05',
-          Sex: 'sadfsadf',
-        },
+        { ...valid_sample_data[0], Jurisdiction: 'dasfadsf' },
+        { ...valid_sample_data[1], Jurisdiction: 'asdfdsaf' },
       ];
 
       const pt_3_test_url = 'https://pt-3/aggregator';
