@@ -108,8 +108,6 @@ describe('create_app', () => {
     });
 
     it('Handles errors per-endpoint, returns what data it can alongside any error messages', async () => {
-      // TODO add coverage for invalid data case
-
       const pt_1_test_url = 'https://pt-1/aggregator';
       const pt_1_test_response_data = [
         {
@@ -131,14 +129,36 @@ describe('create_app', () => {
       ];
 
       const pt_2_test_url = 'https://pt-2/aggregator';
+      const pt_2_test_response_data_invalid = [
+        {
+          AgeGroup: '3-5 asdasfd',
+          Count: 3,
+          DoseCount: 4,
+          Jurisdiction: 'afadsf',
+          ReferenceDate: '2025-02-05',
+          Sex: 'Female',
+        },
+        {
+          AgeGroup: '3-5 years',
+          Count: 4,
+          DoseCount: -1,
+          Jurisdiction: 'BC',
+          ReferenceDate: '2025-02-05',
+          Sex: 'sadfsadf',
+        },
+      ];
 
-      const test_urls = [pt_1_test_url, pt_2_test_url];
+      const pt_3_test_url = 'https://pt-3/aggregator';
+
+      const test_urls = [pt_1_test_url, pt_2_test_url, pt_3_test_url];
 
       fetchMock.mockIf(
         ({ url }) => test_urls.some((test_url) => url.startsWith(test_url)),
         async ({ url }) => {
           if (url.startsWith(pt_1_test_url)) {
             return JSON.stringify(pt_1_test_response_data);
+          } else if (pt_2_test_url) {
+            return JSON.stringify(pt_2_test_response_data_invalid);
           } else {
             throw new Error('Some error');
           }
@@ -171,7 +191,7 @@ describe('create_app', () => {
       );
       expect(difference_between_expected_and_received_data).toEqual([]);
 
-      expect(response.body.errors).toHaveLength(1);
+      expect(response.body.errors).toHaveLength(2);
     });
   });
 });
