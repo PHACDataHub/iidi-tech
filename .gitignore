@@ -1,5 +1,4 @@
 **/.env*
-!**/.env.dev-public
 
 node_modules
 
