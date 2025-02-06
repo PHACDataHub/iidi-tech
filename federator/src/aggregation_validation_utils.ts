@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import type { Writable } from 'type-fest';
-import { isDate } from 'validator';
+import validator from 'validator';
 
 export const expected_age_groups = [
   '0-2 years',
@@ -43,7 +43,7 @@ export const is_valid_aggregated_data = (
         _.isInteger(data.DoseCount) &&
         data.DoseCount >= 0 &&
         expected_jurisdictions.includes(data.Jurisdiction) &&
-        isDate(data.ReferenceDate, { format: 'YYYY-MM-DD' }) &&
+        validator.isDate(data.ReferenceDate, { format: 'YYYY-MM-DD' }) &&
         expected_sexes.includes(data.Sex),
     );
   }
