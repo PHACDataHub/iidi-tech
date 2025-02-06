@@ -17,7 +17,7 @@
     "dev:docker-debug": "nodemon --exec tsx --inspect='0.0.0.0:9229' ./src/index.ts",
     "jest": "jest --coverage --coverageReporters=text --coverageReporters=json-summary --coverageDirectory ./coverage",
     "jest:watch": "jest --coverage --coverageReporters text --watchAll",
-    "jest:debug": "node --inspect='0.0.0.0:9229' node_modules/.bin/jest --watchAll --runInBand --no-cache"
+    "jest:debug": "node --inspect-brk='localhost:9229' node_modules/.bin/jest --coverage false --no-cache --runInBand"
   },
   "dependencies": {
     "@whatwg-node/node-fetch": "^0.7.0",

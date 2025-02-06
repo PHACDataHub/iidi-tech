@@ -1,4 +1,7 @@
 import dotenv from 'dotenv';
+import { enableFetchMocks } from 'jest-fetch-mock';
+
+enableFetchMocks();
 
 dotenv.config({ path: '.env.node-dev-docker-env-overrides' }); // relative to the call point, e.g. the service root
 process.env.DEV_IS_TEST_ENV = 'true';
