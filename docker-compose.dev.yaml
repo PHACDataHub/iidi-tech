@@ -333,6 +333,7 @@ services:
     environment:
       EXPRESS_PORT: 3000
       DEV_IS_LOCAL_ENV: True
+      FHIR_URL: http://on-fhir:8080/fhir # in this case, resolved inside the container, with container networking
   on-transfer-outbound: &transfer-outbound-service
     image: node-dev:1.0
     tty: ${DOCKER_TTY:-true}
@@ -356,6 +357,7 @@ services:
     environment:
       EXPRESS_PORT: 3000
       DEV_IS_LOCAL_ENV: True
+      FHIR_URL: http://on-fhir:8080/fhir # in this case, resolved inside the container, with container networking
 
   bc-fhir-db:
     <<: *fhir-db-service
@@ -410,6 +412,8 @@ services:
       - host-loopback
     ports:
       - 3003:3000
+    environment:
+      FHIR_URL: http://bc-fhir:8080/fhir # in this case, resolved inside the container, with container networking
   bc-transfer-outbound:
     <<: *transfer-outbound-service
     command: npm run dev # note: only opening debug ports on the ON services
@@ -421,6 +425,8 @@ services:
       - host-loopback
     ports:
       - 3004:3000
+    environment:
+      FHIR_URL: http://bc-fhir:8080/fhir # in this case, resolved inside the container, with container networking
 
   federator:
     image: node-dev:1.0

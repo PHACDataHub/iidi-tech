@@ -1,4 +1,4 @@
-import { cleanEnv, port, host, bool } from 'envalid';
+import { cleanEnv, port, host, bool, url } from 'envalid';
 
 const boolFalseIfProd = (spec: { default: boolean }) => {
   const is_prod =
@@ -16,6 +16,8 @@ export const get_env = () => {
   const processed_env = cleanEnv(process.env, {
     EXPRESS_PORT: port({ default: 3000 }),
     EXPRESS_HOST: host({ default: '0.0.0.0' }),
+
+    FHIR_URL: url(),
 
     DEV_IS_LOCAL_ENV: boolFalseIfProd({ default: false }),
     DEV_IS_TEST_ENV: boolFalseIfProd({ default: false }),
