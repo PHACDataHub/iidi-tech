@@ -14,7 +14,7 @@ The **Interoperable Immunization Data Initiative (IIDI)** provides a **developme
 
 ## Current Development Scope (MVP)
 
-This repository implements the **minimum viable product (MVP)**, which includes:
+This repository implements the **minimum viable product (MVP) of the demo**, which includes:
 
 - **FHIR-compliant immunization data repositories**, preloaded with synthetic patient records.
 - **Mock provincial services**, simulating jurisdictional immunization data endpoints.
@@ -28,21 +28,27 @@ This repository implements the **minimum viable product (MVP)**, which includes:
 The IIDI architecture follows a **modular and federated approach**, ensuring **flexibility, security, and interoperability**:
 
 ## Key Architectural Components
-1. **Mock Provincial Services (FHIR Repositories)**
-   - Each province has its own **FHIR-compliant immunization data repository**.
-   - Synthetic data is preloaded into these repositories for development and testing.
+## Key Architectural Components  
 
-2. **Federated Aggregation Layer**
-   - Aggregates anonymized immunization data from multiple provincial sources.
-   - Enables **structured, standards-compliant data access** for reporting and analysis.
+1. **Mock Provincial Services (FHIR Repositories)**  
+   - Each province has its own **FHIR-compliant immunization data repository**.  
+   - Synthetic data is preloaded into these repositories for development and testing.  
 
-3. **PT-to-PT Transfer Simulation**
-   - Tests **FHIR-based** inter-jurisdictional data transfers.
-   - Simulates **secure data movement** between provincial systems.
+2. **Federated Aggregation Layer**  
+   - Aggregates anonymized immunization data from multiple provincial sources.  
+   - Enables **structured, standards-compliant data access** for reporting and analysis.  
+   - Incorporates **data integrity validation** to ensure accuracy and consistency.  
 
-4. **Security & Privacy Mechanisms**
-   - Implements **RBAC and attribute-based access control (ABAC)**.
-   - Uses **data minimization techniques** to ensure privacy compliance.
+3. **PT-to-PT Transfer Simulation**  
+   - Tests **FHIR-based** inter-jurisdictional data transfers.  
+   - Simulates **secure and reliable** data movement between provincial systems.  
+   - (Future Consideration) **Fault-tolerance mechanisms** may be explored for handling system failures or data inconsistencies.  
+
+4. **Security, Privacy & Data Integrity Mechanisms**  
+   - Implements **RBAC (Role-Based Access Control)** and **ABAC (Attribute-Based Access Control)** to enforce secure access policies.  
+   - Uses **data minimization techniques** to ensure privacy compliance.  
+   - Establishes **integrity validation processes** to detect and mitigate data corruption risks.  
+   - (Future Consideration) **Resiliency features** may be introduced to maintain system stability during outages or failures.  
 
 ---
 
