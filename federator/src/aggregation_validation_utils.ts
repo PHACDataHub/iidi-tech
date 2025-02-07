@@ -18,7 +18,7 @@ export interface AggregationGroupedData {
   DoseCount: number;
   Jurisdiction: Writable<typeof expected_jurisdictions>[number];
   ReferenceDate: `${number}-${number}-${number}`;
-  OccurenceYear: number | 'Unknown';
+  OccurrenceYear: number | 'Unknown';
   Sex: Writable<typeof expected_sexes>[number];
 }
 
@@ -36,7 +36,7 @@ export const is_valid_aggregated_data = (
           'DoseCount',
           'Jurisdiction',
           'ReferenceDate',
-          'OccurenceYear',
+          'OccurrenceYear',
           'Sex',
         ]).length === 0 &&
         expected_age_groups.includes(data.AgeGroup) &&
@@ -46,7 +46,7 @@ export const is_valid_aggregated_data = (
         data.DoseCount >= 0 &&
         expected_jurisdictions.includes(data.Jurisdiction) &&
         validator.isDate(data.ReferenceDate, { format: 'YYYY-MM-DD' }) &&
-        /^([1,2][0-9][0-9][0-9])|(Unknown)$/.test(data.OccurenceYear) &&
+        /^([1,2][0-9][0-9][0-9])|(Unknown)$/.test(data.OccurrenceYear) &&
         expected_sexes.includes(data.Sex),
     );
   }
