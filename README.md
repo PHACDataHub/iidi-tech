@@ -28,27 +28,31 @@ This repository implements the **minimum viable product (MVP) of the demo**, whi
 The IIDI architecture follows a **modular and federated approach**, ensuring **flexibility, security, and interoperability**:
 
 ## Key Architectural Components
-## Key Architectural Components  
 
-1. **Mock Provincial Services (FHIR Repositories)**  
-   - Each province has its own **FHIR-compliant immunization data repository**.  
-   - Synthetic data is preloaded into these repositories for development and testing.  
+## Key Architectural Components
 
-2. **Federated Aggregation Layer**  
-   - Aggregates anonymized immunization data from multiple provincial sources.  
-   - Enables **structured, standards-compliant data access** for reporting and analysis.  
-   - Incorporates **data integrity validation** to ensure accuracy and consistency.  
+1. **Mock Provincial Services (FHIR Repositories)**
 
-3. **PT-to-PT Transfer Simulation**  
-   - Tests **FHIR-based** inter-jurisdictional data transfers.  
-   - Simulates **secure and reliable** data movement between provincial systems.  
-   - (Future Consideration) **Fault-tolerance mechanisms** may be explored for handling system failures or data inconsistencies.  
+   - Each province has its own **FHIR-compliant immunization data repository**.
+   - Synthetic data is preloaded into these repositories for development and testing.
 
-4. **Security, Privacy & Data Integrity Mechanisms**  
-   - Implements **RBAC (Role-Based Access Control)** and **ABAC (Attribute-Based Access Control)** to enforce secure access policies.  
-   - Uses **data minimization techniques** to ensure privacy compliance.  
-   - Establishes **integrity validation processes** to detect and mitigate data corruption risks.  
-   - (Future Consideration) **Resiliency features** may be introduced to maintain system stability during outages or failures.  
+2. **Federated Aggregation Layer**
+
+   - Aggregates anonymized immunization data from multiple provincial sources.
+   - Enables **structured, standards-compliant data access** for reporting and analysis.
+   - Incorporates **data integrity validation** to ensure accuracy and consistency.
+
+3. **PT-to-PT Transfer Simulation**
+
+   - Tests **FHIR-based** inter-jurisdictional data transfers.
+   - Simulates **secure and reliable** data movement between provincial systems.
+   - (Future Consideration) **Fault-tolerance mechanisms** may be explored for handling system failures or data inconsistencies.
+
+4. **Security, Privacy & Data Integrity Mechanisms**
+   - Implements **RBAC (Role-Based Access Control)** and **ABAC (Attribute-Based Access Control)** to enforce secure access policies.
+   - Uses **data minimization techniques** to ensure privacy compliance.
+   - Establishes **integrity validation processes** to detect and mitigate data corruption risks.
+   - (Future Consideration) **Resiliency features** may be introduced to maintain system stability during outages or failures.
 
 ---
 
@@ -57,14 +61,17 @@ The IIDI architecture follows a **modular and federated approach**, ensuring **f
 The **Interoperable Immunization Data Initiative (IIDI)** is structured around the following objectives:
 
 1. **Enable Federated Immunization Record Access**
+
    - Use **FHIR-based APIs** to facilitate **decentralized yet structured** immunization data sharing.
    - Maintain **local control of records** while enabling **cross-jurisdictional access**.
 
 2. **Support National Immunization Surveillance**
+
    - Transition from **batch-based** to **event-driven, real-time** data exchange.
    - Improve **public health reporting and decision-making**.
 
 3. **Ensure Secure and Privacy-Compliant Data Sharing**
+
    - Use **role-based access control (RBAC)** and **data aggregation** to minimize exposure.
    - Ensure **privacy and security standards** are met across all data interactions.
 
@@ -77,6 +84,7 @@ The **Interoperable Immunization Data Initiative (IIDI)** is structured around t
 ## Development Quickstart
 
 ### **Prerequisites**
+
 Before setting up the development environment, ensure the following dependencies are installed:
 
 - **Docker v27+** (older versions may work but are unverified).
