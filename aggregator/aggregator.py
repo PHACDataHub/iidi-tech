@@ -105,7 +105,7 @@ def process_immunization_record(immunization, reference_date: datetime.now()):
 
         return {
             "ReferenceDate": reference_date.strftime('%Y-%m-%d'),
-            "OccurenceYear": "Unknown" if len(occurenceDateTime) < 4 else occurenceDateTime[0:4],
+            "OccurrenceYear": "Unknown" if len(occurenceDateTime) < 4 else occurenceDateTime[0:4],
             "Jurisdiction": "BC" if "bc" in FHIR_URL else "ON",
             "Sex": patient.get("gender", "Unknown").capitalize(),
             "AgeGroup": calculate_age_group(patient.get("birthDate", "Unknown"), reference_date),
@@ -142,7 +142,7 @@ def aggregate_data(reference_date: datetime.now()):
 
     # Perform aggregation
     aggregated = df.groupby(
-        ["ReferenceDate", "OccurenceYear", "Jurisdiction", "Sex", "AgeGroup"]
+        ["ReferenceDate", "OccurrenceYear", "Jurisdiction", "Sex", "AgeGroup"]
     ).agg(
         DoseCount=("DoseCount", "sum"),  # Sum of doses
         Count=("DoseCount", "size")  # Count of records
@@ -150,7 +150,7 @@ def aggregate_data(reference_date: datetime.now()):
 
     # Sorting for readability
     aggregated = aggregated.sort_values(
-        by=["ReferenceDate", "OccurenceYear", "AgeGroup", "Sex"], ascending=[True, True, True, True]
+        by=["ReferenceDate", "OccurrenceYear", "AgeGroup", "Sex"], ascending=[True, True, True, True]
     ).reset_index(drop=True)
 
     # Filtering groups with low counts
