@@ -4,12 +4,12 @@ import { get_env } from './env.ts';
 import { expressErrorHandler } from './error_utils.ts';
 
 export const create_app = async () => {
-  const { DEV_IS_LOCAL_ENV } = get_env();
+  const { FHIR_URL } = get_env();
 
-  // TODO delete later, just here so the TS compiler doesn't complain about DEV_IS_LOCAL_ENV being unused.
+  // TODO delete later, just here so the TS compiler doesn't complain about FHIR_URL being unused.
   // I want the get_env import and usage demonstrated here, which is why I'm leaving it in when it's not
   // yet used
-  console.log(`DEV_IS_LOCAL_ENV: ${DEV_IS_LOCAL_ENV}`);
+  console.log(`FHIR_URL: ${FHIR_URL}`);
 
   const app = express();
 
