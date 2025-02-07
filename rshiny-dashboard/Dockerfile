@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN R -e 'install.packages(c("ggplot2", "shinydashboard", "httr", "jsonlite", "shinythemes"), repos="https://cloud.r-project.org/")'
+RUN R -e 'install.packages(c("ggplot2", "shinydashboard", "httr", "jsonlite", "shinythemes", "dplyr"), repos="https://cloud.r-project.org/")'
 
 COPY app.R /app.R
 
