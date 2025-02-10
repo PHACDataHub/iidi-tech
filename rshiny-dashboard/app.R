@@ -175,7 +175,7 @@ server <- function(input, output, session) {
     filtered_data() %>%
       group_by(.data$Sex) %>%
       summarise(
-        TotalCount = sum(.data$Count), 
+        TotalCount = sum(.data$Count),
         .groups = "drop"
       ) %>%
       ggplot(aes(
@@ -183,7 +183,9 @@ server <- function(input, output, session) {
         y = .data$TotalCount, 
         fill = .data$Sex
       )) +
-      geom_bar(stat = "identity") +
+      geom_bar(
+               stat = "identity",
+               width = 0.4) +
       custom_theme +
       labs(
         title = "Distribution by Sex",
@@ -204,7 +206,9 @@ server <- function(input, output, session) {
         y = .data$AvgDoses, 
         fill = .data$Jurisdiction
       )) +
-      geom_bar(stat = "identity") +
+      geom_bar(
+               stat = "identity",
+               width = 0.15) +
       custom_theme +
       labs(
         title = "Average Doses by Jurisdiction",
