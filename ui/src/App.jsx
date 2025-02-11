@@ -1,5 +1,4 @@
 import './App.css';
-import Home from './Pages/Home.jsx';
 import Header from './Components/Header.jsx';
 import Footer from './Components/Footer.jsx';
 import { useEffect } from "react";
@@ -21,7 +20,8 @@ function App() {
           <h3>This is a work in progress.</h3>
           <p>Information may be incorrect or inaccurate.</p>
         </section>
-        <Home />
+        <h1>Home Page</h1>
+        <p>This is the content of the Home page.</p>
       </main>
 
       <footer>
