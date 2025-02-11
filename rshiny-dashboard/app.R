@@ -20,21 +20,9 @@ ui <- dashboardPage(
       menuItem("Overview", tabName = "overview", icon = icon("dashboard")),
       menuItem("Trends", tabName = "trends", icon = icon("chart-line")),
       menuItem("Data Explorer", tabName = "data", icon = icon("table")),
-      selectInput(
-        "jurisdiction",
-        "Jurisdiction:",
-        choices = c("All", "BC", "ON")
-      ),
-      selectInput(
-        "ageGroup",
-        "Age Group:",
-        choices = c("All", "3-5 years", "6-17 years")
-      ),
-      selectInput(
-        "sex", 
-        "Sex:",
-        choices = c("All", "Female", "Male", "Other")
-      )
+      uiOutput("jurisdictionSelect"),
+      uiOutput("ageGroupSelect"),
+      uiOutput("sexSelect")
     )
   ),
   dashboardBody(
@@ -107,19 +95,56 @@ server <- function(input, output, session) {
     return(df)
   })
 
-  filtered_data <- reactive({
+  output$jurisdictionSelect <- renderUI({
     df <- get_data()
-    if (input$jurisdiction != "All") {
+    jurisdiction_choices <- c("All", unique(df$Jurisdiction))
+    selectInput(
+      "jurisdiction",
+      "Jurisdiction:",
+      choices = jurisdiction_choices,
+      selected = "All"
+    )
+  })
+
+  output$ageGroupSelect <- renderUI({
+    df <- get_data()
+    age_choices <- c("All", unique(df$AgeGroup))
+    selectInput(
+      "ageGroup",
+      "Age Group:",
+      choices = age_choices,
+      selected = "All"
+    )
+  })
+
+  output$sexSelect <- renderUI({
+    df <- get_data()
+    sex_choices <- c("All", unique(df$Sex))
+    selectInput(
+      "sex",
+      "Sex:",
+      choices = sex_choices,
+      selected = "All"
+    )
+  })
+
+  filtered_data <- reactive({
+    req(input$jurisdiction, input$ageGroup, input$sex)
+    df <- get_data()
+
+    if (!is.null(input$jurisdiction) && input$jurisdiction != "All") {
       df <- df %>% filter(.data$Jurisdiction == input$jurisdiction)
     }
-    if (input$ageGroup != "All") {
+    if (!is.null(input$ageGroup) && input$ageGroup != "All") {
       df <- df %>% filter(.data$AgeGroup == input$ageGroup)
     }
-    if (input$sex != "All") {
+    if (!is.null(input$sex) && input$sex != "All") {
       df <- df %>% filter(.data$Sex == input$sex)
     }
     return(df)
   })
+
+
 
   output$totalImmunizations <- renderValueBox({
     valueBox(
@@ -152,12 +177,12 @@ server <- function(input, output, session) {
     filtered_data() %>%
       group_by(.data$OccurrenceYear, .data$Jurisdiction) %>%
       summarise(
-        TotalCount = sum(.data$Count), 
+        TotalCount = sum(.data$Count),
         .groups = "drop"
       ) %>%
       ggplot(aes(
-        x = .data$OccurrenceYear, 
-        y = .data$TotalCount, 
+        x = .data$OccurrenceYear,
+        y = .data$TotalCount,
         color = .data$Jurisdiction
       )) +
       geom_line(size = 1) +
@@ -179,13 +204,13 @@ server <- function(input, output, session) {
         .groups = "drop"
       ) %>%
       ggplot(aes(
-        x = .data$Sex, 
-        y = .data$TotalCount, 
+        x = .data$Sex,
+        y = .data$TotalCount,
         fill = .data$Sex
       )) +
       geom_bar(
-               stat = "identity",
-               width = 0.4) +
+        stat = "identity",
+        width = 0.3) +
       custom_theme +
       labs(
         title = "Distribution by Sex",
@@ -198,12 +223,12 @@ server <- function(input, output, session) {
     filtered_data() %>%
       group_by(.data$Jurisdiction) %>%
       summarise(
-        AvgDoses = mean(.data$DoseCount), 
+        AvgDoses = mean(.data$DoseCount),
         .groups = "drop"
       ) %>%
       ggplot(aes(
-        x = .data$Jurisdiction, 
-        y = .data$AvgDoses, 
+        x = .data$Jurisdiction,
+        y = .data$AvgDoses,
         fill = .data$Jurisdiction
       )) +
       geom_bar(
@@ -221,12 +246,12 @@ server <- function(input, output, session) {
     filtered_data() %>%
       group_by(.data$AgeGroup, .data$OccurrenceYear) %>%
       summarise(
-        TotalCount = sum(.data$Count), 
+        TotalCount = sum(.data$Count),
         .groups = "drop"
       ) %>%
       ggplot(aes(
-        x = .data$OccurrenceYear, 
-        y = .data$TotalCount, 
+        x = .data$OccurrenceYear,
+        y = .data$TotalCount,
         color = .data$AgeGroup
       )) +
       geom_line(size = 1) +
