@@ -10,7 +10,7 @@ library(scales)
 
 aggregator_url <- Sys.getenv(
   "AGGREGATOR_URL",
-  "http://localhost:8080/on/aggregator/aggregated-data"
+  "http://federator:3000/aggregated-data"
 )
 
 ui <- dashboardPage(
@@ -209,8 +209,8 @@ server <- function(input, output, session) {
         fill = .data$Sex
       )) +
       geom_bar(
-        stat = "identity",
-        width = 0.3) +
+               stat = "identity",
+               width = 0.3) +
       custom_theme +
       labs(
         title = "Distribution by Sex",
