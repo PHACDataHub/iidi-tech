@@ -1,17 +1,14 @@
-import { GcdsHeader } from "@cdssnc/gcds-components-react"
+import React from "react";
+import { PhacSignature } from "./PhacSignature.tsx";
 
-function Header() {
-
-
+const Header = () => {
     return (
-        <div className="Header">
-            <GcdsHeader
-                role="banner"
-                class="hydrated"
-            >
-            </GcdsHeader>
+        <div className="header-wrapper">
+            <header className="App-header">
+                <PhacSignature language="en" />
+            </header>
         </div>
     );
-}
+};
 
 export default Header;

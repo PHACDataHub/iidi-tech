@@ -5,6 +5,8 @@
   font-family: inherit;
 }
 
+
+
 a {
   color: blue;
   /* Normal and visited link color */
@@ -19,7 +21,34 @@ a:hover {
   /* Underline on hover */
 }
 
+.App-header {
+  max-width: 1250px;
+  display: flex;
+  margin: 10px auto;
+  padding: 10px 20px;
+  text-align: left;
+}
 
+.header-wrapper {
+  width: 100%;
+  border-bottom: 2px solid #26374a;
+  margin-bottom: 25px;
+}
+
+h1 {
+  border-bottom: none !important;
+
+}
+
+main {
+  max-width: 1250px;
+  display: flex;
+  justify-content: center;
+  margin: 0 auto;
+  text-align: left;
+  padding: 10px 20px;
+
+}
 
 footer {
   position: absolute;

@@ -12,7 +12,8 @@
     "@cdssnc/gcds-components-react": "^0.31.0",
     "gcds-components-react": "^0.1.17",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-router-dom": "^7.1.5"
   },
   "devDependencies": {
     "@rsbuild/core": "^1.2.4",
