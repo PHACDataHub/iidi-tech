@@ -1,0 +1,28 @@
+#root {
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+  font-family: inherit;
+}
+
+a {
+  color: blue;
+  /* Normal and visited link color */
+  text-decoration: underline;
+  /* Underline for all links */
+}
+
+a:hover {
+  color: blue;
+  /* Color when hovering over links */
+  text-decoration: underline;
+  /* Underline on hover */
+}
+
+
+
+footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
