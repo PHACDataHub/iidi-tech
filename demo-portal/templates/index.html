@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>
+      Interoperable Immunization Data Initiative | Initiative de Données
+      d'Immunisation Interopérables
+    </title>
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+      integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+      crossorigin="anonymous"
+    ></script>
+
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body>
+    <div class="container light-blue-background">
+      <h3 class="header center-align">
+        Interoperable Immunization Data Initiative (IIDI) <br />
+        Initiative de Données d'Immunisation Interopérables (IDII)
+      </h3>
+      <div class="disclaimer alert alert-warning mt-4" role="alert">
+        <p>
+          <strong>Disclaimer (EN):</strong> This web interface is temporary and
+          serves as a <strong>Minimum Viable Product (MVP)</strong> to
+          facilitate current technical development and testing. It is not
+          intended for production use. Full production considerations, including
+          bilingual and WCAG compliance, are in progress.
+        </p>
+        <p>
+          <strong>Avis (FR) :</strong> Cette interface web est temporaire et
+          sert de <strong>Produit Minimum Viable (PMV)</strong> pour faciliter
+          les développements techniques actuels et les tests. Elle n'est pas
+          destinée à un usage en production. Les considérations complètes de
+          production, y compris la conformité bilingue et WCAG, sont en cours.
+        </p>
+      </div>
+
+      {% for province, services in entities.items() %}
+      <div class="card">
+        <div class="card-body">
+          <div class="card-top">
+            <div class="status-indicator">
+              <svg
+                class="health-indicator"
+                id="health-indicator-{{ province }}"
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+              >
+                <circle cx="12" cy="12" r="10" fill="#808080" />
+              </svg>
+            </div>
+            <div class="province">{{ province }}</div>
+          </div>
+          <div class="buttons">
+            {% for service in services %}
+            <a
+              href="{{ service.url }}"
+              target="_blank"
+              class="btn {{ 'btn-' + service.name | replace(' ', '-') }}"
+            >
+              <img
+                src="{{ url_for('static', filename='svg/' + service.name + '.svg') }}"
+                alt="{{ service.name }} Icon"
+                class="btn-icon"
+              />
+              {{ service.name }}
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <h4 class="context-heading">Additional Context & Assumptions</h4>
+
+    <div class="accordion mt-4" id="iidiAccordion">
+      {% for section in collapsible_sections %}
+      <div class="card">
+        <div
+          class="card-header"
+          id="heading-{{ loop.index }}"
+          data-toggle="collapse"
+          data-target="#collapse-{{ loop.index }}"
+          aria-expanded="false"
+          aria-controls="collapse-{{ loop.index }}"
+        >
+          <h5 class="mb-0">{{ section.title }}</h5>
+        </div>
+        <div
+          id="collapse-{{ loop.index }}"
+          class="collapse"
+          aria-labelledby="heading-{{ loop.index }}"
+          data-parent="#iidiAccordion"
+        >
+          <div class="card-body">
+            <div class="content-wrapper">{{ section.content | safe }}</div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+      integrity="sha384-UoJ1OgubV4cU+k3n3s+LgmeMIpVZZ62s3+JswZDTk2+Z/ogX7Tsdv/YqCPeKjNU6"
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script>
+      function updateHealthStatus() {
+        const provinces = document.querySelectorAll('.card');
+        provinces.forEach((province, index) => {
+          const provinceName = province
+            .querySelector('.province')
+            .textContent.trim();
+          const indicator = province.querySelector('.health-indicator circle');
+
+          fetch(`/health-check/${provinceName}`)
+            .then((response) => response.json())
+            .then((data) => {
+              let isProvinceHealthy = true;
+              for (let service in data[provinceName]) {
+                if (data[provinceName][service] !== 'healthy') {
+                  isProvinceHealthy = false;
+                  break;
+                }
+              }
+              if (isProvinceHealthy) {
+                indicator.setAttribute('fill', '#008000');
+              } else {
+                indicator.setAttribute('fill', '#FF0000');
+              }
+            })
+            .catch((error) => {
+              console.error('Error:', error);
+              indicator.setAttribute('fill', '#FF0000');
+            });
+        });
+      }
+      updateHealthStatus();
+      setInterval(updateHealthStatus, 300000);
+    </script>
+  </body>
+</html>

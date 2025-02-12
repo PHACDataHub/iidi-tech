@@ -1,0 +1,278 @@
+/* Global Styles */
+body,
+html {
+  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #222f3e;
+}
+
+.container {
+  max-width: 1300px;
+  margin: 20px auto;
+  padding: 10px;
+  background-color: #c8d6e5;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+/* Header */
+.header.center-align {
+  text-align: center;
+  margin-bottom: 50px;
+  color: #333;
+  font-weight: bold;
+  font-size: 2.5rem;
+}
+
+/* Disclaimer Styling */
+.disclaimer {
+  background-color: #fffae6;
+  border: 1px solid #ffcc00;
+  padding: 15px;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 20px;
+  margin-left: 50px; /* Same as card left margin */
+  margin-right: 50px; /* Same as card right margin */
+}
+
+/* Legend Styling */
+.legend {
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  padding: 15px;
+  border-radius: 8px;
+  margin-left: 50px; /* Same as card left margin */
+  margin-right: 50px; /* Same as card right margin */
+}
+
+.legend h5 {
+  font-weight: bold;
+  color: #333;
+}
+
+.legend ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.legend ul li {
+  padding: 5px 0;
+  font-size: 1.1rem;
+}
+
+/* Card Styling */
+.card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  margin-left: 50px; /* Left padding */
+  margin-right: 50px; /* Right padding */
+  transition: box-shadow 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.card-body {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+}
+
+.card-top {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex-grow: 1;
+  margin-bottom: 5px;
+  margin-top: 5px;
+}
+
+/* Status Indicator Styling */
+.status-indicator {
+  display: flex;
+  align-items: center;
+  padding-right: 20px;
+}
+
+.province {
+  font-size: 20px;
+  font-weight: 700;
+  white-space: nowrap;
+  margin-right: 10px;
+}
+
+/* Button Styling */
+.buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-grow: 0;
+}
+
+.container .btn {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  padding: 5px 10px;
+  color: white;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: box-shadow 0.3s;
+  margin: 0 5px 5px 0;
+}
+
+.container .btn-icon {
+  margin-right: 5px;
+}
+
+.container .btn:hover {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Button Color Styles */
+.container .btn-Aggregator {
+  background-color: #007ba7;
+}
+.container .btn-Patient-Browser {
+  background-color: #50c878;
+}
+.container .btn-HAPI-FHIR-Server {
+  background-color: #9966cc;
+}
+.container .btn-Dashboard {
+  background-color: #b2456e;
+}
+
+.accordion .card {
+  background: #ffffff;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  transition: box-shadow 0.3s ease;
+  overflow: hidden;
+  max-width: 1200px; /* Adjust width to match other elements */
+  border: none !important;
+  margin-left: auto; /* Centers the element */
+  margin-right: auto; /* Centers the element */
+}
+
+.accordion .card:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.accordion .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 15px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-radius: 12px 12px 0 0;
+  background-color: #eaf3fb;
+  border: none;
+  position: relative;
+}
+
+.accordion .card-header h5 {
+  font-weight: bold;
+}
+
+.accordion .card-body {
+  padding: 15px;
+  background-color: #f8f9fa;
+}
+
+.accordion .collapse.show {
+  border-radius: 0 0 12px 12px !important;
+  border: none !important;
+  overflow: hidden;
+}
+
+.accordion .collapse {
+  border: none !important;
+}
+
+/* Add extra space between Ontario (ON) and the first collapsible section */
+.accordion {
+  margin-top: 100px !important; /* Ensures spacing from last province */
+}
+
+/* Ensure content inside collapsible sections is well-aligned */
+.content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Adds space between elements */
+  padding: 10px;
+}
+
+/* Ensure proper formatting for lists */
+.content-wrapper ul,
+.content-wrapper ol {
+  padding-left: 20px; /* Indents lists properly */
+  margin-bottom: 10px;
+}
+
+/* Ensure lists inside collapsible sections display properly */
+.content-wrapper ul li {
+  list-style-type: disc; /* Uses bullets */
+  margin-bottom: 5px;
+}
+
+/* Ensure text isn't too compressed */
+.content-wrapper p {
+  margin-bottom: 10px;
+}
+
+/* Improve spacing between sections inside collapsible content */
+.content-wrapper h3,
+.content-wrapper h4 {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  font-weight: bold;
+}
+
+/* Add the arrow using CSS pseudo-element */
+.accordion .card-header::after {
+  content: '▼'; /* Downward arrow by default */
+  font-size: 1rem;
+  position: absolute;
+  right: 15px;
+  transition: transform 0.3s ease;
+}
+
+/* Rotate arrow when the section is expanded */
+.accordion .card-header[aria-expanded='true']::after {
+  transform: rotate(180deg); /* Flips the arrow */
+}
+
+.light-blue-background {
+  background-color: #d9eaf7; /* Light Blue */
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.accordion {
+  margin-top: 30px !important; /* Ensure spacing from Ontario */
+}
+
+.context-heading {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #d9eaf7; /* Dark gray for readability */
+  text-align: center;
+  margin-bottom: 12px;
+  margin-top: 20px;
+}
