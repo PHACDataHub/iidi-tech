@@ -3,6 +3,6 @@ kind: Kustomization
 
 resources:
   - namespace.yaml
-  - depolyment.yaml
+  - deployment.yaml
   - service.yaml
   - virtual-service.yaml

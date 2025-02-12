@@ -15,6 +15,6 @@ spec:
               exact: "demo-portal.iidi.alpha.phac.gc.ca"
       route:
         - destination:
-            host: demo-portal.links.svc.cluster.local
+            host: demo-portal.iidi.svc.cluster.local
             port:
               number: 80
