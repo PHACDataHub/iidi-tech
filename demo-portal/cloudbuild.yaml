@@ -1,0 +1,29 @@
+steps:
+  - id: build-and-push-if-main
+    name: 'gcr.io/cloud-builders/docker@sha256:4a320eb06b1a8f3abe1243b0aad20ad9d8455f1dbfc032a3d941340622494005'
+    entrypoint: 'bash'
+    dir: ui
+    args:
+      - '-c'
+      - |
+        set -e
+
+        if [[ "$BRANCH_NAME" == "main" ]]; then
+          service_name="demo-portal"
+          registry="northamerica-northeast1-docker.pkg.dev/${PROJECT_ID}/paradire"
+          latest_image_tag="${registry}/${service_name}:latest"
+          unique_image_tag="${registry}/${service_name}:${COMMIT_SHA:-unknown_sha}"
+
+          echo "Building Docker image for ${service_name}..."
+          docker build -t "${latest_image_tag}" -t "${unique_image_tag}" -f ./Dockerfile .
+
+          echo "Pushing Docker image..."
+          docker push "${latest_image_tag}"
+          docker push "${unique_image_tag}"
+        else
+          echo "Skipping build: Not on 'main' branch"
+          exit 0
+        fi
+
+options:
+  defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET

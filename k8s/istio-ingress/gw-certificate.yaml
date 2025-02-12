@@ -7,6 +7,7 @@ spec:
   dnsNames:
     - "*.bc.iidi.alpha.phac.gc.ca"
     - "*.on.iidi.alpha.phac.gc.ca"
+    - "*.demo-portal.iidi.alpha.phac.gc.ca"
   issuerRef:
     kind: ClusterIssuer
     name: letsencrypt-production

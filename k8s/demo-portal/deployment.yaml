@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-portal
+  namespace: demo-portal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-portal
+  template:
+    metadata:
+      labels:
+        app: demo-portal
+    spec:
+      containers:
+        - name: demo-portal
+          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/demo-portal:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          env:
+            - name: FLASK_APP
+              value: 'app.py'
+            - name: FLASK_DEBUG
+              value: '0'
