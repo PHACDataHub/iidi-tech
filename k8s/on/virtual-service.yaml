@@ -27,3 +27,12 @@ spec:
             host: hapi-fhir-svc.on.svc.cluster.local
             port:
               number: 8080
+    - match:
+        - headers:
+            ":authority":
+              exact: "aggregator.on.iidi.alpha.phac.gc.ca"
+      route:
+        - destination:
+            host: aggregator-service.on.svc.cluster.local
+            port:
+              number: 80
