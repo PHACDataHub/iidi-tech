@@ -17,4 +17,4 @@ spec:
         - destination:
             host: demo-portal.iidi.svc.cluster.local
             port:
-              number: 80
+              number: 8080

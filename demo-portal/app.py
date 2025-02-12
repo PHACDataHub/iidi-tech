@@ -351,5 +351,10 @@ def health_check(province_name):
     
     return jsonify({"error": "Province not found"}), 404
 
+@app.route('/health', methods=['GET'])
+def health():
+    """Simple health check for Kubernetes probes."""
+    return jsonify({"status": "healthy"}), 200
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=8080)
