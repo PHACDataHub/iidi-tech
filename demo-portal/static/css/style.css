@@ -12,7 +12,7 @@ html {
 }
 
 .container {
-  max-width: 1500px;
+  max-width: 1300px;
   margin: 20px auto;
   padding: 10px;
   background-color: #c8d6e5;
@@ -162,7 +162,7 @@ html {
   margin-bottom: 20px;
   transition: box-shadow 0.3s ease;
   overflow: hidden;
-  max-width: 1500px; /* Adjust width to match other elements */
+  max-width: 1200px; /* Adjust width to match other elements */
   border: none !important;
   margin-left: auto; /* Centers the element */
   margin-right: auto; /* Centers the element */
