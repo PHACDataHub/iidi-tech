@@ -5,16 +5,15 @@ metadata:
   namespace: istio-ingress
 spec:
   hosts:
-    - "*.demo-portal.iidi.alpha.phac.gc.ca"
+    - "demo-portal.iidi.alpha.phac.gc.ca"
   gateways:
     - istio-ingress/mesh-gateway
   http:
     - match:
-        - headers:
-            ":authority":
-              exact: "demo-portal.iidi.alpha.phac.gc.ca"
+        - uri:
+            prefix: "/"
       route:
         - destination:
-            host: demo-portal.iidi.svc.cluster.local
+            host: demo-portal.demo-portal.svc.cluster.local 
             port:
               number: 8080
