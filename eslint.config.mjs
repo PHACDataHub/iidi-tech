@@ -254,7 +254,7 @@ export default [
     },
   },
 
-  ...['TODO-SERVICE-PLACEHOLDER-BACKENDS'].map(
+  ...['federator', 'transfer-inbound', 'transfer-outbound'].map(
     make_config_for_node_typescript_dir,
   ),
 
