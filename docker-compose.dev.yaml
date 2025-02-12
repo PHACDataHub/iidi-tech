@@ -213,6 +213,21 @@ configs:
 
               proxy_pass http://federator:3000/;
           }
+
+          location /fed/dashboard/ {
+              # set proxy headers
+              proxy_set_header Host $$host;
+              proxy_set_header X-Real-IP $$remote_addr;
+              proxy_set_header X-Forwarded-For $$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $$scheme;
+              
+              # WebSocket support
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade $$http_upgrade;
+              proxy_set_header Connection "upgrade";
+
+              proxy_pass http://dashboard:3838/;
+          }
       }
   hapi:
     file: ./hapi-dev.application.yaml
@@ -446,3 +461,16 @@ services:
       EXPRESS_PORT: 3000
       DEV_IS_LOCAL_ENV: True
       AGGREGATOR_URLS: 'http://gateway/on/aggregator,http://gateway/bc/aggregator'
+  dashboard:
+    image: rshiny-dashboard:1.0
+    tty: ${DOCKER_TTY:-true}
+    restart: always
+    build:
+      context: ./rshiny-dashboard
+    networks:
+      - gateway
+      - federal-internal
+    ports:
+      - 3838:3838
+    environment:
+      AGGREGATOR_URL: http://federator:3000/aggregated-data

@@ -1,0 +1,18 @@
+Type: Shiny
+Package: iidi-dashboard
+Title: IIDI Dashboard
+Version: 1.0.0
+Authors@R: c(
+    person("HC", role = c("aut", "cre"))
+    )
+Depends: R (>= 4.3.1)
+Imports:
+    shiny,
+    shinydashboard,
+    ggplot2,
+    dplyr,
+    httr,
+    jsonlite,
+    DT,
+    tidyr,
+    scales
