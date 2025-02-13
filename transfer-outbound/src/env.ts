@@ -1,4 +1,4 @@
-import { cleanEnv, port, host, bool, url } from 'envalid';
+import { cleanEnv, port, host, bool, url, str } from 'envalid';
 
 const boolFalseIfProd = (spec: { default: boolean }) => {
   const is_prod =
@@ -16,6 +16,10 @@ export const get_env = () => {
   const processed_env = cleanEnv(process.env, {
     EXPRESS_PORT: port({ default: 3000 }),
     EXPRESS_HOST: host({ default: '0.0.0.0' }),
+
+    REDIS_PORT: port({ default: 6379 }),
+    REDIS_PASSWORD: str(),
+    REDIS_HOST: host({ default: '0.0.0.0' }),
 
     FHIR_URL: url(),
 
