@@ -7,17 +7,17 @@ app = Flask(__name__)
 entities = {
     "Federal": [
         {"name": "Dashboard", "url": "https://rshiny-dashboard.federal.iidi.alpha.phac.gc.ca/browser"},
-        {"name": "Aggregator", "url": "https://aggregator.federal.iidi.alpha.phac.gc.ca/browser"},
+        {"name": "Aggregator", "url": "https://federator.federal.iidi.alpha.phac.gc.ca/aggregated-data"},
     ],
     "British Columbia (BC)": [
         {"name": "Patient Browser", "url": "https://patient-browser.bc.iidi.alpha.phac.gc.ca"},
         {"name": "HAPI FHIR Server", "url": "https://fhir.bc.iidi.alpha.phac.gc.ca"},
-        {"name": "Aggregator", "url": "https://aggregator.bc.iidi.alpha.phac.gc.ca"}
+        {"name": "Aggregator", "url": "https://aggregator.bc.iidi.alpha.phac.gc.ca/aggregated-data"}
     ],
     "Ontario (ON)": [
         {"name": "Patient Browser", "url": "https://patient-browser.on.iidi.alpha.phac.gc.ca"},
         {"name": "HAPI FHIR Server", "url": "https://fhir.on.iidi.alpha.phac.gc.ca"},
-        {"name": "Aggregator", "url": "https://aggregator.on.iidi.alpha.phac.gc.ca"}
+        {"name": "Aggregator", "url": "https://aggregator.on.iidi.alpha.phac.gc.ca/aggregated-data"}
     ]
 }
 

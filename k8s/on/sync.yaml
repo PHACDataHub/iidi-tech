@@ -1,0 +1,48 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: hapi-fhir-server-on
+  namespace: flux-system
+spec:
+  path: ./k8s/on/hapi-fhir-server
+  interval: 2m0s
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  wait: true
+  dependsOn:
+    - name: cnpg-system
+
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: aggregation-server-on
+  namespace: flux-system
+spec:
+  path: ./k8s/on/aggregation-server
+  interval: 2m0s
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  dependsOn:
+    - name: hapi-fhir-server-on
+
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: patient-browser-on
+  namespace: flux-system
+spec:
+  path: ./k8s/on/patient-browser
+  interval: 2m0s
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  dependsOn:
+    - name: hapi-fhir-server-on

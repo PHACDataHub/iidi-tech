@@ -1,0 +1,67 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: demo-portal
+  namespace: flux-system
+spec:
+  interval: 2m0s
+  path: ./k8s/demo-portal
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  images:
+    - name: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/demo-portal
+      newTag: latest
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: demo-portal
+  namespace: flux-system
+spec:
+  image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/demo-portal
+  interval: 1m0s
+  provider: gcp
+
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImagePolicy
+metadata:
+  name: demo-portal
+  namespace: flux-system
+spec:
+  filterTags:
+    extract: $ts
+    pattern: ^main-[a-fA-F0-9]+-(?P<ts>.*)
+  imageRepositoryRef:
+    name: demo-portal
+  policy:
+    numerical:
+      order: asc
+
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImageUpdateAutomation
+metadata:
+  name: demo-portal-image-updater
+  namespace: flux-system
+spec:
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+  interval: 5m
+  update:
+    strategy: Setters
+    path: ./k8s/demo-portal
+  git:
+    checkout:
+      ref:
+        branch: "main"
+    commit:
+      author:
+        name: fluxbot
+        email: fluxcd@users.noreply.github.com
+      messageTemplate: "[ci skip] {{range .Updated.Images}}{{println .}}{{end}}"
+    push:
+      branch: "main"
