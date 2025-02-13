@@ -1,0 +1,12 @@
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: demo-portal
+  namespace: flux-system
+spec:
+  interval: 2m0s
+  path: ./k8s/demo-portal
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system

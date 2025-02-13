@@ -8,11 +8,14 @@ steps:
       - |
         set -e
 
-        if [[ "$BRANCH_NAME" == "main" ]]; then
+        if [[ "$BRANCH_NAME" == "iidi-demo-portal-url" ]]; then
           service_name="demo-portal"
           registry="northamerica-northeast1-docker.pkg.dev/${PROJECT_ID}/paradire"
+
+          COMMIT_SHA="${COMMIT_SHA:-$(git rev-parse --short HEAD)}"
+
           latest_image_tag="${registry}/${service_name}:latest"
-          unique_image_tag="${registry}/${service_name}:${COMMIT_SHA:-unknown_sha}"
+          unique_image_tag="${registry}/${service_name}:${COMMIT_SHA}"
 
           echo "Building Docker image for ${service_name}..."
           docker build -t "${latest_image_tag}" -t "${unique_image_tag}" -f ./Dockerfile .
