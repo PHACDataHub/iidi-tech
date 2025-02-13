@@ -43,7 +43,7 @@ export const create_app = async () => {
     const { patient_id, transfer_to } = req.body;
 
     const transfer_request = await initialize_transfer_request(
-      patient_id,
+      patient_id.toString(),
       transfer_to,
     );
 
@@ -66,12 +66,23 @@ export const create_app = async () => {
     }
   });
 
-  app.get('/patient/:patientId/transferRequest', (_req, res) => {
-    // TODO get all transferRequests for a patient
+  app.get('/patient/:patientId/transferRequest', async (req, res) => {
+    const { patientId: patient_id } = req.params;
 
-    // should allow query params for pagination and filtering by live/finished
+    const { start, end } = req.query;
+    const start_number = query_param_to_int_or_undefined(start);
+    const end_number = query_param_to_int_or_undefined(end);
 
-    res.status(501).send();
+    const all_jobs = await get_transfer_requests(start_number, end_number);
+
+    const paginated_filtered_jobs = all_jobs.filter(
+      (job) => job.data.patient_id === patient_id,
+    );
+
+    const jobs_info = await Promise.all(
+      paginated_filtered_jobs.map(get_transfer_request_job_info),
+    );
+    res.status(200).send(jobs_info);
   });
 
   app.use(expressErrorHandler);
