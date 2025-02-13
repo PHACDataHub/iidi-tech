@@ -1,7 +1,11 @@
 import express from 'express';
 
 import { expressErrorHandler } from './error_utils.ts';
-import { initialize_transfer_request } from './transfer_request_utils.ts';
+import {
+  initialize_transfer_request,
+  get_transfer_request_by_id,
+  get_transfer_request_job_info,
+} from './transfer_request_queue/transfer_request_utils.ts';
 
 export const create_app = async () => {
   const app = express();
@@ -33,13 +37,23 @@ export const create_app = async () => {
       transfer_to,
     );
 
-    res.status(200).type('json').send(transfer_request);
+    res
+      .status(200)
+      .type('json')
+      .send({ transfer_request_id: transfer_request.id });
   });
 
-  app.get('/transferRequest/:transferRequestId', (_req, res) => {
-    // TODO get transferRequest by ID
+  app.get('/transferRequest/:transferRequestId', async (req, res) => {
+    const transfer_request_job = await get_transfer_request_by_id(
+      req.params.transferRequestId,
+    );
 
-    res.status(501).send();
+    if (transfer_request_job === undefined) {
+      res.status(404).send();
+    } else {
+      const info = await get_transfer_request_job_info(transfer_request_job);
+      res.status(200).send(info);
+    }
   });
 
   app.get('/patient/:patientId/transferRequest', (_req, res) => {
