@@ -8,7 +8,7 @@ steps:
       - |
         set -e
 
-        if [[ "$BRANCH_NAME" == "iidi-demo-portal-url" ]]; then
+        if [[ "$BRANCH_NAME" == "simsingh/iidi-demo-portal-url" ]]; then
           service_name="demo-portal"
           registry="northamerica-northeast1-docker.pkg.dev/${PROJECT_ID}/paradire"
 
