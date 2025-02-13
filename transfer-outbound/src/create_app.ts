@@ -1,9 +1,12 @@
 import express from 'express';
 
 import { expressErrorHandler } from './error_utils.ts';
+import { query_param_to_int_or_undefined } from './request_utils.ts';
+
 import {
   initialize_transfer_request,
   get_transfer_request_by_id,
+  get_transfer_requests,
   get_transfer_request_job_info,
 } from './transfer_request_queue/transfer_request_utils.ts';
 
@@ -21,12 +24,19 @@ export const create_app = async () => {
     res.status(200).send();
   });
 
-  app.get('/transferRequest', (_req, res) => {
-    // TODO get all transferRequests
+  app.get('/transferRequest', async (req, res) => {
+    const { start, end } = req.query;
 
-    // should allow query params for pagination and filtering by live/finished
+    const jobs = await get_transfer_requests(
+      query_param_to_int_or_undefined(start),
+      query_param_to_int_or_undefined(end),
+    );
 
-    res.status(501).send();
+    const jobs_info = await Promise.all(
+      jobs.map(get_transfer_request_job_info),
+    );
+
+    res.status(200).send(jobs_info);
   });
 
   app.post('/transferRequest', async (req, res) => {
