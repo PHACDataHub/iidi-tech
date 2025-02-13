@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@whatwg-node/node-fetch": "^0.7.0",
+    "bullmq": "^5.40.3",
     "dotenv": "^16.0.3",
     "envalid": "^8.0.0",
     "express": "^5.0.1",
