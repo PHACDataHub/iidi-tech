@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rshiny-dashboard
+  namespace: "federal"
+  labels:
+    app: rshiny-dashboard 
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 3838
+    protocol: TCP
+  selector:
+    app: rshiny-dashboard

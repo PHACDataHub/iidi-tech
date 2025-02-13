@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rshiny-dashboard-deployment
+  namespace: "federal"
+  labels:
+    app: rshiny-dashboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rshiny-dashboard
+  template:
+    metadata:
+      labels:
+        app: rshiny-dashboard
+    spec:
+      containers:
+      - name: rshiny-dashboard
+        image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-dashboard@sha256:efe6154e4cdc8ba816763e7eefec617dc6af70d0dfa66c66bf1777d30c5d667f
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3838
+        env:
+        - name: AGGREGATOR_URL
+          value: "http://federator-svc.federal.svc.cluster.local:80/aggregated-data"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "1"
