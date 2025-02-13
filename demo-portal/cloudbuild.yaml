@@ -9,19 +9,11 @@ steps:
       - |
         set -e
         SHORT_SHA="${COMMIT_SHA:-$(git rev-parse --short HEAD)}"
-        TIMESTAMP=$(date +%s)
+        echo "northamerica-northeast1-docker.pkg.dev/${PROJECT_ID}/paradire/demo-portal:main-$SHORT_SHA-$(date +%s)" > /workspace/imagename
 
-        # Sanitize BRANCH_NAME to remove invalid characters for Docker tags
-        SAFE_BRANCH_NAME=$(echo "$BRANCH_NAME" | tr '/+' '--')
-
-        IMAGE_NAME="northamerica-northeast1-docker.pkg.dev/${PROJECT_ID}/paradire/demo-portal:${SAFE_BRANCH_NAME}-${SHORT_SHA}-${TIMESTAMP}"
-
-        echo "$IMAGE_NAME" > /workspace/imagename
-        echo "Generated Image Name: $IMAGE_NAME"
-
-  # Step 2: Build the Docker image only if the branch is 'simsingh/iidi-demo-portal-url'
+  # Step 2: Build the Docker image if the branch is 'main'
   - name: 'gcr.io/cloud-builders/docker'
-    id: build-if-iidi-demo-portal-url
+    id: build-if-main
     entrypoint: 'bash'
     dir: demo-portal
     args:
@@ -32,13 +24,13 @@ steps:
           echo "Building Docker image: $image"
           docker build -t "$image" -f ./Dockerfile .
         else
-          echo "Skipping build: Not on 'simsingh/iidi-demo-portal-url' branch"
+          echo "Skipping build: Not on 'main' branch"
           exit 0
         fi
 
-  # Step 3: Push the Docker image to the registry if the branch is 'simsingh/iidi-demo-portal-url'
+  # Step 3: Push the Docker image to the registry if the branch is 'main'
   - name: 'gcr.io/cloud-builders/docker'
-    id: push-if-iidi-demo-portal-url
+    id: push-if-main
     entrypoint: 'bash'
     args:
       - '-c'
@@ -48,7 +40,7 @@ steps:
           echo "Pushing Docker image: $image"
           docker push "$image"
         else
-          echo "Skipping push: Not on 'simsingh/iidi-demo-portal-url' branch"
+          echo "Skipping push: Not on 'main' branch"
           exit 0
         fi
 
