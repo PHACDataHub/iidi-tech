@@ -1,5 +1,5 @@
 steps:
-  # Step 1: Generate the Docker image name and save it to a workspace file
+  # Step 1: Generate the Docker image name and save to a workspace file
   - name: 'gcr.io/cloud-builders/docker'
     id: generate-image-name
     entrypoint: 'bash'
@@ -9,12 +9,9 @@ steps:
       - |
         set -e
         SHORT_SHA="${COMMIT_SHA:-$(git rev-parse --short HEAD)}"
-        TIMESTAMP=$(date +%s)
-        IMAGE_NAME="northamerica-northeast1-docker.pkg.dev/${PROJECT_ID}/paradire/demo-portal:${BRANCH_NAME}-${SHORT_SHA}-${TIMESTAMP}"
-        echo "$IMAGE_NAME" > /workspace/imagename
-        echo "Generated Image Name: $IMAGE_NAME"
+        echo "northamerica-northeast1-docker.pkg.dev/${PROJECT_ID}/paradire/demo-portal:$BRANCH_NAME-$SHORT_SHA-$(date +%s)" > /workspace/imagename
 
-  # Step 2: Build the Docker image only if the branch is 'simsingh/iidi-demo-portal-url'
+  # Step 2: Build the Docker image if the branch is 'simsingh/iidi-demo-portal-url'
   - name: 'gcr.io/cloud-builders/docker'
     id: build-if-iidi-demo-portal-url
     entrypoint: 'bash'
