@@ -1,5 +1,5 @@
 export type transferStage =
-  | 'initializing'
+  | 'pending'
   | 'collecting'
   | 'marking_transfered'
   | 'transfering'
@@ -15,5 +15,4 @@ export interface transferRequest {
   // but handle it all in-memory for initial minimal viable implementation
   stage: transferStage;
   stage_history: transferStage[];
-  collected_data?: any; //eslint-disable-line @typescript-eslint/no-explicit-any
 }

@@ -44,7 +44,7 @@ export const create_app = async () => {
 
     const transfer_request = await initialize_transfer_request(
       patient_id.toString(),
-      transfer_to,
+      transfer_to.toString(),
     );
 
     res
@@ -62,7 +62,7 @@ export const create_app = async () => {
       res.status(404).send();
     } else {
       const info = await get_transfer_request_job_info(transfer_request_job);
-      res.status(200).send(info);
+      res.status(200).type('json').send(info);
     }
   });
 
@@ -82,7 +82,7 @@ export const create_app = async () => {
     const jobs_info = await Promise.all(
       paginated_filtered_jobs.map(get_transfer_request_job_info),
     );
-    res.status(200).send(jobs_info);
+    res.status(200).type('json').send(jobs_info);
   });
 
   app.use(expressErrorHandler);

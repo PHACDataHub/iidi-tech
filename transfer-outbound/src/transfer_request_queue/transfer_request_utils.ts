@@ -16,7 +16,7 @@ export const initialize_transfer_request = async (
     {
       patient_id,
       transfer_to,
-      stage: 'initializing',
+      stage: 'pending',
       stage_history: [],
     },
     {
