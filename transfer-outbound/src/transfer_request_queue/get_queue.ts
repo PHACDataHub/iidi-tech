@@ -4,9 +4,11 @@ import _ from 'lodash';
 
 import { get_env } from 'src/env.ts';
 
+import type { transferRequest } from './transferRequest.d.ts';
+
 const get_queue_cached = _.memoize(
   (queue_name: string, host: string, port: number, password: string) =>
-    new Queue(queue_name, {
+    new Queue<transferRequest, transferRequest>(queue_name, {
       connection: {
         host,
         port,
