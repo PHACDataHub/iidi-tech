@@ -4,3 +4,4 @@ dotenv.config({ path: '.env.node-dev-docker-env-overrides' }); // relative to th
 
 process.env.DEV_IS_TEST_ENV = 'true';
 process.env.FHIR_URL = 'https://placeholder/fhir';
+process.env.REDIS_PASSWORD = 'test-placeholder';
