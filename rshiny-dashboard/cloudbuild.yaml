@@ -1,23 +1,46 @@
 steps:
-  - id: build-and-push-if-main
-    name: 'gcr.io/cloud-builders/docker'
+  # Step 1: Generate the Docker image name and save it to a workspace file
+  - name: 'gcr.io/cloud-builders/docker'
+    id: generate-image-name
     entrypoint: 'bash'
     dir: rshiny-dashboard
     args:
       - '-c'
       - |
-        if [[ "$BRANCH_NAME" == "main" ]]
-        then
-          service_name="iidi-dashboard"
-          
-          image_name="northamerica-northeast1-docker.pkg.dev/${PROJECT_ID}/paradire/${service_name}"
-          latest_image_tag="${image_name}:latest"
-          unique_image_tag="${image_name}:${BRANCH_NAME}-${COMMIT_SHA:-unknown_sha}-$(date +%s)"
+        set -e
+        SHORT_SHA="${COMMIT_SHA:-$(git rev-parse --short HEAD)}"
+        echo "northamerica-northeast1-docker.pkg.dev/${PROJECT_ID}/paradire/iidi-dashboard:main-$SHORT_SHA-$(date +%s)" > /workspace/imagename
 
-          docker build -t "${latest_image_tag}" -t "${unique_image_tag}" -f ./Dockerfile .
-
-          docker push --all-tags "${image_name}"
+  # Step 2: Build the Docker image if the branch is 'main'
+  - name: 'gcr.io/cloud-builders/docker'
+    id: build-if-main
+    entrypoint: 'bash'
+    dir: rshiny-dashboard
+    args:
+      - '-c'
+      - |
+        if [[ "$BRANCH_NAME" == "main" ]]; then
+          image=$(cat /workspace/imagename)
+          echo "Building Docker image: $image"
+          docker build -t "$image" -f ./Dockerfile .
         else
+          echo "Skipping build: Not on 'main' branch"
+          exit 0
+        fi
+
+  # Step 3: Push the Docker image to the registry if the branch is 'main'
+  - name: 'gcr.io/cloud-builders/docker'
+    id: push-if-main
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        if [[ "$BRANCH_NAME" == "main" ]]; then
+          image=$(cat /workspace/imagename)
+          echo "Pushing Docker image: $image"
+          docker push "$image"
+        else
+          echo "Skipping push: Not on 'main' branch"
           exit 0
         fi
 
