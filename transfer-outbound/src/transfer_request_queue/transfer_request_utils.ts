@@ -28,6 +28,11 @@ export const initialize_transfer_request = async (
 export const get_transfer_request_by_id = async (id: string) =>
   get_queue().getJob(id);
 
+export const get_transfer_requests = async (
+  start: number | undefined,
+  end: number | undefined,
+) => get_queue().getJobs(undefined, start, end);
+
 export const get_transfer_request_job_info = async (
   transfer_request_job: transferRequestJob,
 ) => {
