@@ -19,7 +19,7 @@ steps:
     args:
       - '-c'
       - |
-        if [[ "$BRANCH_NAME" == "simsingh/iidi-demo-portal-url" ]]; then
+        if [[ "$BRANCH_NAME" == "main" ]]; then
           image=$(cat /workspace/imagename)
           echo "Building Docker image: $image"
           docker build -t "$image" -f ./Dockerfile .
@@ -35,7 +35,7 @@ steps:
     args:
       - '-c'
       - |
-        if [[ "$BRANCH_NAME" == "simsingh/iidi-demo-portal-url" ]]; then
+        if [[ "$BRANCH_NAME" == "main" ]]; then
           image=$(cat /workspace/imagename)
           echo "Pushing Docker image: $image"
           docker push "$image"
