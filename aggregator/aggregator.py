@@ -14,7 +14,7 @@ app = Flask(__name__)
 
 # Environment variables
 FHIR_URL = os.getenv("FHIR_URL", "http://localhost:8080/fhir")
-AGGREGATION_INTERVAL = int(os.getenv("AGGREGATION_INTERVAL", 60))  # Default to 60 seconds if not provided
+AGGREGATION_INTERVAL = int(os.getenv("AGGREGATION_INTERVAL", 60))  # Default to 60 seconds
 MIN_COUNT_THRESHOLD = int(os.getenv("MIN_COUNT_THRESHOLD", 1))  # Minimum count threshold for filtering
 
 # Cache variables for aggregation
@@ -24,17 +24,16 @@ last_aggregation_time = None
 # Patient cache with LRU eviction policy
 patient_cache = LRUCache(maxsize=1000)
 
-
 def validate_environment_variables():
     """Ensure required environment variables are set."""
     if not FHIR_URL:
         raise ValueError("FHIR_URL environment variable is required!")
 
-
 def fetch_fhir_resources(resource_type):
-    """Fetch resources of the specified type from the FHIR server."""
+    """Fetch resources of the specified type from the FHIR server, handling pagination."""
     url = f"{FHIR_URL}/{resource_type}?_count=1000"
     results = []
+    
     while url:
         try:
             response = requests.get(url, timeout=10)
@@ -46,8 +45,8 @@ def fetch_fhir_resources(resource_type):
         except requests.exceptions.RequestException as e:
             logging.error(f"Error fetching {resource_type} data from FHIR server: {e}")
             break
+    
     return results
-
 
 def fetch_patient_data(patient_reference):
     """Fetch Patient resource based on reference, with caching."""
@@ -66,11 +65,12 @@ def fetch_patient_data(patient_reference):
         logging.error(f"Error fetching Patient data for {patient_id}: {e}")
         return None
 
-
-def calculate_age_group(birth_date, reference_date: datetime.now()):
+def calculate_age_group(birth_date):
     """Calculate age group based on birthDate."""
     try:
-        age = (reference_date - datetime.strptime(birth_date, "%Y-%m-%d")).days // 365
+        if not birth_date:
+            return "Unknown"
+        age = (datetime.now() - datetime.strptime(birth_date, "%Y-%m-%d")).days // 365
         if age < 2:
             return "0-2 years"
         elif age < 5:
@@ -79,106 +79,91 @@ def calculate_age_group(birth_date, reference_date: datetime.now()):
             return "6-17 years"
         else:
             return "18+ years"
-    except ValueError as e:
-        logging.error(f"Invalid birthDate format: {birth_date} - {e}")
+    except ValueError:
         return "Unknown"
 
-
-def process_immunization_record(immunization, reference_date: datetime.now()):
+def process_immunization_record(immunization):
     """Process a single Immunization record and return data for aggregation."""
     try:
-        patient_ref = immunization.get("patient", {}).get("reference", None)
+        patient_ref = immunization.get("patient", {}).get("reference")
         if not patient_ref:
-            return None  # Skip invalid records
+            return None
 
         patient = fetch_patient_data(patient_ref)
         if not patient:
             return None
-
-        # Extract doseNumber
-        dose_number = 1  # Default to 1 if not specified
+        
+        dose_number = 1  # Default dose number
         protocol_applied = immunization.get("protocolApplied", [])
         if protocol_applied:
             dose_number = int(protocol_applied[0].get("doseNumberString", 1))
-
-        occurenceDateTime = immunization.get("occurrenceDateTime", "")
-
+        
+        occurrence_date = immunization.get("occurrenceDateTime", "")
+        occurrence_year = occurrence_date[:4] if len(occurrence_date) >= 4 else "Unknown"
+        
         return {
-            "ReferenceDate": reference_date.strftime('%Y-%m-%d'),
-            "OccurrenceYear": "Unknown" if len(occurenceDateTime) < 4 else occurenceDateTime[0:4],
+            "ReferenceDate": datetime.now().strftime('%Y-%m-%d'),
+            "OccurrenceYear": occurrence_year.strip(),
             "Jurisdiction": "BC" if "bc" in FHIR_URL else "ON",
             "Sex": patient.get("gender", "Unknown").capitalize(),
-            "AgeGroup": calculate_age_group(patient.get("birthDate", "Unknown"), reference_date),
+            "AgeGroup": calculate_age_group(patient.get("birthDate")),
             "DoseCount": dose_number,
         }
-    except (KeyError, ValueError, IndexError) as e:
+    except Exception as e:
         logging.error(f"Error processing immunization record: {e}")
         return None
 
-
-def aggregate_data(reference_date: datetime.now()):
+def aggregate_data():
     """Fetch and aggregate data from the FHIR server."""
-    # Fetch Immunization resources
     logging.info("Fetching Immunization resources...")
     immunizations = fetch_fhir_resources("Immunization")
+    
     if not immunizations:
         logging.warning("No Immunization records found.")
         return []
 
-    # Process immunization records
-    records = []
-    for entry in immunizations:
-        immunization = entry.get("resource", {})
-        processed_record = process_immunization_record(immunization, reference_date)
-        if processed_record:
-            records.append(processed_record)
-
+    records = [process_immunization_record(entry.get("resource", {})) for entry in immunizations]
+    records = [r for r in records if r]
+    
     if not records:
         logging.warning("No valid records processed.")
         return []
-
-    # Convert to DataFrame for aggregation
+    
     df = pd.DataFrame(records)
-
-    # Perform aggregation
-    aggregated = df.groupby(
-        ["ReferenceDate", "OccurrenceYear", "Jurisdiction", "Sex", "AgeGroup"]
-    ).agg(
-        DoseCount=("DoseCount", "sum"),  # Sum of doses
-        Count=("DoseCount", "size")  # Count of records
-    ).reset_index()
-
-    # Sorting for readability
+    
+    # Standardizing data
+    df["OccurrenceYear"] = df["OccurrenceYear"].astype(str).str.strip()
+    df["Sex"] = df["Sex"].str.capitalize()
+    df["AgeGroup"] = df["AgeGroup"].str.strip()
+    
+    aggregated = df.groupby([
+        "ReferenceDate", "OccurrenceYear", "Jurisdiction", "Sex", "AgeGroup"
+    ], as_index=False).agg(
+        DoseCount=("DoseCount", "sum"),
+        Count=("DoseCount", "count")
+    )
+    
     aggregated = aggregated.sort_values(
         by=["ReferenceDate", "OccurrenceYear", "AgeGroup", "Sex"], ascending=[True, True, True, True]
-    ).reset_index(drop=True)
-
-    # Filtering groups with low counts
+    )
+    
     aggregated = aggregated[aggregated["Count"] > MIN_COUNT_THRESHOLD]
-
     return aggregated.to_dict(orient="records")
-
 
 @app.route("/aggregated-data", methods=["GET"])
 def get_aggregated_data():
     """API endpoint to return aggregated data."""
     global cached_data, last_aggregation_time
-
-    # Consistent reference date for use across the processing of this request
-    reference_date = datetime.now()
-
-    current_time = reference_date.timestamp()
+    current_time = datetime.now().timestamp()
+    
     if cached_data and last_aggregation_time and (current_time - last_aggregation_time < AGGREGATION_INTERVAL):
         logging.info("Returning cached aggregated data...")
         return jsonify(cached_data)
-
+    
     logging.info("Calculating new aggregated data...")
-    aggregated_data = aggregate_data(reference_date)
-    cached_data = aggregated_data
+    cached_data = aggregate_data()
     last_aggregation_time = current_time
-
-    return jsonify(aggregated_data)
-
+    return jsonify(cached_data)
 
 @app.route("/health", methods=["GET"])
 def health_check():
