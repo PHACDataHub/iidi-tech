@@ -7,7 +7,7 @@ app = Flask(__name__)
 entities = {
     "Federal": [
         {"name": "Dashboard", "url": "https://rshiny-dashboard.federal.iidi.alpha.phac.gc.ca"},
-        {"name": "Aggregator", "url": "https://federator.federal.iidi.alpha.phac.gc.ca/aggregated-data"},
+        {"name": "Federator", "url": "https://federator.federal.iidi.alpha.phac.gc.ca/aggregated-data"},
     ],
     "British Columbia (BC)": [
         {"name": "Patient Browser", "url": "https://patient-browser.bc.iidi.alpha.phac.gc.ca"},
