@@ -2,17 +2,28 @@ Type: Shiny
 Package: iidi-dashboard
 Title: IIDI Dashboard
 Version: 1.0.0
-Authors@R: c(
-    person("HC", role = c("aut", "cre"))
-    )
-Depends: R (>= 4.3.1)
+Authors@R:
+person("HC", role = c("aut", "cre"))
+
+Description: A Shiny dashboard for analyzing immunization coverage trends
+using data from the Interoperable Immunization Data Initiative (IIDI).
+The dashboard provides interactive visualizations and insights.
+
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Depends:
+R (>= 4.3.1)
 Imports:
-    shiny,
-    shinydashboard,
-    ggplot2,
-    dplyr,
-    httr,
-    jsonlite,
-    DT,
-    tidyr,
-    scales
+shiny,
+shinydashboard,
+ggplot2,
+dplyr,
+httr,
+jsonlite,
+DT,
+tidyr,
+scales
+Suggests:
+testthat
+RoxygenNote: 7.2.3
