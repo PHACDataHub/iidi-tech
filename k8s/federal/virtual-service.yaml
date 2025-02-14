@@ -18,3 +18,12 @@ spec:
             host: federator-svc.federal.svc.cluster.local
             port:
               number: 80
+    - match:
+        - headers:
+            ":authority":
+              exact: "rshiny-dashboard.federal.iidi.alpha.phac.gc.ca"
+      route:
+        - destination:
+            host: rshiny-dashboard.federal.svc.cluster.local
+            port:
+              number: 80

@@ -6,7 +6,7 @@ app = Flask(__name__)
 # Define service entities for each province
 entities = {
     "Federal": [
-        {"name": "Dashboard", "url": "https://rshiny-dashboard.federal.iidi.alpha.phac.gc.ca/browser"},
+        {"name": "Dashboard", "url": "https://rshiny-dashboard.federal.iidi.alpha.phac.gc.ca"},
         {"name": "Aggregator", "url": "https://federator.federal.iidi.alpha.phac.gc.ca/aggregated-data"},
     ],
     "British Columbia (BC)": [
