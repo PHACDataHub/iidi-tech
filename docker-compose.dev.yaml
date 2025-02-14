@@ -61,6 +61,9 @@ configs:
               proxy_set_header Upgrade $$http_upgrade;
               proxy_set_header Connection "upgrade";
 
+              # prevent nginx from dropping the port from localhost urls
+              absolute_redirect off;
+
               proxy_pass http://on-fhir:8080/fhir/;
           }
           location /on/aggregator/ {
@@ -75,6 +78,9 @@ configs:
               proxy_set_header Upgrade $$http_upgrade;
               proxy_set_header Connection "upgrade";
 
+              # prevent nginx from dropping the port from localhost urls
+              absolute_redirect off;
+
               proxy_pass http://on-aggregator:5000/;
           }
           location /on/browser/ {
@@ -88,6 +94,9 @@ configs:
               proxy_http_version 1.1;
               proxy_set_header Upgrade $$http_upgrade;
               proxy_set_header Connection "upgrade";
+
+              # prevent nginx from dropping the port from localhost urls
+              absolute_redirect off;
 
               # fix relative paths in returned HTML/JS/CSS
               # necessary for the patient browser as it doesn't let us directly configure a server root like the fhir servers do
@@ -108,6 +117,9 @@ configs:
               proxy_set_header Upgrade $$http_upgrade;
               proxy_set_header Connection "upgrade";
 
+              # prevent nginx from dropping the port from localhost urls
+              absolute_redirect off;
+
               proxy_pass http://on-transfer-inbound:3000/;
           }
           location /on/outbound/ {
@@ -121,6 +133,9 @@ configs:
               proxy_http_version 1.1;
               proxy_set_header Upgrade $$http_upgrade;
               proxy_set_header Connection "upgrade";
+
+              # prevent nginx from dropping the port from localhost urls
+              absolute_redirect off;
 
               proxy_pass http://on-transfer-outbound:3000/;
           }
@@ -137,6 +152,9 @@ configs:
               proxy_set_header Upgrade $$http_upgrade;
               proxy_set_header Connection "upgrade";
 
+              # prevent nginx from dropping the port from localhost urls
+              absolute_redirect off;
+
               proxy_pass http://bc-fhir:8080/fhir/;
           }
           location /bc/aggregator/ {
@@ -151,6 +169,9 @@ configs:
               proxy_set_header Upgrade $$http_upgrade;
               proxy_set_header Connection "upgrade";
 
+              # prevent nginx from dropping the port from localhost urls
+              absolute_redirect off;
+
               proxy_pass http://bc-aggregator:5000/;
           }
           location /bc/browser/ {
@@ -164,6 +185,9 @@ configs:
               proxy_http_version 1.1;
               proxy_set_header Upgrade $$http_upgrade;
               proxy_set_header Connection "upgrade";
+
+              # prevent nginx from dropping the port from localhost urls
+              absolute_redirect off;
 
               # fix relative paths in returned HTML/JS/CSS
               # necessary for the patient browser as it doesn't let us directly configure a server root like the fhir servers do
@@ -184,6 +208,9 @@ configs:
               proxy_set_header Upgrade $$http_upgrade;
               proxy_set_header Connection "upgrade";
 
+              # prevent nginx from dropping the port from localhost urls
+              absolute_redirect off;
+
               proxy_pass http://bc-transfer-inbound:3000/;
           }
           location /bc/outbound/ {
@@ -197,6 +224,9 @@ configs:
               proxy_http_version 1.1;
               proxy_set_header Upgrade $$http_upgrade;
               proxy_set_header Connection "upgrade";
+
+              # prevent nginx from dropping the port from localhost urls
+              absolute_redirect off;
 
               proxy_pass http://bc-transfer-outbound:3000/;
           }
@@ -213,9 +243,11 @@ configs:
               proxy_set_header Upgrade $$http_upgrade;
               proxy_set_header Connection "upgrade";
 
+              # prevent nginx from dropping the port from localhost urls
+              absolute_redirect off;
+
               proxy_pass http://federator:3000/;
           }
-
           location /fed/dashboard/ {
               # set proxy headers
               proxy_set_header Host $$host;
@@ -228,7 +260,28 @@ configs:
               proxy_set_header Upgrade $$http_upgrade;
               proxy_set_header Connection "upgrade";
 
+              # prevent nginx from dropping the port from localhost urls
+              absolute_redirect off;
+
               proxy_pass http://dashboard:3838/;
+          }
+
+          location / {
+              # set proxy headers
+              proxy_set_header Host $$host;
+              proxy_set_header X-Real-IP $$remote_addr;
+              proxy_set_header X-Forwarded-For $$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $$scheme;
+              
+              # WebSocket support
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade $$http_upgrade;
+              proxy_set_header Connection "upgrade";
+
+              # prevent nginx from dropping the port from localhost urls
+              absolute_redirect off;
+
+              proxy_pass http://demo-portal:8080/;
           }
       }
   hapi:
@@ -504,3 +557,22 @@ services:
       - 3838:3838
     environment:
       AGGREGATOR_URL: http://federator:3000/aggregated-data
+
+  demo-portal:
+    image: demo-portal:1.2
+    tty: ${DOCKER_TTY:-true}
+    build:
+      context: ./demo-portal
+    networks:
+      - gateway
+    ports:
+      - 8080:8080
+    environment:
+      FED_DASHBOARD_URL: http://localhost:8080/fed/dashboard
+      FED_FEDERATOR_URL: http://localhost:8080/fed/federator/aggregated-data
+      BC_BROWSER_URL: http://localhost:8080/bc/browser
+      BC_FHIR_URL: http://localhost:8080/bc/fhir
+      BC_AGGREGATOR_URL: http://localhost:8080/bc/aggregator/aggregated-data
+      ON_BROWSER_URL: http://localhost:8080/on/browser
+      ON_FHIR_URL: http://localhost:8080/on/fhir
+      ON_AGGREGATOR_URL: http://localhost:8080/on/aggregator/aggregated-data
