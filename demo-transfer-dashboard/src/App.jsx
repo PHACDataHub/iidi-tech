@@ -1,13 +1,14 @@
 import './App.css';
 import Header from './Components/Header.jsx';
 import Footer from './Components/Footer.jsx';
-import { useEffect } from "react";
+import { useEffect } from 'react';
 
 function App() {
   useEffect(() => {
-    const link = document.createElement("link");
-    link.rel = "stylesheet";
-    link.href = "https://www.canada.ca/etc/designs/canada/cdts/gcweb/v4_0_32/css/theme.min.css";
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href =
+      'https://www.canada.ca/etc/designs/canada/cdts/gcweb/v4_0_32/css/theme.min.css';
     document.head.appendChild(link);
   }, []);
 

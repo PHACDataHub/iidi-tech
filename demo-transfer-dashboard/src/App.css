@@ -5,8 +5,6 @@
   font-family: inherit;
 }
 
-
-
 a {
   color: blue;
   /* Normal and visited link color */
@@ -37,7 +35,6 @@ a:hover {
 
 h1 {
   border-bottom: none !important;
-
 }
 
 main {
@@ -47,7 +44,6 @@ main {
   margin: 0 auto;
   text-align: left;
   padding: 10px 20px;
-
 }
 
 footer {
