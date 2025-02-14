@@ -8,11 +8,10 @@ library(DT)
 library(tidyr)
 library(scales)
 
-aggregator_url <- Sys.getenv(
-  "AGGREGATOR_URL",
-  "http://federator:3000/aggregated-data"
-)
+# API endpoint
+api_url <- "http://federator:3000/aggregated-data"
 
+# UI
 ui <- dashboardPage(
   dashboardHeader(title = "Immunization Coverage Analytics"),
   dashboardSidebar(
@@ -35,241 +34,107 @@ ui <- dashboardPage(
           valueBoxOutput("currentYear", width = 4)
         ),
         fluidRow(
-          box(
-            title = "Immunization Distribution by Sex",
-            plotOutput("sexDistribution"),
-            width = 6
-          ),
-          box(
-            title = "Dose Count by Jurisdiction",
-            plotOutput("jurisdictionDoses"),
-            width = 6
-          )
+          box(title = "Immunization Distribution by Sex", plotOutput("sexDistribution"), width = 6),
+          box(title = "Dose Count by Jurisdiction", plotOutput("jurisdictionDoses"), width = 6)
         )
       ),
       tabItem(
         tabName = "trends",
         fluidRow(
-          box(
-            title = "Temporal Trends",
-            plotOutput("timeTrend"),
-            width = 12
-          ),
-          box(
-            title = "Age Group Analysis",
-            plotOutput("ageAnalysis"),
-            width = 12
-          )
+          box(title = "Vaccination Coverage Trends (2-year-olds)", plotOutput("dtap_mmr_2yo"), width = 12),
+          box(title = "Vaccination Coverage Trends (7-year-olds)", plotOutput("dtap_mmr_7yo"), width = 12),
+          box(title = "Coverage Decline Rate per Year", plotOutput("decline_rate"), width = 12),
+          box(title = "Ontario vs. BC Coverage Comparison", plotOutput("on_bc_comparison"), width = 12),
+          box(title = "Sex-Based Coverage Trends", plotOutput("sex_trends"), width = 12),
+          box(title = "Dose Count Distribution", plotOutput("dose_distribution"), width = 12),
+          box(title = "Catch-up Rate Analysis", plotOutput("catchup_rate"), width = 12)
         )
       ),
       tabItem(
         tabName = "data",
         fluidRow(
-          box(
-            title = "Raw Data",
-            DTOutput("dataTable"),
-            width = 12
-          )
+          box(title = "Raw Data", DTOutput("dataTable"), width = 12)
         )
       )
     )
   )
 )
 
+# Server
 server <- function(input, output, session) {
-  custom_theme <- theme_minimal() +
-    theme(
-      text = element_text(size = 12),
-      axis.text = element_text(size = 10),
-      axis.title = element_text(size = 12, face = "bold"),
-      legend.text = element_text(size = 10),
-      legend.title = element_text(size = 12, face = "bold"),
-      plot.title = element_text(size = 14, face = "bold")
-    )
-
+  
+  # Fetch data from API
   get_data <- reactive({
-    response <- GET(aggregator_url)
+    response <- GET(api_url)
     data <- fromJSON(rawToChar(response$content))$data
     df <- as.data.frame(data)
     df$OccurrenceYear <- as.numeric(df$OccurrenceYear)
     return(df)
   })
-
-  output$jurisdictionSelect <- renderUI({
-    df <- get_data()
-    jurisdiction_choices <- c("All", unique(df$Jurisdiction))
-    selectInput(
-      "jurisdiction",
-      "Jurisdiction:",
-      choices = jurisdiction_choices,
-      selected = "All"
-    )
-  })
-
-  output$ageGroupSelect <- renderUI({
-    df <- get_data()
-    age_choices <- c("All", unique(df$AgeGroup))
-    selectInput(
-      "ageGroup",
-      "Age Group:",
-      choices = age_choices,
-      selected = "All"
-    )
-  })
-
-  output$sexSelect <- renderUI({
-    df <- get_data()
-    sex_choices <- c("All", unique(df$Sex))
-    selectInput(
-      "sex",
-      "Sex:",
-      choices = sex_choices,
-      selected = "All"
-    )
-  })
-
+  
+  # Filtering
   filtered_data <- reactive({
-    req(input$jurisdiction, input$ageGroup, input$sex)
     df <- get_data()
-
-    if (!is.null(input$jurisdiction) && input$jurisdiction != "All") {
-      df <- df %>% filter(.data$Jurisdiction == input$jurisdiction)
-    }
-    if (!is.null(input$ageGroup) && input$ageGroup != "All") {
-      df <- df %>% filter(.data$AgeGroup == input$ageGroup)
-    }
-    if (!is.null(input$sex) && input$sex != "All") {
-      df <- df %>% filter(.data$Sex == input$sex)
-    }
+    if (input$jurisdiction != "All") df <- df %>% filter(Jurisdiction == input$jurisdiction)
+    if (input$ageGroup != "All") df <- df %>% filter(AgeGroup == input$ageGroup)
+    if (input$sex != "All") df <- df %>% filter(Sex == input$sex)
     return(df)
   })
-
-
-
-  output$totalImmunizations <- renderValueBox({
-    valueBox(
-      sum(filtered_data()$Count),
-      "Total Immunizations",
-      icon = icon("syringe"),
-      color = "blue"
-    )
+  
+  # Coverage Decline Rate per Year
+  output$decline_rate <- renderPlot({
+    df <- filtered_data() %>% group_by(OccurrenceYear) %>% 
+      summarize(decline = (max(DoseCount) - min(DoseCount)) / max(DoseCount) * 100)
+    ggplot(df, aes(x = OccurrenceYear, y = decline)) +
+      geom_line(size = 1.2) +
+      geom_point(size = 2) +
+      theme_minimal() +
+      labs(title = "Coverage Decline Rate per Year", x = "Year", y = "Percentage Decline (%)")
   })
-
-  output$avgDoseCount <- renderValueBox({
-    valueBox(
-      round(mean(filtered_data()$DoseCount), 1),
-      "Average Doses",
-      icon = icon("calculator"),
-      color = "green"
-    )
+  
+  # Ontario vs. BC Coverage Comparison
+  output$on_bc_comparison <- renderPlot({
+    df <- filtered_data() %>% filter(Jurisdiction %in% c("ON", "BC"))
+    ggplot(df, aes(x = OccurrenceYear, y = DoseCount / Count * 100, fill = Jurisdiction)) +
+      geom_bar(stat = "identity", position = "dodge") +
+      theme_minimal() +
+      labs(title = "Ontario vs. BC Coverage Comparison", x = "Year", y = "Percent Vaccinated (%)")
   })
-
-  output$currentYear <- renderValueBox({
-    valueBox(
-      max(filtered_data()$OccurrenceYear),
-      "Latest Year",
-      icon = icon("calendar"),
-      color = "purple"
-    )
+  
+  # Sex-Based Coverage Trends
+  output$sex_trends <- renderPlot({
+    df <- filtered_data()
+    ggplot(df, aes(x = OccurrenceYear, y = DoseCount / Count * 100, color = Sex)) +
+      geom_line(size = 1.2) +
+      geom_point(size = 2) +
+      theme_minimal() +
+      labs(title = "Sex-Based Coverage Trends", x = "Year", y = "Percent Vaccinated (%)")
   })
-
-  output$timeTrend <- renderPlot({
-    filtered_data() %>%
-      group_by(.data$OccurrenceYear, .data$Jurisdiction) %>%
-      summarise(
-        TotalCount = sum(.data$Count),
-        .groups = "drop"
-      ) %>%
-      ggplot(aes(
-        x = .data$OccurrenceYear,
-        y = .data$TotalCount,
-        color = .data$Jurisdiction
-      )) +
-      geom_line(size = 1) +
-      geom_point() +
-      custom_theme +
-      labs(
-        title = "Immunization Trends Over Time",
-        x = "Year",
-        y = "Total Immunizations"
-      ) +
-      scale_y_continuous(labels = comma)
+  
+  # Dose Count Distribution
+  output$dose_distribution <- renderPlot({
+    df <- filtered_data()
+    ggplot(df, aes(x = DoseCount)) +
+      geom_histogram(binwidth = 1, fill = "blue", color = "white", alpha = 0.7) +
+      theme_minimal() +
+      labs(title = "Dose Count Distribution", x = "Dose Count", y = "Frequency")
   })
-
-  output$sexDistribution <- renderPlot({
-    filtered_data() %>%
-      group_by(.data$Sex) %>%
-      summarise(
-        TotalCount = sum(.data$Count),
-        .groups = "drop"
-      ) %>%
-      ggplot(aes(
-        x = .data$Sex,
-        y = .data$TotalCount,
-        fill = .data$Sex
-      )) +
-      geom_bar(
-               stat = "identity",
-               width = 0.3) +
-      custom_theme +
-      labs(
-        title = "Distribution by Sex",
-        x = "Sex",
-        y = "Total Count"
-      )
+  
+  # Catch-up Rate Analysis
+  output$catchup_rate <- renderPlot({
+    df <- filtered_data() %>% 
+      mutate(Delayed = ifelse(OccurrenceYear > min(OccurrenceYear), "Delayed", "On Time"))
+    ggplot(df, aes(x = OccurrenceYear, fill = Delayed)) +
+      geom_bar() +
+      theme_minimal() +
+      labs(title = "Catch-up Rate Analysis", x = "Year", y = "Count")
   })
-
-  output$jurisdictionDoses <- renderPlot({
-    filtered_data() %>%
-      group_by(.data$Jurisdiction) %>%
-      summarise(
-        AvgDoses = mean(.data$DoseCount),
-        .groups = "drop"
-      ) %>%
-      ggplot(aes(
-        x = .data$Jurisdiction,
-        y = .data$AvgDoses,
-        fill = .data$Jurisdiction
-      )) +
-      geom_bar(
-               stat = "identity",
-               width = 0.15) +
-      custom_theme +
-      labs(
-        title = "Average Doses by Jurisdiction",
-        x = "Jurisdiction",
-        y = "Average Doses"
-      )
-  })
-
-  output$ageAnalysis <- renderPlot({
-    filtered_data() %>%
-      group_by(.data$AgeGroup, .data$OccurrenceYear) %>%
-      summarise(
-        TotalCount = sum(.data$Count),
-        .groups = "drop"
-      ) %>%
-      ggplot(aes(
-        x = .data$OccurrenceYear,
-        y = .data$TotalCount,
-        color = .data$AgeGroup
-      )) +
-      geom_line(size = 1) +
-      custom_theme +
-      labs(
-        title = "Age Group Trends Over Time",
-        x = "Year",
-        y = "Total Count"
-      )
-  })
-
+  
+  # Data Table
   output$dataTable <- renderDT({
-    datatable(
-      filtered_data(),
-      options = list(pageLength = 10),
-      filter = "top"
-    )
+    datatable(filtered_data(), options = list(pageLength = 10))
   })
 }
 
-shinyApp(ui = ui, server = server)
+# Run App
+shinyApp(ui, server)
