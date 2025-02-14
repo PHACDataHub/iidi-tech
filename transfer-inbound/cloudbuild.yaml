@@ -17,25 +17,59 @@ steps:
     entrypoint: npm
     args: ['run', 'jest']
 
-  - id: build-and-push-if-main
-    name: 'gcr.io/cloud-builders/docker'
+  - name: 'gcr.io/cloud-builders/docker'
+    id: generate-image-name
     entrypoint: 'bash'
     dir: transfer-inbound
     args:
       - '-c'
       - |
-        if [[ "$BRANCH_NAME" == "main" ]]
-        then
-          service_name="iidi-transfer-inbound"
-          
-          image_name="northamerica-northeast1-docker.pkg.dev/${PROJECT_ID}/paradire/${service_name}"
-          latest_image_tag="${image_name}:latest"
-          unique_image_tag="${image_name}:${BRANCH_NAME}-${COMMIT_SHA:-unknown_sha}-$(date +%s)"
+        set -o errexit
+        set -o pipefail
+        set -o nounset
 
-          docker build -t "${latest_image_tag}" -t "${unique_image_tag}" -f ./Dockerfile .
+        service="iidi-transfer-inbound"
 
-          docker push --all-tags "${image_name}"
+        branch="${BRANCH_NAME:-$(git rev-parse --abbrev-ref HEAD)}"
+        short_sha="${COMMIT_SHA:-$(git rev-parse --short HEAD)}"
+        echo "northamerica-northeast1-docker.pkg.dev/${PROJECT_ID}/paradire/${service}:${branch}-${short_sha}-$(date +%s)" > /workspace/imagename
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: build-if-main
+    entrypoint: 'bash'
+    dir: transfer-inbound
+    args:
+      - '-c'
+      - |
+        set -o errexit
+        set -o pipefail
+        set -o nounset
+
+        if [[ "$BRANCH_NAME" == "main" ]]; then
+          image=$(cat /workspace/imagename)
+          echo "Building Docker image: ${image}"
+          docker build -t "${image}" -f ./Dockerfile .
         else
+          echo "Skipping build: Not on 'main' branch"
+          exit 0
+        fi
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: push-if-main
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        set -o errexit
+        set -o pipefail
+        set -o nounset
+
+        if [[ "$BRANCH_NAME" == "main" ]]; then
+          image=$(cat /workspace/imagename)
+          echo "Pushing Docker image: ${image}"
+          docker push "${image}"
+        else
+          echo "Skipping push: Not on 'main' branch"
           exit 0
         fi
 
