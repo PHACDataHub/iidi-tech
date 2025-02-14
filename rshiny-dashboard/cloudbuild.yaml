@@ -7,9 +7,15 @@ steps:
     args:
       - '-c'
       - |
-        set -e
-        SHORT_SHA="${COMMIT_SHA:-$(git rev-parse --short HEAD)}"
-        echo "northamerica-northeast1-docker.pkg.dev/${PROJECT_ID}/paradire/iidi-dashboard:main-$SHORT_SHA-$(date +%s)" > /workspace/imagename
+        set -o errexit
+        set -o pipefail
+        set -o nounset
+
+        service="iidi-dashboard"
+
+        branch="${BRANCH_NAME:-$(git rev-parse --abbrev-ref HEAD)}"
+        short_sha="${COMMIT_SHA:-$(git rev-parse --short HEAD)}"
+        echo "northamerica-northeast1-docker.pkg.dev/${PROJECT_ID}/paradire/${service}:${branch}-${short_sha}-$(date +%s)" > /workspace/imagename
 
   # Step 2: Build the Docker image if the branch is 'main'
   - name: 'gcr.io/cloud-builders/docker'
@@ -19,10 +25,14 @@ steps:
     args:
       - '-c'
       - |
+        set -o errexit
+        set -o pipefail
+        set -o nounset
+
         if [[ "$BRANCH_NAME" == "main" ]]; then
           image=$(cat /workspace/imagename)
-          echo "Building Docker image: $image"
-          docker build -t "$image" -f ./Dockerfile .
+          echo "Building Docker image: ${image}"
+          docker build -t "${image}" -f ./Dockerfile .
         else
           echo "Skipping build: Not on 'main' branch"
           exit 0
@@ -35,10 +45,14 @@ steps:
     args:
       - '-c'
       - |
+        set -o errexit
+        set -o pipefail
+        set -o nounset
+
         if [[ "$BRANCH_NAME" == "main" ]]; then
           image=$(cat /workspace/imagename)
-          echo "Pushing Docker image: $image"
-          docker push "$image"
+          echo "Pushing Docker image: ${image}"
+          docker push "${image}"
         else
           echo "Skipping push: Not on 'main' branch"
           exit 0
