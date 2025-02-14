@@ -9,7 +9,8 @@ library(tidyr)
 library(scales)
 
 # API endpoint
-api_url <- "http://federator:3000/aggregated-data"
+api_url <- Sys.getenv("AGGREGATOR_URL", "http://federator:3000/aggregated-data")
+
 
 # UI
 ui <- dashboardPage(
