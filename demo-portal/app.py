@@ -1,23 +1,24 @@
 from flask import Flask, render_template, jsonify
 import requests
+import os
 
 app = Flask(__name__)
 
 # Define service entities for each province
 entities = {
     "Federal": [
-        {"name": "Dashboard", "url": "https://rshiny-dashboard.federal.iidi.alpha.phac.gc.ca"},
-        {"name": "Federator", "url": "https://federator.federal.iidi.alpha.phac.gc.ca/aggregated-data"},
+        {"name": "Dashboard", "url": os.getenv("FED_DASHBOARD_URL")},
+        {"name": "Federator", "url": os.getenv("FED_FEDERATOR_URL")},
     ],
     "British Columbia (BC)": [
-        {"name": "Patient Browser", "url": "https://patient-browser.bc.iidi.alpha.phac.gc.ca"},
-        {"name": "HAPI FHIR Server", "url": "https://fhir.bc.iidi.alpha.phac.gc.ca"},
-        {"name": "Aggregator", "url": "https://aggregator.bc.iidi.alpha.phac.gc.ca/aggregated-data"}
+        {"name": "Patient Browser", "url": os.getenv("BC_BROWSER_URL")},
+        {"name": "HAPI FHIR Server", "url": os.getenv("BC_FHIR_URL")},
+        {"name": "Aggregator", "url": os.getenv("BC_AGGREGATOR_URL")}
     ],
     "Ontario (ON)": [
-        {"name": "Patient Browser", "url": "https://patient-browser.on.iidi.alpha.phac.gc.ca"},
-        {"name": "HAPI FHIR Server", "url": "https://fhir.on.iidi.alpha.phac.gc.ca"},
-        {"name": "Aggregator", "url": "https://aggregator.on.iidi.alpha.phac.gc.ca/aggregated-data"}
+        {"name": "Patient Browser", "url": os.getenv("ON_BROWSER_URL")},
+        {"name": "HAPI FHIR Server", "url": os.getenv("ON_FHIR_URL")},
+        {"name": "Aggregator", "url": os.getenv("ON_AGGREGATOR_URL")}
     ]
 }
 

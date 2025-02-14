@@ -24,6 +24,22 @@ spec:
               value: 'app.py'
             - name: FLASK_DEBUG
               value: '0'
+            - name: FED_DASHBOARD_URL
+              value: https://rshiny-dashboard.federal.iidi.alpha.phac.gc.ca
+            - name: FED_FEDERATOR_URL
+              value: https://federator.federal.iidi.alpha.phac.gc.ca/aggregated-data
+            - name: BC_BROWSER_URL
+              value: https://patient-browser.bc.iidi.alpha.phac.gc.ca
+            - name: BC_FHIR_URL
+              value: https://fhir.bc.iidi.alpha.phac.gc.ca
+            - name: BC_AGGREGATOR_URL
+              value: https://aggregator.bc.iidi.alpha.phac.gc.ca/aggregated-data
+            - name: ON_BROWSER_URL
+              value: https://patient-browser.on.iidi.alpha.phac.gc.ca
+            - name: ON_FHIR_URL
+              value: https://fhir.on.iidi.alpha.phac.gc.ca
+            - name: ON_AGGREGATOR_URL
+              value: https://aggregator.on.iidi.alpha.phac.gc.ca/aggregated-data
           resources:
             requests:
               memory: "256Mi"
