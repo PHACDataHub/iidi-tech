@@ -1,5 +1,5 @@
 import React from "react";
-import { PhacSignature } from "./PhacSignature.tsx";
+import { PhacSignature } from "./PhacSignature.jsx";
 
 const Header = () => {
     return (
