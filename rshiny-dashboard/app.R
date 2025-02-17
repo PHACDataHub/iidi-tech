@@ -51,7 +51,9 @@ ui <- dashboardPage(
           box(title = "Ontario vs. BC Coverage Comparison", plotOutput("on_bc_comparison"), width = 12),
           box(title = "Sex-Based Coverage Trends", plotOutput("sex_trends"), width = 12),
           box(title = "Dose Count Distribution", plotOutput("dose_distribution"), width = 12),
-          box(title = "Catch-up Rate Analysis", plotOutput("catchup_rate"), width = 12)
+          box(title = "Catch-up Rate Analysis", plotOutput("catchup_rate"), width = 12),
+          box(title = "Vaccination Coverage Trends (2 & 7-year-olds)", plotOutput("coverage_trends"), width = 12),
+          box(title = "Pre vs. Post-Pandemic Coverage (2019 vs 2023)", plotOutput("pre_post_comparison"), width = 12)
         )
       ),
       tabItem(
@@ -72,13 +74,13 @@ server <- function(input, output, session) {
     response <- GET(api_url)
     
     if (http_type(response) != "application/json") {
-      return(data.frame())  # Return an empty data frame if API is unreachable
+      return(data.frame())  # Return empty if API is down
     }
 
     data <- tryCatch({
       fromJSON(rawToChar(response$content))$data
     }, error = function(e) {
-      return(NULL)  # If parsing fails, return NULL
+      return(NULL)  
     })
 
     if (is.null(data) || length(data) == 0) {
@@ -95,25 +97,71 @@ server <- function(input, output, session) {
   # Reactive data filtering
   filtered_data <- reactive({
     df <- get_data()
-    if (nrow(df) == 0) return(df)  # Prevent filtering empty datasets
+    if (nrow(df) == 0) return(df)
 
-    if (!is.null(input$jurisdiction) && input$jurisdiction != "All") {
+    if (input$jurisdiction != "All") {
       df <- df %>% filter(Jurisdiction == input$jurisdiction)
     }
-    if (!is.null(input$ageGroup) && input$ageGroup != "All") {
+    if (input$ageGroup != "All") {
       df <- df %>% filter(AgeGroup == input$ageGroup)
     }
-    if (!is.null(input$sex) && input$sex != "All") {
+    if (input$sex != "All") {
       df <- df %>% filter(Sex == input$sex)
     }
     
     return(df)
   })
 
+  output$sexDistribution <- renderPlot({
+    filtered_data() %>%
+      group_by(.data$Sex) %>%
+      summarise(
+        TotalCount = sum(.data$Count),
+        .groups = "drop"
+      ) %>%
+      ggplot(aes(
+        x = .data$Sex,
+        y = .data$TotalCount,
+        fill = .data$Sex
+      )) +
+      geom_bar(
+               stat = "identity",
+               width = 0.3) +
+      theme_minimal() +
+      labs(
+        title = "Distribution by Sex",
+        x = "Sex",
+        y = "Total Count"
+      )
+  })
+
+  output$jurisdictionDoses <- renderPlot({
+    filtered_data() %>%
+      group_by(.data$Jurisdiction) %>%
+      summarise(
+        AvgDoses = mean(.data$DoseCount),
+        .groups = "drop"
+      ) %>%
+      ggplot(aes(
+        x = .data$Jurisdiction,
+        y = .data$AvgDoses,
+        fill = .data$Jurisdiction
+      )) +
+      geom_bar(
+               stat = "identity",
+               width = 0.15) +
+      theme_minimal() +
+      labs(
+        title = "Average Doses by Jurisdiction",
+        x = "Jurisdiction",
+        y = "Average Doses"
+      )
+  })
+
   # Coverage Decline Rate per Year
   output$decline_rate <- renderPlot({
     df <- filtered_data()
-    if (nrow(df) == 0) return()  # Prevent errors when no data
+    if (nrow(df) == 0) return()
 
     df_summary <- df %>%
       group_by(OccurrenceYear) %>%
@@ -125,31 +173,30 @@ server <- function(input, output, session) {
       theme_minimal() +
       labs(title = "Coverage Decline Rate per Year", x = "Year", y = "Percentage Decline (%)")
   })
-  
-  # Ontario vs. BC Coverage Comparison
+
+  # Ontario vs. BC Coverage
   output$on_bc_comparison <- renderPlot({
     df <- filtered_data() %>% filter(Jurisdiction %in% c("ON", "BC"))
-    if (nrow(df) == 0) return()  # Prevent errors when no data
+    if (nrow(df) == 0) return()
 
     ggplot(df, aes(x = OccurrenceYear, y = DoseCount / Count * 100, fill = Jurisdiction)) +
       geom_bar(stat = "identity", position = "dodge") +
       theme_minimal() +
-      labs(title = "Ontario vs. BC Coverage Comparison", x = "Year", y = "Percent Vaccinated (%)")
+      labs(title = "Ontario vs. BC Coverage", x = "Year", y = "Coverage (%)")
   })
-  
+
   # Sex-Based Coverage Trends
   output$sex_trends <- renderPlot({
     df <- filtered_data()
-    if (nrow(df) == 0) return()  # Prevent errors when no data
+    if (nrow(df) == 0) return()
 
     ggplot(df, aes(x = OccurrenceYear, y = DoseCount / Count * 100, color = Sex)) +
       geom_line(size = 1.2) +
       geom_point(size = 2) +
       theme_minimal() +
-      labs(title = "Sex-Based Coverage Trends", x = "Year", y = "Percent Vaccinated (%)")
+      labs(title = "Sex-Based Coverage Trends", x = "Year", y = "Coverage (%)")
   })
-  
-  # Dose Count Distribution
+
   output$dose_distribution <- renderPlot({
     df <- filtered_data()
     if (nrow(df) == 0) return()  # Prevent errors when no data
@@ -159,11 +206,13 @@ server <- function(input, output, session) {
       theme_minimal() +
       labs(title = "Dose Count Distribution", x = "Dose Count", y = "Frequency")
   })
-  
+
   # Catch-up Rate Analysis
   output$catchup_rate <- renderPlot({
     df <- filtered_data()
-    if (nrow(df) == 0) return()  # Prevent errors when no data
+    if (nrow(df) == 0) {
+      return()
+    } # Prevent errors when no data
 
     df <- df %>%
       mutate(Delayed = ifelse(OccurrenceYear > min(OccurrenceYear), "Delayed", "On Time"))
@@ -173,6 +222,43 @@ server <- function(input, output, session) {
       theme_minimal() +
       labs(title = "Catch-up Rate Analysis", x = "Year", y = "Count")
   })
+  
+  # Vaccination Coverage Trends (2 & 7-year-olds)
+  output$coverage_trends <- renderPlot({
+    df <- filtered_data()
+    if (nrow(df) == 0) {
+      return()
+    }
+
+    df_summary <- df %>%
+      group_by(OccurrenceYear, AgeGroup) %>%
+      summarize(coverage = sum(DoseCount) / sum(Count) * 100, .groups = "drop")
+
+    ggplot(df_summary, aes(x = OccurrenceYear, y = coverage, color = AgeGroup)) +
+      geom_line(size = 1.2) +
+      geom_point(size = 2) +
+      theme_minimal() +
+      labs(title = "Vaccination Coverage Trends (2 & 7-year-olds)", x = "Year", y = "Coverage (%)")
+  })
+
+  output$pre_post_comparison <- renderPlot({
+    df <- filtered_data()
+    if (nrow(df) == 0) return()
+
+    df_comparison <- df %>%
+      filter(OccurrenceYear %in% c(2019, 2023)) %>%
+      group_by(OccurrenceYear, Jurisdiction) %>%
+      summarize(coverage = sum(DoseCount) / sum(Count) * 100, .groups = "drop")
+
+    ggplot(df_comparison, aes(x = Jurisdiction, y = coverage, fill = factor(OccurrenceYear))) +
+      geom_bar(stat = "identity", position = "dodge", width=0.3) +
+      theme_minimal() +
+      scale_fill_discrete(name = "Year") +
+      labs(title = "Pre vs. Post-Pandemic Coverage Comparison",
+          x = "Jurisdiction",
+          y = "Coverage (%)")
+  })
+
 
   # Data Table
   output$dataTable <- renderDT({
