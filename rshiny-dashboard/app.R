@@ -226,7 +226,9 @@ server <- function(input, output, session) {
   # Vaccination Coverage Trends (2 & 7-year-olds)
   output$coverage_trends <- renderPlot({
     df <- filtered_data()
-    if (nrow(df) == 0) return()
+    if (nrow(df) == 0) {
+      return()
+    }
 
     df_summary <- df %>%
       group_by(OccurrenceYear, AgeGroup) %>%
@@ -238,6 +240,25 @@ server <- function(input, output, session) {
       theme_minimal() +
       labs(title = "Vaccination Coverage Trends (2 & 7-year-olds)", x = "Year", y = "Coverage (%)")
   })
+
+  output$pre_post_comparison <- renderPlot({
+    df <- filtered_data()
+    if (nrow(df) == 0) return()
+
+    df_comparison <- df %>%
+      filter(OccurrenceYear %in% c(2019, 2023)) %>%
+      group_by(OccurrenceYear, Jurisdiction) %>%
+      summarize(coverage = sum(DoseCount) / sum(Count) * 100, .groups = "drop")
+
+    ggplot(df_comparison, aes(x = Jurisdiction, y = coverage, fill = factor(OccurrenceYear))) +
+      geom_bar(stat = "identity", position = "dodge", width=0.3) +
+      theme_minimal() +
+      scale_fill_discrete(name = "Year") +
+      labs(title = "Pre vs. Post-Pandemic Coverage Comparison",
+          x = "Jurisdiction",
+          y = "Coverage (%)")
+  })
+
 
   # Data Table
   output$dataTable <- renderDT({
