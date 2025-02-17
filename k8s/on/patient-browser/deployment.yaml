@@ -21,7 +21,5 @@ spec:
         ports:
         - containerPort: 8080
         env:
-        - name: PT # TODO: delete in favour of FHIR_URL once new patient-browser docker images are pushed 
-          value: "on"
         - name: FHIR_URL
           value: "https://fhir.on.iidi.alpha.phac.gc.ca/fhir"

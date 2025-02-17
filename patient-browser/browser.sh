@@ -3,13 +3,6 @@
 # Log the configuration update process
 echo "Starting Nginx configuration update script..."
 
-# TODO: this provices support for previous script behaviour where the old PT env var is set and
-# the new FHIR_URL env var isn't. Delete this case statement once the K8s deployments have been
-# updated to only use FHIR_URL
-if [[ -z "$FHIR_URL" && ! -z "$PT" ]]; then
-  FHIR_URL="https://fhir.${PT}.iidi.alpha.phac.gc.ca/fhir"
-fi
-
 # Update the FHIR server URL dynamically if FHIR_URL is set
 default_url=http://localhost:8080/fhir
 if [[ ! -z "$FHIR_URL" ]]; then
