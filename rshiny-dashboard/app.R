@@ -112,6 +112,52 @@ server <- function(input, output, session) {
     return(df)
   })
 
+  output$sexDistribution <- renderPlot({
+    filtered_data() %>%
+      group_by(.data$Sex) %>%
+      summarise(
+        TotalCount = sum(.data$Count),
+        .groups = "drop"
+      ) %>%
+      ggplot(aes(
+        x = .data$Sex,
+        y = .data$TotalCount,
+        fill = .data$Sex
+      )) +
+      geom_bar(
+               stat = "identity",
+               width = 0.3) +
+      theme_minimal() +
+      labs(
+        title = "Distribution by Sex",
+        x = "Sex",
+        y = "Total Count"
+      )
+  })
+
+  output$jurisdictionDoses <- renderPlot({
+    filtered_data() %>%
+      group_by(.data$Jurisdiction) %>%
+      summarise(
+        AvgDoses = mean(.data$DoseCount),
+        .groups = "drop"
+      ) %>%
+      ggplot(aes(
+        x = .data$Jurisdiction,
+        y = .data$AvgDoses,
+        fill = .data$Jurisdiction
+      )) +
+      geom_bar(
+               stat = "identity",
+               width = 0.15) +
+      theme_minimal() +
+      labs(
+        title = "Average Doses by Jurisdiction",
+        x = "Jurisdiction",
+        y = "Average Doses"
+      )
+  })
+
   # Coverage Decline Rate per Year
   output$decline_rate <- renderPlot({
     df <- filtered_data()
@@ -151,6 +197,32 @@ server <- function(input, output, session) {
       labs(title = "Sex-Based Coverage Trends", x = "Year", y = "Coverage (%)")
   })
 
+  output$dose_distribution <- renderPlot({
+    df <- filtered_data()
+    if (nrow(df) == 0) return()  # Prevent errors when no data
+
+    ggplot(df, aes(x = DoseCount)) +
+      geom_histogram(binwidth = 1, fill = "blue", color = "white", alpha = 0.7) +
+      theme_minimal() +
+      labs(title = "Dose Count Distribution", x = "Dose Count", y = "Frequency")
+  })
+
+  # Catch-up Rate Analysis
+  output$catchup_rate <- renderPlot({
+    df <- filtered_data()
+    if (nrow(df) == 0) {
+      return()
+    } # Prevent errors when no data
+
+    df <- df %>%
+      mutate(Delayed = ifelse(OccurrenceYear > min(OccurrenceYear), "Delayed", "On Time"))
+
+    ggplot(df, aes(x = OccurrenceYear, fill = Delayed)) +
+      geom_bar() +
+      theme_minimal() +
+      labs(title = "Catch-up Rate Analysis", x = "Year", y = "Count")
+  })
+  
   # Vaccination Coverage Trends (2 & 7-year-olds)
   output$coverage_trends <- renderPlot({
     df <- filtered_data()
