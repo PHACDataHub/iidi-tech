@@ -119,3 +119,17 @@ Before setting up the development environment, ensure the following dependencies
   - or manually run the `predev` and `dev` commands as defined in the root `package.json`
 - Wait for docker-compose services to finish spinning up
 - Visit http://localhost:8080 for the "demo portal", which links through to the available services
+
+### IMPORTANT: working with the local docker-compose env
+
+It's important to note that the local docker images are cached by the `name:tag` pair set in each docker-compose service's `image` field. Images that copy in code/dependnecies at image build time need to have their tag incremented in the docker-compose file to ensure that up to date changes are captured! This is both a problem in dev (to refresh against local changes, you need to either increment the tag number or run `docker image rm name:tag --force` and then restart the docker-compose env) and for commited code between devs (assume other devs have cached builds of older version numbers, if you merge changes without bumping the tag then your changes may not be reflected in their local dev env).
+
+At the moment, this impacts
+
+- both synthesizers
+- both aggregators
+- both patient browsers
+- the r-shiny dashboard
+- the demo portal
+
+This does not impact any service using the `node-dev` image. The `node-dev` image mounts source files from the local dev machine and installs dependencies at run time. The `node-dev` services are always kept "live" against local repo state.

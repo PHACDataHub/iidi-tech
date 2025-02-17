@@ -16,12 +16,10 @@ spec:
     spec:
       containers:
       - name: patient-browser
-        image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/patient-browser-iidi:latest
+        image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/patient-browser-iidi:master-08636a0-1739817575 # {"$imagepolicy": "flux-system:patient-browser-bc"}
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
         env:
-        - name: PT # TODO: delete in favour of FHIR_URL once new patient-browser docker images are pushed 
-          value: "bc"
         - name: FHIR_URL
           value: "https://fhir.bc.iidi.alpha.phac.gc.ca/fhir"

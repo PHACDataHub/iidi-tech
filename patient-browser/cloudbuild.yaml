@@ -2,7 +2,7 @@ steps:
   - name: 'gcr.io/cloud-builders/docker'
     id: generate-image-name
     entrypoint: 'bash'
-    dir: rshiny-dashboard
+    dir: patient-browser
     args:
       - '-c'
       - |
@@ -14,12 +14,13 @@ steps:
 
         branch="${BRANCH_NAME:-$(git rev-parse --abbrev-ref HEAD)}"
         short_sha="${COMMIT_SHA:-$(git rev-parse --short HEAD)}"
+
         echo "northamerica-northeast1-docker.pkg.dev/${PROJECT_ID}/paradire/${service}:${branch}-${short_sha}-$(date +%s)" > /workspace/imagename
 
   - name: 'gcr.io/cloud-builders/docker'
     id: build-if-main
     entrypoint: 'bash'
-    dir: rshiny-dashboard
+    dir: patient-browser
     args:
       - '-c'
       - |

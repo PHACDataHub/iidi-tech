@@ -15,7 +15,6 @@ app = Flask(__name__)
 # Environment variables
 FHIR_URL = os.getenv("FHIR_URL", "http://localhost:8080/fhir")
 AGGREGATION_INTERVAL = int(os.getenv("AGGREGATION_INTERVAL", 60))  # Default to 60 seconds
-MIN_COUNT_THRESHOLD = int(os.getenv("MIN_COUNT_THRESHOLD", 1))  # Minimum count threshold for filtering
 
 # Cache variables for aggregation
 cached_data = None
@@ -102,7 +101,6 @@ def process_immunization_record(immunization):
         occurrence_year = occurrence_date[:4] if len(occurrence_date) >= 4 else "Unknown"
         
         return {
-            "ReferenceDate": datetime.now().strftime('%Y-%m-%d'),
             "OccurrenceYear": occurrence_year.strip(),
             "Jurisdiction": "BC" if "bc" in FHIR_URL else "ON",
             "Sex": patient.get("gender", "Unknown").capitalize(),
@@ -137,32 +135,42 @@ def aggregate_data():
     df["AgeGroup"] = df["AgeGroup"].str.strip()
     
     aggregated = df.groupby([
-        "ReferenceDate", "OccurrenceYear", "Jurisdiction", "Sex", "AgeGroup"
+        "OccurrenceYear", "Jurisdiction", "Sex", "AgeGroup"
     ], as_index=False).agg(
         DoseCount=("DoseCount", "sum"),
         Count=("DoseCount", "count")
     )
     
     aggregated = aggregated.sort_values(
-        by=["ReferenceDate", "OccurrenceYear", "AgeGroup", "Sex"], ascending=[True, True, True, True]
+        by=["OccurrenceYear", "AgeGroup", "Sex"], ascending=[True, True, True]
     )
     
-    aggregated = aggregated[aggregated["Count"] > MIN_COUNT_THRESHOLD]
     return aggregated.to_dict(orient="records")
 
 @app.route("/aggregated-data", methods=["GET"])
 def get_aggregated_data():
     """API endpoint to return aggregated data."""
     global cached_data, last_aggregation_time
-    current_time = datetime.now().timestamp()
+
+    reference_date = datetime.now()
+    current_time = reference_date.timestamp()
     
     if cached_data and last_aggregation_time and (current_time - last_aggregation_time < AGGREGATION_INTERVAL):
         logging.info("Returning cached aggregated data...")
         return jsonify(cached_data)
     
     logging.info("Calculating new aggregated data...")
-    cached_data = aggregate_data()
+    aggregates_with_reference_date = list(map(
+        lambda aggregate_record: {
+            **aggregate_record,
+            "ReferenceDate": reference_date.strftime('%Y-%m-%d')
+        },
+        aggregate_data()
+    ))
+
+    cached_data = aggregates_with_reference_date
     last_aggregation_time = current_time
+
     return jsonify(cached_data)
 
 @app.route("/health", methods=["GET"])
