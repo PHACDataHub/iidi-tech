@@ -19,7 +19,7 @@ spec:
         image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/patient-browser-iidi:master-8a14c8f-1739555627 # {"$imagepolicy": "flux-system:patient-browser-bc"}
         imagePullPolicy: Always
         ports:
-        - containerPort: 80
+        - containerPort: 3838
         env:
         - name: FHIR_URL
           value: "https://fhir.bc.iidi.alpha.phac.gc.ca/fhir"
