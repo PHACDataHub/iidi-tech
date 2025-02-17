@@ -1,6 +1,7 @@
 import express from 'express';
 
 import { expressErrorHandler } from './error_utils.ts';
+import { assert_patient_exists_and_is_untransfered } from './fhir_utils.ts';
 import { query_param_to_int_or_undefined } from './request_utils.ts';
 
 import {
@@ -24,7 +25,7 @@ export const create_app = async () => {
     res.status(200).send();
   });
 
-  app.get('/transferRequest', async (req, res) => {
+  app.get('/transfer-request', async (req, res) => {
     const { start, end } = req.query;
 
     const jobs = await get_transfer_requests(
@@ -39,8 +40,10 @@ export const create_app = async () => {
     res.status(200).send(jobs_info);
   });
 
-  app.post('/transferRequest', async (req, res) => {
+  app.post('/transfer-request', async (req, res) => {
     const { patient_id, transfer_to } = req.body;
+
+    await assert_patient_exists_and_is_untransfered(patient_id);
 
     const transfer_request = await initialize_transfer_request(
       patient_id.toString(),
@@ -53,7 +56,18 @@ export const create_app = async () => {
       .send({ transfer_request_id: transfer_request.id });
   });
 
-  app.get('/transferRequest/:transferRequestId', async (req, res) => {
+  app.get('/transfer-request/dry-run', async (req, res) => {
+    const { patient_id } = req.body;
+
+    await assert_patient_exists_and_is_untransfered(patient_id);
+
+    // TODO don't create a queued transfer request, just directly perform collection step and return
+    // bundle of what records _would_ be transfered
+
+    res.status(501).type('json').send({ patient_id });
+  });
+
+  app.get('/transfer-request/:transferRequestId', async (req, res) => {
     const transfer_request_job = await get_transfer_request_by_id(
       req.params.transferRequestId,
     );
@@ -66,7 +80,7 @@ export const create_app = async () => {
     }
   });
 
-  app.get('/patient/:patientId/transferRequest', async (req, res) => {
+  app.get('/patient/:patientId/transfer-request', async (req, res) => {
     const { patientId: patient_id } = req.params;
 
     const { start, end } = req.query;
