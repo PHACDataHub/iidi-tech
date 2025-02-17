@@ -24,6 +24,7 @@
     "dotenv": "^16.0.3",
     "envalid": "^8.0.0",
     "express": "^5.0.1",
+    "fhirclient": "^2.5.5",
     "lodash": "^4.17.21",
     "tsx": "^4.15.6",
     "typescript": "^5.4.5",
