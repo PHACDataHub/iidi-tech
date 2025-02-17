@@ -15,7 +15,6 @@ app = Flask(__name__)
 # Environment variables
 FHIR_URL = os.getenv("FHIR_URL", "http://localhost:8080/fhir")
 AGGREGATION_INTERVAL = int(os.getenv("AGGREGATION_INTERVAL", 60))  # Default to 60 seconds
-MIN_COUNT_THRESHOLD = int(os.getenv("MIN_COUNT_THRESHOLD", 1))  # Minimum count threshold for filtering
 
 # Cache variables for aggregation
 cached_data = None
@@ -146,7 +145,6 @@ def aggregate_data():
         by=["OccurrenceYear", "AgeGroup", "Sex"], ascending=[True, True, True]
     )
     
-    aggregated = aggregated[aggregated["Count"] > MIN_COUNT_THRESHOLD]
     return aggregated.to_dict(orient="records")
 
 @app.route("/aggregated-data", methods=["GET"])
