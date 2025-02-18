@@ -1,11 +1,11 @@
 import express from 'express';
 
-import { assert_bundle_follows_business_rules } from './assert_bundle_follows_business_rules.ts';
 import { expressErrorHandler } from './error_utils.ts';
 import {
   assert_bundle_follows_fhir_spec,
   write_bundle_to_fhir_api,
 } from './fhir_utils.ts';
+import { assert_bundle_follows_business_rules } from './validation_utils.ts';
 
 export const create_app = async () => {
   const app = express();
