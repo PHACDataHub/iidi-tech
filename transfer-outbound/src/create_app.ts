@@ -3,13 +3,16 @@ import express from 'express';
 import { expressErrorHandler } from './error_utils.ts';
 import { assert_patient_exists_and_is_untransfered } from './fhir_utils.ts';
 import { query_param_to_int_or_undefined } from './request_utils.ts';
-
 import {
   initialize_transfer_request,
   get_transfer_request_by_id,
   get_transfer_requests,
   get_transfer_request_job_info,
 } from './transfer_request_queue/transfer_request_utils.ts';
+import {
+  assert_patient_id_is_valid,
+  assert_transfer_code_is_valid,
+} from './validation_utils.ts';
 
 export const create_app = async () => {
   const app = express();
@@ -42,12 +45,14 @@ export const create_app = async () => {
 
   app.post('/transfer-request', async (req, res) => {
     const { patient_id, transfer_to } = req.body;
+    assert_patient_id_is_valid(patient_id);
+    assert_transfer_code_is_valid(transfer_to);
 
     await assert_patient_exists_and_is_untransfered(patient_id);
 
     const transfer_request = await initialize_transfer_request(
-      patient_id.toString(),
-      transfer_to.toString(),
+      patient_id,
+      transfer_to,
     );
 
     res
@@ -58,6 +63,7 @@ export const create_app = async () => {
 
   app.get('/transfer-request/dry-run', async (req, res) => {
     const { patient_id } = req.body;
+    assert_patient_id_is_valid(patient_id);
 
     await assert_patient_exists_and_is_untransfered(patient_id);
 
@@ -82,6 +88,7 @@ export const create_app = async () => {
 
   app.get('/patient/:patientId/transfer-request', async (req, res) => {
     const { patientId: patient_id } = req.params;
+    assert_patient_id_is_valid(patient_id);
 
     const { start, end } = req.query;
     const start_number = query_param_to_int_or_undefined(start);

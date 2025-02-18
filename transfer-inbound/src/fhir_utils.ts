@@ -1,7 +1,8 @@
 import { get_env } from './env.ts';
 import { AppError } from './error_utils.ts';
+import type { Bundle } from './types.js';
 
-export const assert_bundle_follows_fhir_spec = async (_bundle: unknown) => {
+export const assert_bundle_follows_fhir_spec = async (_bundle: Bundle) => {
   const { FHIR_URL } = get_env();
   // TODO implement bundle fhir spec validation here
   // Throw a descriptive AppError if validation fails
@@ -16,7 +17,7 @@ export const assert_bundle_follows_fhir_spec = async (_bundle: unknown) => {
   await fetch(`${FHIR_URL}/TODO`);
 };
 
-export const write_bundle_to_fhir_api = async (_bundle: unknown) => {
+export const write_bundle_to_fhir_api = async (_bundle: Bundle) => {
   const { FHIR_URL } = get_env();
   // TODO implement bundle writing here
 
