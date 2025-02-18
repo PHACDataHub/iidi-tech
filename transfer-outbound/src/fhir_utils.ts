@@ -19,6 +19,7 @@ export const assert_patient_exists_and_is_untransfered = async (
 
   if (response.status === 200) {
     if (is_patient_resource(json)) {
+      // TODO transfer mark storage specific TBD, see mark_patient_transfered method
       const patient_transfered_to = json.extension?.find(
         ({ url }) =>
           url ===
@@ -51,9 +52,48 @@ export const assert_patient_exists_and_is_untransfered = async (
 export const get_patient_bundle_for_transfer = async (_patient_id: string) => {
   const { FHIR_URL } = get_env();
 
+  // TODO
   throw new AppError(
     501,
     'Patient bundle collection method not implemented yet',
+  );
+
+  await fetch(`${FHIR_URL}/TODO`);
+};
+
+export const mark_patient_transfered = async (
+  _patient_id: string,
+  _transfer_request_id: string,
+) => {
+  const { FHIR_URL } = get_env();
+
+  // TODO mark patient as transfered out in province FHIR server,
+  // possibly with a FHIR spec extension field for the inbound province and transfer request ID,
+  // expect this to happen after bundle collection step and before the bundle
+  // is sent to the inbound service
+
+  // related note: maybe we'll want a post transfer step to also add an extension/metadata field for the patient ID of the record
+  // created in the inbound province?
+
+  throw new AppError(
+    501,
+    'Patient transfer marking method not implemented yet',
+  );
+
+  await fetch(`${FHIR_URL}/TODO`);
+};
+
+export const unmark_patient_transfered = async (
+  _patient_id: string,
+  _transfer_request_id: string,
+) => {
+  const { FHIR_URL } = get_env();
+
+  // TODO need to be able to revert the transfer mark if the bundle is rejected by the inbound service
+
+  throw new AppError(
+    501,
+    'Patient transfer unmarking method not implemented yet',
   );
 
   await fetch(`${FHIR_URL}/TODO`);
