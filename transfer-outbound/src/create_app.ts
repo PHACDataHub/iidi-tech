@@ -1,7 +1,10 @@
 import express from 'express';
 
 import { expressErrorHandler } from './error_utils.ts';
-import { assert_patient_exists_and_is_untransfered } from './fhir_utils.ts';
+import {
+  assert_patient_exists_and_is_untransfered,
+  get_patient_bundle_for_transfer,
+} from './fhir_utils.ts';
 import { query_param_to_int_or_undefined } from './request_utils.ts';
 import {
   initialize_transfer_request,
@@ -67,10 +70,9 @@ export const create_app = async () => {
 
     await assert_patient_exists_and_is_untransfered(patient_id);
 
-    // TODO don't create a queued transfer request, just directly perform collection step and return
-    // bundle of what records _would_ be transfered
+    const bundle = await get_patient_bundle_for_transfer(patient_id);
 
-    res.status(501).type('json').send({ patient_id });
+    res.status(501).type('json').send({ bundle });
   });
 
   app.get('/transfer-request/:transferRequestId', async (req, res) => {

@@ -47,3 +47,14 @@ export const assert_patient_exists_and_is_untransfered = async (
     throw new AppError(response.status, fhir_diagnostic_messages ?? '');
   }
 };
+
+export const get_patient_bundle_for_transfer = async (_patient_id: string) => {
+  const { FHIR_URL } = get_env();
+
+  throw new AppError(
+    501,
+    'Patient bundle collection method not implemented yet',
+  );
+
+  await fetch(`${FHIR_URL}/TODO`);
+};
