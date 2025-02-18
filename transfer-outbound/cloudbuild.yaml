@@ -34,7 +34,9 @@ steps:
         # Also important to note that they depend on the trigger source, and won't be set by default
         # if the build is triggered via the cli (`gcloud builds submit`) UNLESS the `--substitutions`
         # flag is used to set them manually
-        echo "northamerica-northeast1-docker.pkg.dev/$PROJECT_ID/paradire/${service}:$BRANCH_NAME-$COMMIT_SHA-$(date +%s)" > /workspace/imagename
+        image_name="northamerica-northeast1-docker.pkg.dev/$PROJECT_ID/paradire/${service}:$BRANCH_NAME-$COMMIT_SHA-$(date +%s)"
+        echo "Image name for this build (if pushed): ${image_name}"
+        echo "${image_name}" > /workspace/imagename
 
   - name: 'gcr.io/cloud-builders/docker'
     id: build-if-main
