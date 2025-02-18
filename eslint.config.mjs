@@ -258,5 +258,5 @@ export default [
     make_config_for_node_typescript_dir,
   ),
 
-  ...['TODO-SERVICE-PLACEHOLDER-FRONTENDS'].map(make_config_for_react_spa_dir),
+  ...['/demo-transfer-dashboard'].map(make_config_for_react_spa_dir),
 ];
