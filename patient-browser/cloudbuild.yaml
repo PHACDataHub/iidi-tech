@@ -16,10 +16,7 @@ steps:
         # Also important to note that they depend on the trigger source, and won't be set by default
         # if the build is triggered via the cli (`gcloud builds submit`) UNLESS the `--substitutions`
         # flag is used to set them manually
-        branch="${$BRANCH_NAME:-unknown}" # cloudbuild's checkout behaviour makes every branch look like "master", so can't fallback on a git rev-parse 
-        short_sha="${$COMMIT_SHA:-$(git rev-parse --short HEAD)}" # commit SHAs are at right inside cloudbuild, at least
-        project_id="${$PROJECT_ID:-unknown}"
-        echo "northamerica-northeast1-docker.pkg.dev/${project_id}/paradire/${service}:${branch}-${short_sha}-$(date +%s)" > /workspace/imagename
+        echo "northamerica-northeast1-docker.pkg.dev/$PROJECT_ID/paradire/${service}:$BRANCH_NAME-$COMMIT_SHA-$(date +%s)" > /workspace/imagename
 
   - name: 'gcr.io/cloud-builders/docker'
     id: build-if-main
