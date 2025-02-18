@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: rshiny-dashboard
-        image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-dashboard:main-bed4e64-1739543794 # {"$imagepolicy": "flux-system:dashboard-image-policy"}
+        image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-dashboard:main-153c34381ef0bca44116c9b7ccd9619934b93fc7-1739905751 # {"$imagepolicy": "flux-system:dashboard-image-policy"}
         imagePullPolicy: Always
         ports:
         - containerPort: 3838
