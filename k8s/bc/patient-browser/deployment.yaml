@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: patient-browser
-        image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/patient-browser-iidi:master-08636a0-1739817575 # {"$imagepolicy": "flux-system:patient-browser-bc"}
+        image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/patient-browser-iidi:main-153c34381ef0bca44116c9b7ccd9619934b93fc7-1739905750 # {"$imagepolicy": "flux-system:patient-browser-bc"}
         imagePullPolicy: Always
         ports:
         - containerPort: 8080
