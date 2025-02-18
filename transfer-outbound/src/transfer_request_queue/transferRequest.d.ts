@@ -1,3 +1,5 @@
+import type { TransferCode } from 'src/types.d.ts';
+
 export type transferStage =
   | 'pending'
   | 'collecting'
@@ -9,7 +11,7 @@ export type transferStage =
 
 export interface transferRequest {
   patient_id: string;
-  transfer_to: 'ON' | 'BC';
+  transfer_to: TransferCode;
   // `stage` TBD, currently thinking to use a task queue for processing with stages along these lines
   // Using a proper task queue and persistence mechanism, maybe separate microservices for processing, could be a follow up time permitting,
   // but handle it all in-memory for initial minimal viable implementation
