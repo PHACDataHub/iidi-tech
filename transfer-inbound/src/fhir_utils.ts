@@ -5,13 +5,16 @@ export const assert_bundle_follows_fhir_spec = async (_bundle: unknown) => {
   const { FHIR_URL } = get_env();
   try {
     // TODO implement bundle fhir spec validation here
+    // Throw a descriptive AppError if validation fails
+
+    // References:
     // https://build.fhir.org/resource-operation-validate.html
     // https://build.fhir.org/bundle.html
     // https://hl7.org/fhir/http.html#transaction
 
-    // Throw a descriptive AppError if validation fails
+    throw new AppError(501, 'FHIR spec validation not implemented');
 
-    await fetch(`${FHIR_URL}/TODO");`);
+    await fetch(`${FHIR_URL}/TODO`);
   } catch (err) {
     if (err instanceof Error && !('status' in err)) {
       throw new AppError(500, err.message);
@@ -25,10 +28,14 @@ export const write_bundle_to_fhir_api = async (_bundle: unknown) => {
   const { FHIR_URL } = get_env();
   try {
     // TODO implement bundle writing here
+
+    // References:
     // https://build.fhir.org/bundle.html
     // https://hl7.org/fhir/http.html#transaction
 
-    await fetch(`${FHIR_URL}/TODO");`);
+    throw new AppError(501, 'Writing to FHIR API not implemented');
+
+    await fetch(`${FHIR_URL}/TODO`);
   } catch (err) {
     if (err instanceof Error && !('status' in err)) {
       throw new AppError(500, err.message);
