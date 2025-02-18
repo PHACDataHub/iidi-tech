@@ -1,3 +1,3 @@
 import type {} from 'fhir/r4.d.ts';
 
-export type TransferCode = 'BC' | 'ON';
+export type transferCode = 'BC' | 'ON';

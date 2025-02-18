@@ -1,4 +1,4 @@
-import type { TransferCode } from 'src/types.d.ts';
+import type { transferCode } from 'src/types.d.ts';
 
 import { get_queue } from './get_queue.ts';
 
@@ -9,7 +9,7 @@ export type transferRequestJob = Exclude<
 
 export const initialize_transfer_request = async (
   patient_id: string,
-  transfer_to: TransferCode,
+  transfer_to: transferCode,
 ) => {
   return get_queue().add(
     'transfer',

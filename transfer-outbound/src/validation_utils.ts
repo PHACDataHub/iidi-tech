@@ -1,5 +1,5 @@
 import { AppError } from './error_utils.ts';
-import type { TransferCode } from './types.d.ts';
+import type { transferCode } from './types.d.ts';
 
 export function assert_patient_id_is_valid(
   patient_id: unknown,
@@ -22,7 +22,7 @@ export function assert_patient_id_is_valid(
 
 export function assert_transfer_code_is_valid(
   transfer_code: unknown,
-): asserts transfer_code is TransferCode {
+): asserts transfer_code is transferCode {
   // TODO refine this, should be single source of truth for transfer codes
   // might want the logic to reject self-transfers here too?
   const accepted_codes = ['BC', 'ON'];
