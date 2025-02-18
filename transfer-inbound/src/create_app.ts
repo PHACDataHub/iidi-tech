@@ -26,6 +26,9 @@ export const create_app = async () => {
 
     assert_bundle_follows_business_rules(bundle);
 
+    // TODO might be redundant to write_bundle_to_fhir_api, depends if FHIR servers are configured to validate pre-write
+    await assert_bundle_follows_fhir_spec(bundle);
+
     const new_patient_id = await write_bundle_to_fhir_api(bundle);
 
     res.status(200).send({ new_patient_id });
