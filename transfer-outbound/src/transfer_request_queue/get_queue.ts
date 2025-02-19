@@ -19,7 +19,7 @@ const get_queue_cached = _.memoize(
     `${queue_name}-${host}-${port}-${password}`,
 );
 
-export const get_queue = (queue_name = 'transfer-request-queue') => {
+export const get_queue = (queue_name: string) => {
   const { REDIS_PORT, REDIS_PASSWORD, REDIS_HOST } = get_env();
 
   return get_queue_cached(queue_name, REDIS_HOST, REDIS_PORT, REDIS_PASSWORD);
