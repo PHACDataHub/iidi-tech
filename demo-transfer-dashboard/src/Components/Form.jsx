@@ -1,4 +1,11 @@
 import React, { useState } from 'react';
+import {
+  GcdsInput,
+  GcdsText,
+  GcdsButton,
+  GcdsSelect,
+  GcdsErrorMessage,
+} from '@cdssnc/gcds-components-react';
 
 const Form = () => {
   const [patientNumber, setPatientNumber] = useState('');
@@ -38,34 +45,38 @@ const Form = () => {
     }
 
     // Simulating API Call
-    const fhirUrl = originPT === 'BC' 
-      ? "https://fhir.bc.iidi.alpha.phac.gc.ca/" 
-      : "https://fhir.on.iidi.alpha.phac.gc.ca/";
+    const fhirUrl =
+      originPT === 'BC'
+        ? 'https://fhir.bc.iidi.alpha.phac.gc.ca/'
+        : 'https://fhir.on.iidi.alpha.phac.gc.ca/';
 
     const payload = {
-      resourceType: "Immunization",
+      resourceType: 'Immunization',
       patient: { reference: `Patient/${patientNumber}` },
       vaccineCode: {
-        coding: [{ system: "http://hl7.org/fhir/sid/cvx", code: "03", display: "MMR" }]
+        coding: [
+          { system: 'http://hl7.org/fhir/sid/cvx', code: '03', display: 'MMR' },
+        ],
       },
       occurrenceDateTime: new Date().toISOString(),
-      status: "completed"
+      status: 'completed',
     };
 
     fetch(fhirUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     })
       .then((response) => response.json())
       .then((data) => {
         setLoadingMessage(false);
-        const status = data.resourceType === "OperationOutcome" ? "Failed" : "Transferred";
+        const status =
+          data.resourceType === 'OperationOutcome' ? 'Failed' : 'Transferred';
         addToTable(patientNumber, originPT, receivingPT, status);
       })
       .catch((error) => {
         setLoadingMessage(false);
-        addToTable(patientNumber, originPT, receivingPT, "Failed");
+        addToTable(patientNumber, originPT, receivingPT, 'Failed');
       });
   };
 
@@ -77,43 +88,75 @@ const Form = () => {
   };
 
   return (
-    <div className="container">
+    <div className="form-container">
       <div className="form-group">
-        <label htmlFor="patientNumber">Enter Patient Number:</label>
-        <input
-          type="text"
-          id="patientNumber"
+        <GcdsInput
+          inputId="patientNumber"
+          label="Enter Patient Number"
+          name="patientNumber"
+          hint="Enter patient ID or name."
           value={patientNumber}
           onChange={handlePatientNumberChange}
-          placeholder="Enter patient ID or name"
         />
       </div>
       <div className="form-group">
-        <label htmlFor="originPT">Originating PT:</label>
-        <select id="originPT" value={originPT} onChange={handleOriginPTChange}>
+        <GcdsSelect
+          selectId="originPT"
+          label="Originating PT"
+          name="originPT"
+          hint="Select originating PT."
+          onChange={handleOriginPTChange}
+        >
           <option value="BC">British Columbia</option>
           <option value="ON">Ontario</option>
-        </select>
+        </GcdsSelect>
       </div>
+
       <div className="form-group">
-        <label htmlFor="receivingPT">Receiving PT:</label>
-        <select id="receivingPT" value={receivingPT} onChange={handleReceivingPTChange}>
+        <GcdsSelect
+          selectId="receivingPT"
+          label="Receiving PT"
+          name="receivingPT"
+          hint="Select receiving PT."
+          onChange={handleReceivingPTChange}
+        >
           <option value="ON">Ontario</option>
           <option value="BC">British Columbia</option>
-        </select>
+        </GcdsSelect>
       </div>
-      <button onClick={initiateTransfer}>Initiate Transfer</button>
-      {errorMessage && <p id="errorMessage" className="error">{errorMessage}</p>}
-      {loadingMessage && <p id="loadingMessage" className="loading">Processing transfer... Please wait.</p>}
+
+      <GcdsButton onClick={initiateTransfer}>Initiate Transfer</GcdsButton>
+      {errorMessage && (
+        <p id="errorMessage" className="error">
+          <GcdsErrorMessage messageId="message-props">
+            {errorMessage}
+          </GcdsErrorMessage>
+        </p>
+      )}
+      {loadingMessage && (
+        <p id="loadingMessage" className="loading">
+          <GcdsText>Processing transfer... Please wait.</GcdsText>
+        </p>
+      )}
 
       <table>
         <thead>
           <tr>
-            <th>Patient Name</th>
-            <th>Origin PT</th>
-            <th>Receiving PT</th>
-            <th>Vaccine</th>
-            <th>Transfer Status</th>
+            <th>
+              <GcdsText>Patient Name</GcdsText>
+            </th>
+            <th>
+              <GcdsText>Origin PT</GcdsText>
+            </th>
+            <th>
+              <GcdsText>Receiving PT</GcdsText>
+            </th>
+            <th>
+              <GcdsText>Vaccine</GcdsText>
+            </th>
+            <th>
+              <GcdsText>Transfer Status</GcdsText>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -123,8 +166,10 @@ const Form = () => {
               <td>{transfer.originPT}</td>
               <td>{transfer.receivingPT}</td>
               <td>{transfer.vaccine}</td>
-              <td className={`status ${transfer.status === 'Transferred' ? 'transferred' : 'failed'}`}>
-                {transfer.status}
+              <td
+                className={`status ${transfer.status === 'Transferred' ? 'transferred' : 'failed'}`}
+              >
+                <GcdsText>{transfer.status}</GcdsText>
               </td>
             </tr>
           ))}

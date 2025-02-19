@@ -7,16 +7,12 @@
 
 a {
   color: blue;
-  /* Normal and visited link color */
   text-decoration: underline;
-  /* Underline for all links */
 }
 
 a:hover {
   color: blue;
-  /* Color when hovering over links */
   text-decoration: underline;
-  /* Underline on hover */
 }
 
 .App-header {
@@ -40,30 +36,15 @@ h1 {
 main {
   max-width: 1250px;
   display: flex;
-  flex-direction: column; /* Stacks items vertically */
+  flex-direction: column;
   justify-content: center;
   margin: 0 auto;
   text-align: left;
   padding: 10px 20px;
 }
 
-footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-}
-
-
-
 .alert {
-  padding:  10px 15px;
   margin-bottom: 23px;
-  border: 1px solid transparent;
-  border-radius: 0;
-  border-style: solid;
-  border-width: 0 0 0 4px;
   background: #d7faff;
+  padding: 10px 15px;
 }
-
-
-
