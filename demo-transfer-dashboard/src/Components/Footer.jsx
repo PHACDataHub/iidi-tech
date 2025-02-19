@@ -11,9 +11,10 @@ export default function Footer() {
           margin: '0',
           padding: '0',
           marginTop: '50px',
+          
         }}
       >
-        <GcdsFooter />
+        <GcdsFooter style={{fontSize: '10px'}} />
       </div>
     </>
   );
