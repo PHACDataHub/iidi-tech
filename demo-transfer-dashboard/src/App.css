@@ -15,20 +15,6 @@ a:hover {
   text-decoration: underline;
 }
 
-.App-header {
-  max-width: 1250px;
-  display: flex;
-  margin: 10px auto;
-  padding: 10px 20px;
-  text-align: left;
-}
-
-.header-wrapper {
-  width: 100%;
-  border-bottom: 2px solid #26374a;
-  margin-bottom: 25px;
-}
-
 h1 {
   border-bottom: none !important;
 }

@@ -1,17 +1,19 @@
 import './App.css';
-import Header from './Components/Header.jsx';
 import Form from './Components/Form.jsx';
 import {
   GcdsDateModified,
   GcdsHeading,
   GcdsFooter,
+  GcdsHeader,
 } from '@cdssnc/gcds-components-react';
 import Alert from './Components/Alert.jsx';
 
 function App() {
   return (
     <>
-      <Header language="en" textColor="black" flagColor="#EA2D37" />
+      <header>
+        <GcdsHeader />
+      </header>
 
       <main>
         <Alert />
