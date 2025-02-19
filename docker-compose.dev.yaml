@@ -628,5 +628,5 @@ services:
       PORT: 3005
       BASE_PATH: /demo-transfer-dashboard # see docker-compose nginx config, the rsbuild is behind a proxy path, needs to be configured to serve relative to it
       # the demo transfer dashboard will make transfer-outbound API request from the browser, so request must go through the nginx gateway paths
-      ON_TRANSFER_URL: http://localhost:8080/on/outbound
-      BC_TRANSFER_URL: http://localhost:8080/bc/outbound
+      ON_OUTBOUND_URL: http://localhost:8080/on/outbound
+      BC_OUTBOUND_URL: http://localhost:8080/bc/outbound
