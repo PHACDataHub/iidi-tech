@@ -238,8 +238,8 @@ export default [
   },
 
   {
-    // node scripts (common js) environment
-    files: ['**/*.cjs'],
+    // node scripts environment
+    files: ['**/*.cjs', '**/*.mjs'],
 
     ...nodePlugin.configs['flat/recommended-script'],
 
