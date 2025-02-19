@@ -7,11 +7,15 @@ export type transferRequestJob = Exclude<
   undefined
 >;
 
+const transfer_queue_name = 'transfer-request-queue';
+
 export const initialize_transfer_request = async (
   patient_id: string,
   transfer_to: transferCode,
 ) => {
-  return get_queue().add(
+  // TODO validate arguments, throw AppError on rejection
+
+  return get_queue(transfer_queue_name).add(
     'transfer',
     {
       patient_id,
@@ -26,12 +30,12 @@ export const initialize_transfer_request = async (
 };
 
 export const get_transfer_request_by_id = async (id: string) =>
-  get_queue().getJob(id);
+  get_queue(transfer_queue_name).getJob(id);
 
 export const get_transfer_requests = async (
   start: number | undefined,
   end: number | undefined,
-) => get_queue().getJobs(undefined, start, end);
+) => get_queue(transfer_queue_name).getJobs(undefined, start, end);
 
 export const get_transfer_request_job_info = async (
   transfer_request_job: transferRequestJob,
