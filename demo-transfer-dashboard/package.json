@@ -6,6 +6,8 @@
   "scripts": {
     "build": "rsbuild build",
     "dev": "rsbuild dev --open",
+    "dev:docker": "rsbuild dev --port ${PORT} --base ${BASE_PATH}",
+    "dev:docker-debug": "node --inspect='0.0.0.0:9229' ./node_modules/@rsbuild/core/bin/rsbuild.js dev --port ${PORT} --base ${BASE_PATH}",
     "preview": "rsbuild preview"
   },
   "dependencies": {

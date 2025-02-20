@@ -53,15 +53,14 @@ export const create_app = async () => {
 
     await assert_patient_exists_and_is_untransfered(patient_id);
 
-    const transfer_request = await initialize_transfer_request(
+    const transfer_request_job = await initialize_transfer_request(
       patient_id,
       transfer_to,
     );
 
-    res
-      .status(200)
-      .type('json')
-      .send({ transfer_request_id: transfer_request.id });
+    const info = await get_transfer_request_job_info(transfer_request_job);
+
+    res.status(200).type('json').send(info);
   });
 
   app.get('/transfer-request/dry-run', async (req, res) => {

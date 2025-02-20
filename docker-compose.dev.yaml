@@ -283,6 +283,32 @@ configs:
 
               proxy_pass http://demo-portal:8080/;
           }
+          location /demo-transfer-dashboard/ {
+              # set proxy headers
+              proxy_set_header Host $$host;
+              proxy_set_header X-Real-IP $$remote_addr;
+              proxy_set_header X-Forwarded-For $$proxy_add_x_forwarded_for;
+              proxy_set_header X-Forwarded-Proto $$scheme;
+              
+              # WebSocket support
+              proxy_http_version 1.1;
+              proxy_set_header Upgrade $$http_upgrade;
+              proxy_set_header Connection "upgrade";
+
+              # prevent nginx from dropping the port from localhost urls
+              absolute_redirect off;
+
+              proxy_pass http://demo-transfer-dashboard:3005/demo-transfer-dashboard/;
+
+              # This part's important. rspack dev server URIs are a mix of static content resources on the server and SPA routes.
+              # If the dev server doesn't have a resource, then it must be assumed that URI is actually an SPA route,
+              # so replace UI server 404's with the index.html, to load the SPA and let it handle the route client side.
+              # In deployments, the static file server should itself use nginx with an equivalent config (using `try_file`,
+              # but that's not an option when proxying). Direct requests to the rspack dev server also work as expected by default,
+              # but not when proxied through nginx like this (nginx layers in its own 404 response by default)
+              proxy_intercept_errors on;
+              error_page 404 = /index.html;
+          }
       }
   hapi:
     file: ./hapi-dev.application.yaml
@@ -559,7 +585,7 @@ services:
       AGGREGATOR_URL: http://federator:3000/aggregated-data
 
   demo-portal:
-    image: demo-portal:1.2
+    image: demo-portal:1.3
     tty: ${DOCKER_TTY:-true}
     build:
       context: ./demo-portal
@@ -576,3 +602,32 @@ services:
       ON_BROWSER_URL: http://localhost:8080/on/browser
       ON_FHIR_URL: http://localhost:8080/on/fhir
       ON_AGGREGATOR_URL: http://localhost:8080/on/aggregator/aggregated-data
+      DEMO_TRANSFER_DASHBOARD_URL: http://localhost:8080/demo-transfer-dashboard
+  demo-transfer-dashboard:
+    image: node-dev:1.0
+    tty: ${DOCKER_TTY:-true}
+    restart: always
+    build:
+      context: ./node-dev-docker-env
+      dockerfile: ./Dockerfile.node-dev
+    volumes:
+      - ./demo-transfer-dashboard:/home/node-dev/project
+      - ./demo-transfer-dashboard/.env.node-dev-docker-env-overrides:/home/node-dev/project/.env
+    command: npm run dev:${DOCKER_API_COMMAND:-docker} # 'docker' or 'docker-debug'
+    networks:
+      - gateway
+        # node-dev images need to reach the internet for installing packages at run time, and to surface debug servers directly.
+        # For docker networking and prod-parity purposes, service-to-service communications should still go through the nginx gateway
+      - host-loopback
+    ports:
+      # configuring the websocket rsbuild uses to send hot reload signals is a bother with out proxy setup. The websockets can still
+      # connect, bypassing the nginx proxy, if this container is 1) conntected to the host-loopback and 2) has the same exposed container port
+      # (3005 right now) as it serves on internally (see the PORT env var below)
+      - 3005:3005
+      - 9233:9229 # for the node debug server, when active; see node-dev-docker-env/package.json `dev:docker-debug` script
+    environment:
+      PORT: 3005
+      BASE_PATH: /demo-transfer-dashboard # see docker-compose nginx config, the rsbuild is behind a proxy path, needs to be configured to serve relative to it
+      # the demo transfer dashboard will make transfer-outbound API request from the browser, so request must go through the nginx gateway paths
+      ON_OUTBOUND_URL: http://localhost:8080/on/outbound
+      BC_OUTBOUND_URL: http://localhost:8080/bc/outbound

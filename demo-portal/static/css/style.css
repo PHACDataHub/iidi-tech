@@ -157,6 +157,9 @@ html {
 .container .btn-Federator {
   background-color: #ff8c00;
 }
+.container .btn-Patient-Transfer-Dashboard {
+  background-color: #b2456e;
+}
 
 .accordion .card {
   background: #ffffff;

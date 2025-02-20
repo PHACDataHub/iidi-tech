@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: demo-portal
-          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/demo-portal:main-153c34381ef0bca44116c9b7ccd9619934b93fc7-1739905751 # {"$imagepolicy": "flux-system:demo-portal"}
+          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/demo-portal:main-dc3ea794ec27323476b213d5aa29972cfef37ce4-1740062984 # {"$imagepolicy": "flux-system:demo-portal"}
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -40,6 +40,10 @@ spec:
               value: https://fhir.on.iidi.alpha.phac.gc.ca
             - name: ON_AGGREGATOR_URL
               value: https://aggregator.on.iidi.alpha.phac.gc.ca/aggregated-data
+            - name: DEMO_TRANSFER_DASHBOARD_URL
+              # TODO pending deployment manifests for the transfer dashboard, using the shiny dashboard as a placeholder
+              # as the code expects all URLs to be valid
+              value: 'https://rshiny-dashboard.federal.iidi.alpha.phac.gc.ca'
           resources:
             requests:
               memory: "256Mi"
