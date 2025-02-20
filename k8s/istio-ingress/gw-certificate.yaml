@@ -9,6 +9,7 @@ spec:
     - "*.on.iidi.alpha.phac.gc.ca"
     - "*.federal.iidi.alpha.phac.gc.ca"
     - "demo-portal.iidi.alpha.phac.gc.ca"
+    - "demo-transfer-dashboard.iidi.alpha.phac.gc.ca"
   issuerRef:
     kind: ClusterIssuer
     name: letsencrypt-production

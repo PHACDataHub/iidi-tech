@@ -14,8 +14,9 @@ spec:
       hosts:
         - "*.bc.iidi.alpha.phac.gc.ca"
         - "*.on.iidi.alpha.phac.gc.ca"
-        - "demo-portal.iidi.alpha.phac.gc.ca"
         - "*.federal.iidi.alpha.phac.gc.ca"
+        - "demo-portal.iidi.alpha.phac.gc.ca"
+        - "demo-transfer-dashboard.iidi.alpha.phac.gc.ca"
       tls:
         httpsRedirect: true
     - port:
@@ -27,6 +28,7 @@ spec:
         - "*.on.iidi.alpha.phac.gc.ca"
         - "*.federal.iidi.alpha.phac.gc.ca"
         - "demo-portal.iidi.alpha.phac.gc.ca"
+        - "demo-transfer-dashboard.iidi.alpha.phac.gc.ca"
       tls:
         mode: SIMPLE
         credentialName: tlskeys
