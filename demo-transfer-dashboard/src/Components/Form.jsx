@@ -1,54 +1,75 @@
-import React, { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   GcdsInput,
-  GcdsText,
-  GcdsButton,
   GcdsSelect,
+  GcdsButton,
   GcdsErrorMessage,
+  GcdsText,
 } from '@cdssnc/gcds-components-react';
 
 const Form = () => {
   const [patientNumber, setPatientNumber] = useState('');
   const [originPT, setOriginPT] = useState('BC');
   const [receivingPT, setReceivingPT] = useState('ON');
-  const [errorMessage, setErrorMessage] = useState('');
-  const [loadingMessage, setLoadingMessage] = useState(false);
   const [transfers, setTransfers] = useState([]);
+  const [loadingMessage, setLoadingMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const handlePatientNumberChange = (e) => {
-    setPatientNumber(e.target.value);
+  useEffect(() => {
+    fetchTransfers();
+  }, []);
+
+  const fetchTransfers = async () => {
+    try {
+      setLoadingMessage('Loading transfer requests...');
+      const response = await fetch(
+        'http://localhost:3000/transfer-request?start=0&end=10',
+      );
+      if (!response.ok) throw new Error('Failed to load transfers');
+
+      const data = await response.json();
+      console.log(data);
+      setTransfers(data);
+      setLoadingMessage('');
+    } catch (error) {
+      setErrorMessage('Failed to load transfer requests.');
+      setLoadingMessage('');
+    }
   };
 
-  const handleOriginPTChange = (e) => {
-    setOriginPT(e.target.value);
-  };
-
-  const handleReceivingPTChange = (e) => {
-    setReceivingPT(e.target.value);
-  };
-
-  const initiateTransfer = () => {
+  const initiateTransfer = async () => {
     setErrorMessage('');
-    setLoadingMessage(true);
-
-    // Validation checks
     if (!patientNumber.trim()) {
-      setErrorMessage('Error: Patient Number is required.');
-      setLoadingMessage(false);
+      setErrorMessage('Please enter a valid patient number.');
       return;
     }
 
-    if (originPT === receivingPT) {
-      setErrorMessage('Error: Origin and Receiving PT cannot be the same.');
-      setLoadingMessage(false);
-      return;
-    }
+    setLoadingMessage('Processing transfer... Please wait.');
 
-    // Simulating API Call
     const fhirUrl =
       originPT === 'BC'
-        ? 'process.env.BC_OUTBOUND_URL'
-        : 'process.env.ON_OUTBOUND_URL';
+        ? process.env.BC_OUTBOUND_URL
+        : process.env.ON_OUTBOUND_URL;
+
+    try {
+      const response = await fetch(`${fhirUrl}transfer-request`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          patient_id: patientNumber,
+          transfer_to: receivingPT,
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to initiate transfer');
+
+      const data = await response.json();
+      setTransfers((prevTransfers) => [...prevTransfers, data]);
+      setLoadingMessage('');
+    } catch (error) {
+      setErrorMessage('Transfer request failed. Please try again.');
+      setLoadingMessage('');
+    }
   };
 
   return (
@@ -60,16 +81,18 @@ const Form = () => {
           name="patientNumber"
           hint="Enter patient ID or name."
           value={patientNumber}
-          onChange={handlePatientNumberChange}
+          onChange={(e) => setPatientNumber(e.target.value)}
         />
       </div>
+
       <div className="form-group">
         <GcdsSelect
           selectId="originPT"
           label="Originating PT"
           name="originPT"
           hint="Select originating PT."
-          onChange={handleOriginPTChange}
+          value={originPT}
+          onChange={(e) => setOriginPT(e.target.value)}
         >
           <option value="BC">British Columbia</option>
           <option value="ON">Ontario</option>
@@ -82,7 +105,8 @@ const Form = () => {
           label="Receiving PT"
           name="receivingPT"
           hint="Select receiving PT."
-          onChange={handleReceivingPTChange}
+          value={receivingPT}
+          onChange={(e) => setReceivingPT(e.target.value)}
         >
           <option value="ON">Ontario</option>
           <option value="BC">British Columbia</option>
@@ -90,6 +114,7 @@ const Form = () => {
       </div>
 
       <GcdsButton onClick={initiateTransfer}>Initiate Transfer</GcdsButton>
+
       {errorMessage && (
         <p id="errorMessage" className="error">
           <GcdsErrorMessage messageId="message-props">
@@ -99,7 +124,7 @@ const Form = () => {
       )}
       {loadingMessage && (
         <p id="loadingMessage" className="loading">
-          <GcdsText>Processing transfer... Please wait.</GcdsText>
+          <GcdsText>{loadingMessage}</GcdsText>
         </p>
       )}
 
@@ -123,7 +148,7 @@ const Form = () => {
         <tbody>
           {transfers.map((transfer, index) => (
             <tr key={index}>
-              <td>{transfer.patientName}</td>
+              <td>{transfer.patient_id}</td>
               <td>{transfer.originPT}</td>
               <td>{transfer.receivingPT}</td>
               <td
