@@ -7,30 +7,12 @@
 
 a {
   color: blue;
-  /* Normal and visited link color */
   text-decoration: underline;
-  /* Underline for all links */
 }
 
 a:hover {
   color: blue;
-  /* Color when hovering over links */
   text-decoration: underline;
-  /* Underline on hover */
-}
-
-.App-header {
-  max-width: 1250px;
-  display: flex;
-  margin: 10px auto;
-  padding: 10px 20px;
-  text-align: left;
-}
-
-.header-wrapper {
-  width: 100%;
-  border-bottom: 2px solid #26374a;
-  margin-bottom: 25px;
 }
 
 h1 {
@@ -40,14 +22,15 @@ h1 {
 main {
   max-width: 1250px;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   margin: 0 auto;
   text-align: left;
   padding: 10px 20px;
 }
 
-footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
+.alert {
+  margin-bottom: 23px;
+  background: #d7faff;
+  padding: 10px 15px;
 }
