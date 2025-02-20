@@ -1,13 +1,11 @@
 import type { transferCode } from 'src/types.d.ts';
 
 export type transferStage =
-  | 'pending'
   | 'collecting'
   | 'marking_transfered'
   | 'transfering'
-  | 'done'
-  | 'rejecting'
-  | 'rejected';
+  | 'finalizing'
+  | 'rejecting';
 
 export interface transferRequest {
   patient_id: string;
