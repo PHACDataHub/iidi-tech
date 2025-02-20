@@ -10,13 +10,18 @@ const Alert = () => {
         noticeTitle="Work in progress / Travail en cours"
       >
         <GcdsText>
-          This system is for synthetic data testing purposes only for IIDI
-          project. No real patient data is used.
+          Disclaimer (EN): This web interface is temporary and serves as a Proof
+          of Concept (POC) to facilitate current technical development and
+          testing. It is not intended for production use. Full production
+          considerations, including bilingual and WCAG compliance, are in
+          progress.
         </GcdsText>
         <GcdsText>
-          Ce système est destiné uniquement à des fins de test de données
-          synthétiques pour le projet IIDI. Aucune donnée réelle de patient
-          n'est utilisée.
+          Avis (FR) : Cette interface web est temporaire et sert de Preuve de
+          Concept (POC) pour faciliter les développements techniques actuels et
+          les tests. Elle n'est pas destinée à un usage en production. Les
+          considérations complètes de production, y compris la conformité
+          bilingue et WCAG, sont en cours.
         </GcdsText>
       </GcdsNotice>
     </div>
