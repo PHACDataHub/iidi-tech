@@ -47,44 +47,8 @@ const Form = () => {
     // Simulating API Call
     const fhirUrl =
       originPT === 'BC'
-        ? 'https://fhir.bc.iidi.alpha.phac.gc.ca/'
-        : 'https://fhir.on.iidi.alpha.phac.gc.ca/';
-
-    const payload = {
-      resourceType: 'Immunization',
-      patient: { reference: `Patient/${patientNumber}` },
-      vaccineCode: {
-        coding: [
-          { system: 'http://hl7.org/fhir/sid/cvx', code: '03', display: 'MMR' },
-        ],
-      },
-      occurrenceDateTime: new Date().toISOString(),
-      status: 'completed',
-    };
-
-    fetch(fhirUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setLoadingMessage(false);
-        const status =
-          data.resourceType === 'OperationOutcome' ? 'Failed' : 'Transferred';
-        addToTable(patientNumber, originPT, receivingPT, status);
-      })
-      .catch((error) => {
-        setLoadingMessage(false);
-        addToTable(patientNumber, originPT, receivingPT, 'Failed');
-      });
-  };
-
-  const addToTable = (patientName, originPT, receivingPT, status) => {
-    setTransfers((prevTransfers) => [
-      ...prevTransfers,
-      { patientName, originPT, receivingPT, vaccine: 'MMR', status },
-    ]);
+        ? 'process.env.BC_OUTBOUND_URL'
+        : 'process.env.ON_OUTBOUND_URL';
   };
 
   return (
@@ -152,9 +116,6 @@ const Form = () => {
               <GcdsText>Receiving PT</GcdsText>
             </th>
             <th>
-              <GcdsText>Vaccine</GcdsText>
-            </th>
-            <th>
               <GcdsText>Transfer Status</GcdsText>
             </th>
           </tr>
@@ -165,7 +126,6 @@ const Form = () => {
               <td>{transfer.patientName}</td>
               <td>{transfer.originPT}</td>
               <td>{transfer.receivingPT}</td>
-              <td>{transfer.vaccine}</td>
               <td
                 className={`status ${transfer.status === 'Transferred' ? 'transferred' : 'failed'}`}
               >
