@@ -25,7 +25,7 @@ export const initialize_transfer_request = async (
       patient_id,
       transfer_to,
       stage: initial_stage,
-      stage_history: [],
+      completed_stages: [],
     },
     {
       deduplication: { id: patient_id },
@@ -62,7 +62,7 @@ export const get_transfer_request_job_info = async (
   const { failedReason: failed_reason, finishedOn: finished_on } =
     transfer_request_job;
 
-  const { patient_id, transfer_to, stage, stage_history } =
+  const { patient_id, transfer_to, stage, completed_stages } =
     transfer_request_job.data;
 
   return {
@@ -72,6 +72,6 @@ export const get_transfer_request_job_info = async (
     patient_id,
     transfer_to,
     stage,
-    stage_history,
+    completed_stages,
   };
 };

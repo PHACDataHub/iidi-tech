@@ -7,7 +7,6 @@ export const transfer_stages = [
   'marking_transfered',
   'transfering',
   'finalizing',
-  'rejecting',
   terminal_stage,
 ] as const;
 export type transferStage = (typeof transfer_stages)[number];
@@ -22,9 +21,7 @@ const next_stage_map: Record<nonTerminalTransferStage, transferStage> = {
   marking_transfered: 'transfering',
   transfering: 'finalizing',
   finalizing: terminal_stage,
-  rejecting: terminal_stage,
 };
-
 export const get_next_stage = (
   current_stage: Exclude<transferStage, typeof terminal_stage>,
 ): transferStage => {
