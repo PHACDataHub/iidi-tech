@@ -1,28 +1,50 @@
+import type { Job } from 'bullmq';
+
 import type { transferCode } from 'src/types.d.ts';
 
-import { get_transfer_queue } from './queue_utils.ts';
+import { get_queue } from './queue_utils.ts';
+import { initial_stage } from './transfer_stage_utils.ts';
+import type { transferRequest } from './transferRequest.js';
+
+export const get_transfer_queue = () =>
+  get_queue<transferRequest, transferRequest>('transfer-request-queue');
 
 export type transferRequestJob = Exclude<
   Awaited<ReturnType<ReturnType<typeof get_transfer_queue>['getJob']>>,
   undefined
 >;
 
+export const transfer_job_name = 'transfer';
 export const initialize_transfer_request = async (
   patient_id: string,
   transfer_to: transferCode,
 ) =>
   get_transfer_queue().add(
-    'transfer',
+    transfer_job_name,
     {
       patient_id,
       transfer_to,
-      stage: 'collecting',
+      stage: initial_stage,
       stage_history: [],
     },
     {
       deduplication: { id: patient_id },
     },
   );
+
+export function assert_is_transfer_job(
+  job: Job,
+): asserts job is transferRequestJob {
+  // TODO assert job.data shape too?
+  if (
+    job === null ||
+    typeof job !== 'object' ||
+    !('name' in job) ||
+    job.name !== transfer_job_name
+  ) {
+    throw new Error(`Expected a "${transfer_job_name}" type job`);
+  }
+}
 
 export const get_transfer_request_by_id = async (id: string) =>
   get_transfer_queue().getJob(id);
@@ -40,7 +62,8 @@ export const get_transfer_request_job_info = async (
   const { failedReason: failed_reason, finishedOn: finished_on } =
     transfer_request_job;
 
-  const { patient_id, transfer_to, stage } = transfer_request_job.data;
+  const { patient_id, transfer_to, stage, stage_history } =
+    transfer_request_job.data;
 
   return {
     state,
@@ -49,5 +72,6 @@ export const get_transfer_request_job_info = async (
     patient_id,
     transfer_to,
     stage,
+    stage_history,
   };
 };
