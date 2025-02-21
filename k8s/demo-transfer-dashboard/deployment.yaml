@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-transfer-dashboard
+  namespace: demo-transfer-dashboard
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-transfer-dashboard
+  template:
+    metadata:
+      labels:
+        app: demo-transfer-dashboard
+    spec:
+      containers:
+        - name: demo-transfer-dashboard
+          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-demo-transfer-dashboard:main-fc2776dd0dc3d8ed73b09c2ab53b0b206e7fa10f-1740073808 # {"$imagepolicy": "flux-system:demo-transfer-dashboard"}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+            - name: ON_OUTBOUND_URL
+              value: "https://example.com/on-outbound"
+            - name: BC_OUTBOUND_URL
+              value: "https://example.com/bc-outbound"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 30
+            failureThreshold: 3
+            timeoutSeconds: 5
+          resources:
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
