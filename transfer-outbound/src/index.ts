@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 
 import { create_app } from './create_app.ts';
 import { get_env } from './env.ts';
-import { initialize_transfer_worker } from './transfer_request_queue/initialize_transfer_worker.ts';
+import { initialize_transfer_worker } from './transfer_request_queue/transfer_worker.ts';
 
 dotenv.config({ path: '.env', override: true }); // relative to the call point, e.g. the service root
 
