@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 
 import { create_app } from './create_app.ts';
 import { get_env } from './env.ts';
+import { initialize_transfer_worker } from './transfer_request_queue/initialize_transfer_worker.ts';
 
 dotenv.config({ path: '.env', override: true }); // relative to the call point, e.g. the service root
 
@@ -21,3 +22,5 @@ app.listen({ host: EXPRESS_HOST, port: EXPRESS_PORT }, () =>
     `🚀 Outbound transfer API listening on ${EXPRESS_HOST}:${EXPRESS_PORT}`,
   ),
 );
+
+initialize_transfer_worker();
