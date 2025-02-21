@@ -1,5 +1,11 @@
 import { Worker, QueueEvents, Job } from 'bullmq';
 
+import {
+  get_patient_bundle_for_transfer,
+  mark_patient_transfered,
+  unmark_patient_transfered,
+} from 'src/fhir_utils.ts';
+
 import { get_connection_options } from './queue_utils.ts';
 import {
   get_transfer_queue,
@@ -17,10 +23,6 @@ import {
 
 import type { transferRequest } from './transferRequest.js';
 
-const rollback_interupted_transfer_job = (_job: transferRequestJob) => {
-  // TODO
-};
-
 const work_on_transfer_job = async (job: transferRequestJob) => {
   if (!transfer_stages.includes(job.data.stage)) {
     throw new Error(
@@ -29,16 +31,47 @@ const work_on_transfer_job = async (job: transferRequestJob) => {
   }
 
   while (job.data.stage !== terminal_stage) {
-    // TODO work loop
+    if (job.data.stage === 'collecting') {
+      const bundle = await get_patient_bundle_for_transfer(job.data.patient_id);
+      await job.updateData({
+        ...job.data,
+        bundle,
+      });
+    } else if (job.data.stage === 'marking_transfered') {
+      await mark_patient_transfered(
+        job.data.patient_id,
+        job.data.transfer_to,
+        job.id,
+      );
+    } else if (job.data.stage === 'transfering') {
+      // TODO POST bundle to transfer-inbound
+    } else if (job.data.stage === 'finalizing') {
+      // TODO potentially circle back to add final confirmation mark, maybe the patient ID in the inbound system, to
+      // the patient record in the outbound system
+    }
 
     await job.updateData({
       ...job.data,
-      stage_history: [...job.data.stage_history, job.data.stage],
+      completed_stages: [...job.data.completed_stages, job.data.stage],
       stage: get_next_stage(job.data.stage),
     });
   }
 
   return job.data;
+};
+
+const rollback_interupted_transfer_job = async (job: transferRequestJob) => {
+  const transfer_marks_were_created =
+    job.data.completed_stages.includes('marking_transfered');
+  const transfer_did_not_complete =
+    job.data.completed_stages.includes('transfering');
+  if (transfer_marks_were_created && transfer_did_not_complete) {
+    await unmark_patient_transfered(
+      job.data.patient_id,
+      job.data.transfer_to,
+      job.id,
+    );
+  }
 };
 
 export const initialize_transfer_worker = () => {
@@ -73,7 +106,7 @@ export const initialize_transfer_worker = () => {
       const info = await get_transfer_request_job_info(failed_job);
       console.log(JSON.stringify(info, null, 2));
 
-      rollback_interupted_transfer_job(failed_job);
+      await rollback_interupted_transfer_job(failed_job);
     }
   });
 };

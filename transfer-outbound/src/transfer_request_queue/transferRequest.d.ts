@@ -6,5 +6,6 @@ export interface transferRequest {
   patient_id: string;
   transfer_to: transferCode;
   stage: transferStage;
-  stage_history: transferStage[];
+  completed_stages: transferStage[];
+  bundle?: unknown; // TODO typing for FHIR bundle
 }
