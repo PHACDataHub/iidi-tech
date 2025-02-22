@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: transfer-inbound-bc
-          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-transfer-inbound:main-bedc8be470fbea3aeba1cbe574e5504204f4bcf3-1739982587 # {"$imagepolicy": "flux-system:patient-browser-bc"}
+          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/patient-browser-iidi:main-153c34381ef0bca44116c9b7ccd9619934b93fc7-1739905750 # {"$imagepolicy": "flux-system:patient-browser-bc"}
           ports:
             - containerPort: 3000
           env:
