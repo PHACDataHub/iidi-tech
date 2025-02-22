@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transfer-inbound-on
+  namespace: "on"
+  labels:
+    app: transfer-inbound-on
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: transfer-inbound-on
+  template:
+    metadata:
+      labels:
+        app: transfer-inbound-on
+    spec:
+      containers:
+        - name: transfer-inbound-on
+          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-transfer-outbound:main-4a71aa18141a16f1fc4b8fb0a0e93793c83a1262-1740070298 
+          ports:
+            - containerPort: 3000
+          env:
+            - name: EXPRESS_PORT
+              value: "3000"
+            - name: DEV_IS_LOCAL_ENV
+              value: "True"
+            - name: REDIS_HOST
+              value: "on-bullmq-redis"
+            - name: FHIR_URL
+              value: "http://hapi-fhir-svc.on.svc.cluster.local:8080/fhir"
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-secret
+                  key: REDIS_PASSWORD

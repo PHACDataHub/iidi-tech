@@ -7,3 +7,4 @@ resources:
   - ./hapi-fhir-server
   - ./patient-browser
   - ./aggregation-server
+  - ./on-transfer
