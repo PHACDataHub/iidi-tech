@@ -5,5 +5,4 @@ resources:
   - transfer-inbound.yaml
   - transfer-outbound.yaml
   - redis-deployment.yaml
-  - redis-secret.yaml
   - redis-service.yaml

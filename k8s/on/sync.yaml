@@ -145,7 +145,7 @@ metadata:
   name: transfer-inbound-on
   namespace: flux-system
 spec:
-  path: ./k8s/on/on-transfer-inbound
+  path: ./k8s/on/on-transfer
   interval: 2m0s
   prune: true
   sourceRef:
@@ -162,7 +162,7 @@ metadata:
   name: transfer-outbound-on
   namespace: flux-system
 spec:
-  path: ./k8s/on/on-transfer-outbound
+  path: ./k8s/on/on-transfer
   interval: 2m0s
   prune: true
   sourceRef:
@@ -239,7 +239,7 @@ spec:
   interval: 5m
   update:
     strategy: Setters
-    path: ./k8s/on/on-transfer-inbound
+    path: ./k8s/on/on-transfer
   git:
     checkout:
       ref:
@@ -265,7 +265,7 @@ spec:
   interval: 5m
   update:
     strategy: Setters
-    path: ./k8s/on/on-transfer-outbound
+    path: ./k8s/on/on-transfer
   git:
     checkout:
       ref:
