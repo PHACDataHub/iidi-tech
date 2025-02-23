@@ -1,19 +1,16 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-- gotk-components.yaml
-- gotk-sync.yaml
+  - gotk-components.yaml
+  - gotk-sync.yaml
 
-patches:
+patchesStrategicMerge:
   # Minimum resource requests for controllers
-  - target:
-      kind: Deployment
-      name: "(kustomize-controller|source-controller|image-reflector-controller|image-automation-controller|notification-controller|helm-controller)"
-    patch: |
+  - patch: |
       apiVersion: apps/v1
       kind: Deployment
       metadata:
-        name: all
+        name: ${name}
       spec:
         template:
           spec:
@@ -26,6 +23,9 @@ patches:
                   limits:
                     cpu: 150m
                     memory: 300Mi
+    target:
+      kind: Deployment
+      name: "(kustomize-controller|source-controller|image-reflector-controller|image-automation-controller|notification-controller|helm-controller)"
 
   # Patch image-reflector-controller service account to access artifact registry
   - patch: |
