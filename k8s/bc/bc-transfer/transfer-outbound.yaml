@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: transfer-outbound-bc
+  name: transfer-outbound
   namespace: "bc"
   labels:
-    app: transfer-outbound-bc
+    app: transfer-outbound
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: transfer-outbound-bc
+      app: transfer-outbound
   template:
     metadata:
       labels:
-        app: transfer-outbound-bc
+        app: transfer-outbound
     spec:
       containers:
-        - name: transfer-outbound-bc
+        - name: transfer-outbound
           image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-transfer-outbound:main-4a71aa18141a16f1fc4b8fb0a0e93793c83a1262-1740070298 # {"$imagepolicy": "flux-system:transfer-outbound-bc"}
           ports:
             - containerPort: 3000
@@ -26,7 +26,7 @@ spec:
             - name: DEV_IS_LOCAL_ENV
               value: "false"
             - name: REDIS_HOST
-              value: "bc-bullmq-redis"
+              value: "redis"
             - name: FHIR_URL
               value: "http://hapi-fhir-svc.bc.svc.cluster.local:8080/fhir"
             - name: REDIS_PORT

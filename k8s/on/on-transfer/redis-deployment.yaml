@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: on-bullmq-redis
+  name: redis
   namespace: "on"
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: bullmq-redis
+      app: redis
   template:
     metadata:
       labels:
-        app: bullmq-redis
+        app: redis
     spec:
       containers:
         - name: redis

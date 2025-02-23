@@ -21,9 +21,9 @@ spec:
             - containerPort: 3000
           env:
             - name: ON_OUTBOUND_URL
-              value: "https://example.com/on-outbound"
+              value: "http://transfer-outbound.on.svc.cluster.local:3000"
             - name: BC_OUTBOUND_URL
-              value: "https://example.com/bc-outbound"
+              value: "http://transfer-outbound.bc.svc.cluster.local:3000"
           readinessProbe:
             httpGet:
               path: /

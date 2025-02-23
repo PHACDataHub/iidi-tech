@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: transfer-inbound-on
+  name: transfer-inbound
   namespace: "on"
   labels:
-    app: transfer-inbound-on
+    app: transfer-inbound
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: transfer-inbound-on
+      app: transfer-inbound
   template:
     metadata:
       labels:
-        app: transfer-inbound-on
+        app: transfer-inbound
     spec:
       containers:
-        - name: transfer-inbound-on
+        - name: transfer-inbound
           image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-transfer-inbound:main-bedc8be470fbea3aeba1cbe574e5504204f4bcf3-1739982587 # {"$imagepolicy": "flux-system:transfer-inbound-on"}
           ports:
             - containerPort: 3000
