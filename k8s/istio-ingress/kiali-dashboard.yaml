@@ -102,7 +102,17 @@ data:
       custom_dashboards:
         enabled: true
       istio:
-        enabled: false
+        enabled: true
+        component_status:
+          components:
+            - app_label: istio-ingressgateway
+              is_core: true
+              namespace: istio-ingress
+        config_map_name: istio-asm-managed-rapid
+        istio_identity_domain: svc.cluster.local
+        envoy_admin_local_port: 15000
+        istio_injection_annotation: sidecar.istio.io/inject
+        istio_sidecar_annotation: sidecar.istio.io/status
       grafana:
         enabled: false
       prometheus:
@@ -112,7 +122,7 @@ data:
     identity:
       cert_file: ""
       private_key_file: ""
-    istio_namespace: istio-ingress
+    istio_namespace: istio-system
     kiali_feature_flags:
       certificates_information_indicators:
         enabled: true
