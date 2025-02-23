@@ -1,11 +1,15 @@
+# ======================================================
+# 🛠️ FLUX KUSTOMIZATION FOR ONTARIO ENVIRONMENT
+# ======================================================
+
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
-  name: hapi-fhir-server-on
+  name: on-environment
   namespace: flux-system
 spec:
-  path: ./k8s/on/hapi-fhir-server
+  path: ./k8s/on
   interval: 2m0s
   prune: true
   sourceRef:
@@ -14,38 +18,13 @@ spec:
   wait: true
   dependsOn:
     - name: cnpg-system
+  decryption:
+    provider: sops
 
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: aggregation-server-on
-  namespace: flux-system
-spec:
-  path: ./k8s/on/aggregation-server
-  interval: 2m0s
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  dependsOn:
-    - name: hapi-fhir-server-on
+# ======================================================
+# 📦 IMAGE REPOSITORIES
+# ======================================================
 
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: patient-browser-on
-  namespace: flux-system
-spec:
-  path: ./k8s/on/patient-browser
-  interval: 2m0s
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  dependsOn:
-    - name: hapi-fhir-server-on
 ---
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImageRepository
@@ -67,110 +46,6 @@ spec:
   image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/patient-browser-iidi
   interval: 1m0s
   provider: gcp
----
-apiVersion: image.toolkit.fluxcd.io/v1beta1
-kind: ImagePolicy
-metadata:
-  name: aggregation-server-on
-  namespace: flux-system
-spec:
-  imageRepositoryRef:
-    name: aggregation-server-on
-  filterTags:
-    extract: $ts
-    pattern: ^main-[a-fA-F0-9]+-(?P<ts>.*)
-  policy:
-    numerical:
-      order: asc
-
----
-apiVersion: image.toolkit.fluxcd.io/v1beta1
-kind: ImagePolicy
-metadata:
-  name: patient-browser-on
-  namespace: flux-system
-spec:
-  imageRepositoryRef:
-    name: patient-browser-on
-  filterTags:
-    extract: $ts
-    pattern: ^main-[a-fA-F0-9]+-(?P<ts>.*)
-  policy:
-    numerical:
-      order: asc
----
-apiVersion: image.toolkit.fluxcd.io/v1beta1
-kind: ImageUpdateAutomation
-metadata:
-  name: aggregation-server-on-updater
-  namespace: flux-system
-spec:
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  interval: 5m
-  update:
-    strategy: Setters
-    path: ./k8s/on/aggregation-server
-  git:
-    checkout:
-      ref:
-        branch: "main"
-    commit:
-      author:
-        name: fluxbot
-        email: fluxcd@users.noreply.github.com
-      messageTemplate: "[ci skip] {{range .Updated.Images}}{{println .}}{{end}}"
-    push:
-      branch: "main"
-
----
-apiVersion: image.toolkit.fluxcd.io/v1beta1
-kind: ImageUpdateAutomation
-metadata:
-  name: patient-browser-on-updater
-  namespace: flux-system
-spec:
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  interval: 5m
-  update:
-    strategy: Setters
-    path: ./k8s/on
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: transfer-inbound-on
-  namespace: flux-system
-spec:
-  path: ./k8s/on/on-transfer
-  interval: 2m0s
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  wait: true
-  dependsOn:
-    - name: hapi-fhir-server-on
-
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: transfer-outbound-on
-  namespace: flux-system
-spec:
-  path: ./k8s/on/on-transfer
-  interval: 2m0s
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  wait: true
-  dependsOn:
-    - name: transfer-inbound-on
 
 ---
 apiVersion: image.toolkit.fluxcd.io/v1beta2
@@ -194,6 +69,45 @@ spec:
   interval: 1m0s
   provider: gcp
 
+# ======================================================
+# 📋 IMAGE POLICIES
+# ======================================================
+
+# Aggregation Server Policy
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImagePolicy
+metadata:
+  name: aggregation-server-on
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: aggregation-server-on
+  filterTags:
+    extract: $ts
+    pattern: ^main-[a-fA-F0-9]+-(?P<ts>.*)
+  policy:
+    numerical:
+      order: asc
+
+# Patient Browser Policy
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImagePolicy
+metadata:
+  name: patient-browser-on
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: patient-browser-on
+  filterTags:
+    extract: $ts
+    pattern: ^main-[a-fA-F0-9]+-(?P<ts>.*)
+  policy:
+    numerical:
+      order: asc
+
+# Transfer Inbound Policy
 ---
 apiVersion: image.toolkit.fluxcd.io/v1beta1
 kind: ImagePolicy
@@ -210,6 +124,7 @@ spec:
     numerical:
       order: asc
 
+# Transfer Outbound Policy
 ---
 apiVersion: image.toolkit.fluxcd.io/v1beta1
 kind: ImagePolicy
@@ -226,37 +141,15 @@ spec:
     numerical:
       order: asc
 
----
-apiVersion: image.toolkit.fluxcd.io/v1beta1
-kind: ImageUpdateAutomation
-metadata:
-  name: transfer-inbound-on-updater
-  namespace: flux-system
-spec:
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  interval: 5m
-  update:
-    strategy: Setters
-    path: ./k8s/on/on-transfer
-  git:
-    checkout:
-      ref:
-        branch: "main"
-    commit:
-      author:
-        name: fluxbot
-        email: fluxcd@users.noreply.github.com
-      messageTemplate: "[ci skip] Updated transfer-inbound-on to {{range .Updated.Images}}{{println .}}{{end}}"
-    push:
-      branch: "main"
+# ======================================================
+# 🔄 IMAGE UPDATE AUTOMATIONS
+# ======================================================
 
 ---
 apiVersion: image.toolkit.fluxcd.io/v1beta1
 kind: ImageUpdateAutomation
 metadata:
-  name: transfer-outbound-on-updater
+  name: on-updater
   namespace: flux-system
 spec:
   sourceRef:
@@ -265,7 +158,7 @@ spec:
   interval: 5m
   update:
     strategy: Setters
-    path: ./k8s/on/on-transfer
+    path: ./k8s/on
   git:
     checkout:
       ref:
@@ -274,9 +167,14 @@ spec:
       author:
         name: fluxbot
         email: fluxcd@users.noreply.github.com
-      messageTemplate: "[ci skip] Updated transfer-outbound-on to {{range .Updated.Images}}{{println .}}{{end}}"
+      messageTemplate: "[ci skip] Updated Ontario environment images to {{range .Updated.Images}}{{println .}}{{end}}"
     push:
       branch: "main"
+
+# ======================================================
+# 🔧 REDIS KUSTOMIZATION
+# ======================================================
+
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization

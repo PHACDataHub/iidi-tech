@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: transfer-outbound-bc
-          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/patient-browser-iidi:main-153c34381ef0bca44116c9b7ccd9619934b93fc7-1739905750 # {"$imagepolicy": "flux-system:patient-browser-bc"}
+          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-transfer-outbound:main-4a71aa18141a16f1fc4b8fb0a0e93793c83a1262-1740070298 # {"$imagepolicy": "flux-system:transfer-outbound-bc"}
           ports:
             - containerPort: 3000
           env:
@@ -26,9 +26,9 @@ spec:
             - name: DEV_IS_LOCAL_ENV
               value: "True"
             - name: REDIS_HOST
-              value: "on-bullmq-redis"
+              value: "bc-bullmq-redis"
             - name: FHIR_URL
-              value: "http://hapi-fhir-svc.on.svc.cluster.local:8080/fhir"
+              value: "http://hapi-fhir-svc.bc.svc.cluster.local:8080/fhir"
             - name: REDIS_PORT
               value: "6379"
             - name: REDIS_PASSWORD

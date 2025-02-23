@@ -6,3 +6,4 @@ resources:
   - transfer-outbound.yaml
   - redis-deployment.yaml
   - redis-service.yaml
+  - redis-secret.enc.yaml
