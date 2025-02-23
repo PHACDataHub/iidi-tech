@@ -17,7 +17,7 @@ spec:
     name: flux-system
   wait: true
   dependsOn:
-    - name: cnpg-system
+    - name: flux-system
   decryption:
     provider: sops
 
@@ -170,22 +170,3 @@ spec:
       messageTemplate: "[ci skip] Updated Ontario environment images to {{range .Updated.Images}}{{println .}}{{end}}"
     push:
       branch: "main"
-
-# ======================================================
-# 🔧 REDIS KUSTOMIZATION
-# ======================================================
-
----
-apiVersion: kustomize.toolkit.fluxcd.io/v1
-kind: Kustomization
-metadata:
-  name: redis-on
-  namespace: flux-system
-spec:
-  path: ./k8s/on/on-transfer
-  interval: 2m0s
-  prune: true
-  sourceRef:
-    kind: GitRepository
-    name: flux-system
-  wait: true

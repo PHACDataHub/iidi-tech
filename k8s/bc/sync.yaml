@@ -17,7 +17,7 @@ spec:
     name: flux-system
   wait: true
   dependsOn:
-    - name: cnpg-system
+    - name: flux-system
   decryption:
     provider: sops
 
