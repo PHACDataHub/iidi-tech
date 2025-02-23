@@ -24,7 +24,7 @@ spec:
             - name: EXPRESS_PORT
               value: "3000"
             - name: DEV_IS_LOCAL_ENV
-              value: "True"
+              value: "false"
             - name: REDIS_HOST
               value: "bc-bullmq-redis"
             - name: FHIR_URL

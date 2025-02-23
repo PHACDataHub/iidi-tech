@@ -24,6 +24,6 @@ spec:
             - name: EXPRESS_PORT
               value: "3000"
             - name: DEV_IS_LOCAL_ENV
-              value: "True"
+              value: "false"
             - name: FHIR_URL
               value: "http://hapi-fhir-svc.on.svc.cluster.local:8080/fhir"
