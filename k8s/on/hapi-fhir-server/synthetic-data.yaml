@@ -13,7 +13,7 @@ spec:
         imagePullPolicy: Always
         env:
         - name: NUM_RECORDS
-          value: "100"
+          value: "500"
         - name: PT
           value: "on"
         - name: FHIR_URL
