@@ -8,6 +8,7 @@ metadata:
 spec:
   imageName: ghcr.io/cloudnative-pg/postgresql:14.11
   instances: 2
+  enablePDB: true  
   startDelay: 900
   stopDelay: 900
   primaryUpdateStrategy: unsupervised
@@ -47,8 +48,8 @@ spec:
     size: 5Gi
 
   nodeMaintenanceWindow:
-    inProgress: false
-    reusePVC: false
+    inProgress: true
+    reusePVC: true
 
   inheritedMetadata:
     annotations:
