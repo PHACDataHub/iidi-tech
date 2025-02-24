@@ -2,7 +2,7 @@ import type { Patient } from 'fhir/r4.d.ts';
 
 import { get_env } from './env.ts';
 import { AppError } from './error_utils.ts';
-import type { transferCode } from './types.d.ts';
+import type { transferCode } from './transfer_code_utils.ts';
 
 const is_patient_resource = (json: unknown): json is Patient =>
   typeof json === 'object' &&

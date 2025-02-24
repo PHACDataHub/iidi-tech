@@ -1,3 +1,3 @@
 import type {} from 'fhir/r4.d.ts';
 
-export type transferCode = 'BC' | 'ON';
+export type bundle = unknown; // TODO typing for FHIR bundle

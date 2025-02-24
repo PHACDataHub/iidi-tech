@@ -1,6 +1,6 @@
 import type { Job } from 'bullmq';
 
-import type { transferCode } from 'src/types.d.ts';
+import type { transferCode } from 'src/transfer_code_utils.ts';
 
 import { get_queue } from './queue_utils.ts';
 import { initial_stage } from './transfer_stage_utils.ts';

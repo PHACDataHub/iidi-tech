@@ -467,6 +467,8 @@ services:
       DEV_IS_LOCAL_ENV: True
       REDIS_HOST: on-bullmq-redis
       FHIR_URL: http://on-fhir:8080/fhir # in this case, resolved inside the container, with container networking
+      OWN_TRANSFER_CODE: 'ON'
+      INBOUND_TRANSFER_SERIVCES_BY_TRANSFER_CODE: '{ "BC": "http://localhost:8080/on/inbound" }'
 
   bc-fhir-db:
     <<: *fhir-db-service
@@ -545,6 +547,8 @@ services:
       DEV_IS_LOCAL_ENV: True
       REDIS_HOST: bc-bullmq-redis
       FHIR_URL: http://bc-fhir:8080/fhir # in this case, resolved inside the container, with container networking
+      OWN_TRANSFER_CODE: 'BC'
+      INBOUND_TRANSFER_SERIVCES_BY_TRANSFER_CODE: '{ "ON": "http://localhost:8080/on/inbound" }'
 
   federator:
     image: node-dev:1.0

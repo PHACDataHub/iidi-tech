@@ -1,4 +1,36 @@
-import { cleanEnv, port, host, bool, url, str } from 'envalid';
+import { cleanEnv, port, host, bool, url, str, makeValidator } from 'envalid';
+
+import validator from 'validator';
+
+import { transfer_codes, is_transfer_code } from './transfer_code_utils.ts';
+import type { transferCode as transferCodeType } from './transfer_code_utils.ts';
+
+const transferCode = makeValidator((val: string) => {
+  if (is_transfer_code(val)) {
+    return val;
+  } else {
+    throw new Error(`Expected PT code (${transfer_codes.join(', ')})`);
+  }
+});
+
+const urlByTransferCode = makeValidator((val: string) => {
+  const pt_url_map = JSON.parse(val);
+
+  if (
+    Object.keys(pt_url_map).every(is_transfer_code) &&
+    Object.values(pt_url_map).every(
+      (value) =>
+        typeof value === 'string' &&
+        validator.isURL(value, { require_tld: false }),
+    )
+  ) {
+    return pt_url_map as Record<transferCodeType, string>;
+  } else {
+    throw new Error(
+      `Expected JSON string mapping PT codes (${transfer_codes.join(', ')}) to transfer-inbound service URLs`,
+    );
+  }
+});
 
 const boolFalseIfProd = (spec: { default: boolean }) => {
   const is_prod =
@@ -22,6 +54,9 @@ export const get_env = () => {
     REDIS_HOST: host({ default: '0.0.0.0' }),
 
     FHIR_URL: url(),
+
+    OWN_TRANSFER_CODE: transferCode(),
+    INBOUND_TRANSFER_SERIVCES_BY_TRANSFER_CODE: urlByTransferCode(),
 
     DEV_IS_LOCAL_ENV: boolFalseIfProd({ default: false }),
     DEV_IS_TEST_ENV: boolFalseIfProd({ default: false }),
