@@ -15,21 +15,11 @@ import {
 } from './transfer_request_utils.ts';
 import type { transferRequestJob } from './transfer_request_utils.ts';
 
-import {
-  transfer_stages,
-  terminal_stage,
-  get_next_stage,
-} from './transfer_stage_utils.ts';
+import { terminal_stage, get_next_stage } from './transfer_stage_utils.ts';
 
 import type { transferRequest } from './transferRequest.js';
 
 const work_on_transfer_job = async (job: transferRequestJob) => {
-  if (!transfer_stages.includes(job.data.stage)) {
-    throw new Error(
-      `Transfer request "${job.id}" reached an unknown stage "${job.data.stage}"`,
-    );
-  }
-
   // NOTE: breaking the job in to work stages similar to a pattern mentioned here https://docs.bullmq.io/patterns/process-step-jobs,
   // note that while the job doesn't return to the queue between stages it does update the job data to track progress which will
   // allow it to pick back up from the last stage if it is failed/moved back to the queue for any reason. Each stage also includes
