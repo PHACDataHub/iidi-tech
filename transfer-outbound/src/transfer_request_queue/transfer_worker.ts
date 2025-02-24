@@ -6,6 +6,8 @@ import {
   unmark_patient_transfered,
 } from 'src/fhir_utils.ts';
 
+import { post_bundle_to_inbound_transfer_service } from 'src/transfer_inbound_utils.ts';
+
 import { get_connection_options } from './queue_utils.ts';
 import {
   get_transfer_queue,
@@ -26,8 +28,8 @@ const work_on_transfer_job = async (job: transferRequestJob) => {
   // async work, so a worker won't be blocking on the node thread (express should still be able to handle requests, multiple jobs
   // could be processing, etc).
   // Could try a more complicated use of BullMQ, either spawning child jobs for each stage or using the flow concept, but both of those
-  // add a good bit more complexity than we may need. The biggest trade off of the current approach is that the stages all share the same
-  // "attempts" pool, so we can't fine tune the number of retries per-stage. Child jobs/a job flow would enable that
+  // add a good bit more complexity than we may need. The biggest trade off of the current approach, AFAIK, is that the stages all share
+  // the same "attempts" count, so we can't fine tune the number of retries per-stage. Child jobs/a job flow would enable that
   while (job.data.stage !== terminal_stage) {
     if (job.data.stage === 'collecting') {
       const bundle = await get_patient_bundle_for_transfer(job.data.patient_id);
@@ -42,9 +44,14 @@ const work_on_transfer_job = async (job: transferRequestJob) => {
         job.id,
       );
     } else if (job.data.stage === 'transfering') {
-      // TODO POST bundle to transfer-inbound
       // NOTE: vital assumption: this end point returns 200 IF AND ONLY IF the bundle was accepted and fully written to the receiving
       // FHIR server. Not a big ask, just have to hold to that or else the rollback handling won't work and data integrity is lost
+      const response = await post_bundle_to_inbound_transfer_service(
+        job.data.bundle,
+        job.data.transfer_to,
+      );
+      // TODO handle response, if it's a 200 then expect a new patient ID, if anything else then throw
+      console.log(response);
     } else if (job.data.stage === 'finalizing') {
       // TODO potentially circle back to add final confirmation mark, maybe the patient ID in the inbound system, to
       // the patient record in the outbound system

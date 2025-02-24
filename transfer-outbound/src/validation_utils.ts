@@ -1,5 +1,5 @@
 import { AppError } from './error_utils.ts';
-import type { transferCode } from './types.d.ts';
+import type { transferCode } from './transfer_code_utils.ts';
 
 export function assert_patient_id_is_valid(
   patient_id: unknown,
