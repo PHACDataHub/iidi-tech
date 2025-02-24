@@ -1,7 +1,10 @@
+import { get_env } from './env.ts';
 import { AppError } from './error_utils.ts';
+
+import { transfer_codes, is_transfer_code } from './transfer_code_utils.ts';
 import type { transferCode } from './transfer_code_utils.ts';
 
-export function assert_patient_id_is_valid(
+export function assert_patient_id_parameter_is_valid(
   patient_id: unknown,
 ): asserts patient_id is string {
   if (typeof patient_id !== 'string') {
@@ -20,20 +23,22 @@ export function assert_patient_id_is_valid(
   }
 }
 
-export function assert_transfer_code_is_valid(
+export function assert_transfer_code_parameter_is_valid(
   transfer_code: unknown,
 ): asserts transfer_code is transferCode {
-  // TODO refine this, should be single source of truth for transfer codes
-  // might want the logic to reject self-transfers here too?
-  const accepted_codes = ['BC', 'ON'];
+  const { OWN_TRANSFER_CODE } = get_env();
+
+  const accepted_codes = transfer_codes.filter(
+    (code) => code !== OWN_TRANSFER_CODE,
+  );
 
   if (
-    typeof transfer_code !== 'string' ||
+    !is_transfer_code(transfer_code) ||
     !accepted_codes.includes(transfer_code)
   ) {
     throw new AppError(
       400,
-      `Invalid transfer code, expected "${accepted_codes.join(' | ')}", got: "${transfer_code}"`,
+      `Invalid transfer code, expected one of [${accepted_codes.join(', ')}], got: "${transfer_code}"`,
     );
   }
 }
