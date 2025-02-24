@@ -31,6 +31,9 @@ const work_on_transfer_job = async (job: transferRequestJob) => {
   // add a good bit more complexity than we may need. The biggest trade off of the current approach, AFAIK, is that the stages all share
   // the same "attempts" count, so we can't fine tune the number of retries per-stage. Child jobs/a job flow would enable that
   while (job.data.stage !== terminal_stage) {
+    // TODO for this and all other logging found here, switch to a good struct log approach. These simple logs are placeholders/for dev
+    console.log(`Job ID ${job.id}: starting stage "${job.data.stage}"`);
+
     if (job.data.stage === 'collecting') {
       const bundle = await get_patient_bundle_for_transfer(job.data.patient_id);
       await job.updateData({
@@ -46,23 +49,47 @@ const work_on_transfer_job = async (job: transferRequestJob) => {
     } else if (job.data.stage === 'transfering') {
       // NOTE: vital assumption: this end point returns 200 IF AND ONLY IF the bundle was accepted and fully written to the receiving
       // FHIR server. Not a big ask, just have to hold to that or else the rollback handling won't work and data integrity is lost
-      const response = await post_bundle_to_inbound_transfer_service(
+      const transfer_response = await post_bundle_to_inbound_transfer_service(
         job.data.bundle,
         job.data.transfer_to,
       );
-      // TODO handle response, if it's a 200 then expect a new patient ID, if anything else then throw
-      console.log(response);
+
+      if (transfer_response.status === 200) {
+        const body = await transfer_response.json();
+
+        if (
+          typeof body === 'object' &&
+          body !== null &&
+          'new_patient_id' in body &&
+          typeof body.new_patient_id === 'string'
+        ) {
+          await job.updateData({
+            ...job.data,
+            new_patient_id: body.new_patient_id,
+          });
+        }
+      } else {
+        throw new Error(
+          `Job ID ${job.id}: inbound-transfer service for "${job.data.transfer_to}" responded to patient ID "${job.data.patient_id}" transfer with a "${transfer_response.status}" status`,
+        );
+      }
     } else if (job.data.stage === 'finalizing') {
-      // TODO potentially circle back to add final confirmation mark, maybe the patient ID in the inbound system, to
+      // TODO potentially circle back to add final confirmation mark, maybe the patient ID from the inbound system, to
       // the patient record in the outbound system
     }
+
+    const completed_stage = job.data.stage;
 
     await job.updateData({
       ...job.data,
       completed_stages: [...job.data.completed_stages, job.data.stage],
       stage: get_next_stage(job.data.stage),
     });
+
+    console.log(`Job ID ${job.id}: completed stage "${completed_stage}"`);
   }
+
+  console.log(`Job ID ${job.id}: all done`);
 
   return job.data;
 };
@@ -70,6 +97,10 @@ const work_on_transfer_job = async (job: transferRequestJob) => {
 const handle_failed_transfer_request_job = async (
   failed_job: transferRequestJob,
 ) => {
+  console.log(
+    `Job ID ${failed_job.id}: failed on stage "${failed_job.data.stage}" having completed stages [${failed_job.data.completed_stages.join(', ')}]`,
+  );
+
   const transfer_marks_were_created =
     failed_job.data.completed_stages.includes('marking_transfered');
 
@@ -89,9 +120,13 @@ const handle_failed_transfer_request_job = async (
   }
 
   if (!transfer_marks_were_created) {
-    // TODO clean failure, log and exit
+    console.log(
+      `Job ID ${failed_job.id}: failure handing, nothing to clean up"`,
+    );
   } else if (transfer_marks_were_created && !transfer_completed) {
-    // TODO log failure case
+    console.log(
+      `Job ID ${failed_job.id}: failure handing, attempting to roll back outbound patient transfer marking"`,
+    );
 
     await unmark_patient_transfered(
       failed_job.data.patient_id,
@@ -99,7 +134,9 @@ const handle_failed_transfer_request_job = async (
       failed_job.id,
     );
 
-    // TODO log successful unmarking
+    console.log(
+      `Job ID ${failed_job.id}: failure handing, successfully rolled back outbound patient transfer marking"`,
+    );
   } else if (
     transfer_marks_were_created &&
     transfer_completed &&
@@ -107,7 +144,13 @@ const handle_failed_transfer_request_job = async (
   ) {
     // Too late to stop, transfer already accepted on inbound end, must have failed during finalizing step. Retry for
     // data integrity sake.
+
     // TODO check number of attempts, maybe give up evetually with an appropriately serious log
+
+    console.log(
+      `Job ID ${failed_job.id}: failure handing, failed post-transfer to inbound PT, unable to roll back. Attempting to continue from last stage (${failed_job.data.stage})"`,
+    );
+
     await failed_job.retry();
   }
 };
@@ -147,7 +190,7 @@ export const initialize_transfer_worker = () => {
       // TODO want to ensure this never happens! Look further in to how the failed events are processed,
       // whether a failed job can be pruned before it's failed event is complete
       console.error(
-        `Unable to ensure possible intermediate state is rolled back for failed event "${jobId}", no such job found`,
+        `Unable to ensure possible intermediate state is rolled back for failed event associated with job ID "${jobId}", no such job found`,
       );
     } else {
       let is_transfer_job = null;
@@ -159,7 +202,6 @@ export const initialize_transfer_worker = () => {
       }
 
       if (is_transfer_job) {
-        // TODO conform with logging patern (logging patern TBD)
         const info = await get_transfer_request_job_info(failed_job);
         console.log(JSON.stringify(info, null, 2));
 
