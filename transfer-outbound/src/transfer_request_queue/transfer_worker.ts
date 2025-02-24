@@ -30,6 +30,14 @@ const work_on_transfer_job = async (job: transferRequestJob) => {
     );
   }
 
+  // NOTE: breaking the job in to work stages similar to a pattern mentioned here https://docs.bullmq.io/patterns/process-step-jobs,
+  // note that while the job doesn't return to the queue between stages it does update the job data to track progress which will
+  // allow it to pick back up from the last stage if it is failed/moved back to the queue for any reason. Each stage also includes
+  // async work, so a worker won't be blocking on the node thread (express should still be able to handle requests, multiple jobs
+  // could be processing, etc).
+  // Could try a more complicated use of BullMQ, either spawning child jobs for each stage or using the flow concept, but both of those
+  // add a good bit more complexity than we may need. The biggest trade off of the current approach is that the stages all share the same
+  // "attempts" pool, so we can't fine tune the number of retries per-stage. Child jobs/a job flow would enable that
   while (job.data.stage !== terminal_stage) {
     if (job.data.stage === 'collecting') {
       const bundle = await get_patient_bundle_for_transfer(job.data.patient_id);
