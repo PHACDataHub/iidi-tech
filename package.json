@@ -11,7 +11,7 @@
   "scripts": {
     "ci:all": "npm ci; (cd ./federator && npm ci); (cd ./transfer-inbound && npm ci); (cd ./transfer-outbound && npm ci); (cd ./demo-transfer-dashboard && npm ci);",
     "dev": "docker compose -f ./docker-compose.dev.yaml up",
-    "predev": "npm run dev:down; (cp -u ./node-dev-docker-env/reference.env.node-dev-docker-env-overrides ./federator/.env.node-dev-docker-env-overrides); (cp -u ./node-dev-docker-env/reference.env.node-dev-docker-env-overrides ./transfer-inbound/.env.node-dev-docker-env-overrides); (cp -u ./node-dev-docker-env/reference.env.node-dev-docker-env-overrides ./transfer-outbound/.env.node-dev-docker-env-overrides); (cp -u ./node-dev-docker-env/reference.env.node-dev-docker-env-overrides ./demo-transfer-dashboard/.env.node-dev-docker-env-overrides);",
+    "predev": "npm run dev:down; (cp -n ./node-dev-docker-env/reference.env.node-dev-docker-env-overrides ./federator/.env.node-dev-docker-env-overrides); (cp -n ./node-dev-docker-env/reference.env.node-dev-docker-env-overrides ./transfer-inbound/.env.node-dev-docker-env-overrides); (cp -n ./node-dev-docker-env/reference.env.node-dev-docker-env-overrides ./transfer-outbound/.env.node-dev-docker-env-overrides); (cp -n ./node-dev-docker-env/reference.env.node-dev-docker-env-overrides ./demo-transfer-dashboard/.env.node-dev-docker-env-overrides);",
     "dev:debug": "DOCKER_API_COMMAND=docker-debug docker compose -f ./docker-compose.dev.yaml up",
     "predev:debug": "npm run predev",
     "dev:down": "docker compose -f ./docker-compose.dev.yaml down -v",
