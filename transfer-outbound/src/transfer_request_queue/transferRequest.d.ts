@@ -9,4 +9,5 @@ export interface transferRequest {
   stage: transferStage;
   completed_stages: transferStage[];
   bundle?: bundle;
+  new_patient_id?: string;
 }
