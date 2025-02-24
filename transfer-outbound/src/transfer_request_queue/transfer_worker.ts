@@ -60,17 +60,44 @@ const work_on_transfer_job = async (job: transferRequestJob) => {
   return job.data;
 };
 
-const rollback_interupted_transfer_job = async (job: transferRequestJob) => {
+const handle_failed_transfer_request_job = async (
+  failed_job: transferRequestJob,
+) => {
   const transfer_marks_were_created =
-    job.data.completed_stages.includes('marking_transfered');
-  const transfer_did_not_complete =
-    job.data.completed_stages.includes('transfering');
-  if (transfer_marks_were_created && transfer_did_not_complete) {
+    failed_job.data.completed_stages.includes('marking_transfered');
+
+  const transfer_completed =
+    failed_job.data.completed_stages.includes('transfering');
+
+  const transfer_finalized =
+    failed_job.data.completed_stages.includes('finalizing');
+
+  if (
+    (transfer_finalized &&
+      !(transfer_marks_were_created || transfer_completed)) ||
+    (transfer_completed && !transfer_marks_were_created)
+  ) {
+    // TODO unexpected combinations, should not be reachable, something really went wrong
+    // log and _maybe_ attempt unmark?
+  }
+
+  if (!transfer_marks_were_created) {
+    // TODO clean failure, log and exit
+  } else if (transfer_marks_were_created && !transfer_completed) {
     await unmark_patient_transfered(
-      job.data.patient_id,
-      job.data.transfer_to,
-      job.id,
+      failed_job.data.patient_id,
+      failed_job.data.transfer_to,
+      failed_job.id,
     );
+  } else if (
+    transfer_marks_were_created &&
+    transfer_completed &&
+    !transfer_finalized
+  ) {
+    // Too late to stop, already transfered in, must have failed during finalizing step. Must retry for
+    // data integrity sake. TODO check number of attempts, maybe give up evetually with an appropriately
+    // serious log
+    await failed_job.retry();
   }
 };
 
@@ -114,10 +141,11 @@ export const initialize_transfer_worker = () => {
     } else {
       // TODO confirm this failed job is actually a transfer request job before continuing with rollback attempt
 
+      // TODO conform with logging patern (logging patern TBD)
       const info = await get_transfer_request_job_info(failed_job);
       console.log(JSON.stringify(info, null, 2));
 
-      await rollback_interupted_transfer_job(failed_job);
+      await handle_failed_transfer_request_job(failed_job);
     }
   });
 };
