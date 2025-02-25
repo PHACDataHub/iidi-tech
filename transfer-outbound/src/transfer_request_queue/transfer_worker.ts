@@ -192,21 +192,15 @@ export const initialize_transfer_worker = () => {
     connection: get_connection_options(),
   });
   queueEvents.on('failed', async ({ jobId }) => {
-    // TODO confirm understanding of queue level failed events. If I understand correctly, this is esentially a worker on a
-    // queue for global failure messages, so we should have all the resiliancy benefits of a queue behind this cleanup stage
-    // ... but what if the handler of a failure event fails? Does it still get three attempts? Does it trigger a second-level
-    // `failed` event we might have to handle here?
-    // Also, as noted below, is it treated as a child of the original failed job or otherwise prevent the failed job from
-    // being pruned from the failed queue? Recovery requires that we can get the state of the failing ID still, but this event
-    // only receives its ID, so hopefully we can still look it up
-
+    // IMPORTANT: if the auto-job removal is ever configured to remove failed state job history, this may not find anything.
+    // See error state below. If auto-job removal for failed state jobs is enabled, it should be allow a window for failure event handling attempts.
     const failed_job = await get_transfer_request_by_id(jobId);
 
     if (failed_job === undefined) {
-      // TODO want to ensure this never happens! Look further in to how the failed events are processed,
-      // whether a failed job can be pruned before it's failed event is complete
       console.error(
-        `Unable to ensure possible intermediate state is rolled back for failed event associated with job ID "${jobId}", no such job found`,
+        `Unable to ensure possible intermediate state is rolled back for failed event associated with job ID "${jobId}", no such job found.
+        If "${jobId}" was a transfer request, data integrity can not be guaranteed for it!
+        Auto-job removal may be overtuned on failed jobs, try increasing job retention.`,
       );
     } else {
       let is_transfer_job = null;
