@@ -2,24 +2,21 @@ import type { Request, Response, NextFunction } from 'express';
 
 import { get_env } from './env.ts';
 
-interface FHIRValidationError {
-  location: string;
-  diagnostics: string;
-  details: string;
-}
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type SerializableErrorData = Record<string, any>;
 
 export class AppError extends Error {
   status: number;
-  FHIRValidationError?: FHIRValidationError[];
+  errorData?: SerializableErrorData;
 
   constructor(
     status: number,
     message: string,
-    FHIRValidationError?: FHIRValidationError[],
+    errorData?: SerializableErrorData,
   ) {
     super(message);
     this.status = status;
-    this.FHIRValidationError = FHIRValidationError;
+    this.errorData = errorData;
   }
 }
 
@@ -46,13 +43,18 @@ export const expressErrorHandler = (
 
   const errorResponse: {
     error: string;
-    validationError?: FHIRValidationError[];
+    details?: SerializableErrorData;
   } = {
     error: err.message,
   };
 
-  if (err instanceof AppError && err.FHIRValidationError) {
-    errorResponse.validationError = err.FHIRValidationError;
+  if (err instanceof AppError && err.errorData) {
+    try {
+      JSON.parse(JSON.stringify(err.errorData));
+      errorResponse.details = err.errorData;
+    } catch (e) {
+      console.error('Invalid error data provided:', e);
+    }
   }
 
   res.status(get_status_code(err)).json(errorResponse);
