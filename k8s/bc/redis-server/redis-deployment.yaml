@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: redis
-  namespace: "on"
+  namespace: "bc"
 spec:
   replicas: 1
   selector:
@@ -26,7 +26,16 @@ spec:
                 secretKeyRef:
                   name: redis-secret
                   key: REDIS_PASSWORD
-          command: ["redis-server", 
-                    "--port", "$(REDIS_PORT)", 
-                    "--requirepass", "$(REDIS_PASSWORD)", 
-                    "--loglevel", "notice"]
+          volumeMounts:
+            - name: redis-config-volume
+              mountPath: /usr/local/etc/redis/redis.conf
+              subPath: redis.conf
+            - name: redis-data
+              mountPath: /data
+          command: ["sh", "-c", "envsubst < /usr/local/etc/redis/redis.conf | redis-server -"]
+      volumes:
+        - name: redis-config-volume
+          configMap:
+            name: redis-config
+        - name: redis-data
+          emptyDir: {}

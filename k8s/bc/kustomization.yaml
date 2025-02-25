@@ -8,3 +8,4 @@ resources:
   - ./patient-browser
   - ./aggregation-server
   - ./bc-transfer
+  - ./redis-server
