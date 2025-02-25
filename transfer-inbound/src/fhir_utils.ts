@@ -3,7 +3,7 @@ import type { Bundle, OperationOutcome } from 'fhir/r4.d.ts';
 import { get_env } from './env.ts';
 import { AppError } from './error_utils.ts';
 
-export const assert_bundle_follows_fhir_spec = async (_bundle: Bundle) => {
+export const assert_bundle_follows_fhir_spec = async (bundle: Bundle) => {
   const { FHIR_URL } = get_env();
 
   try {
@@ -12,7 +12,7 @@ export const assert_bundle_follows_fhir_spec = async (_bundle: Bundle) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(_bundle),
+      body: JSON.stringify(bundle),
     });
 
     const operationOutcome: OperationOutcome =
