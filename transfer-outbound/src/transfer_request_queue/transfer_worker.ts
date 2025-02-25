@@ -120,7 +120,7 @@ const handle_failed_transfer_request_job = async (
       !(transfer_marks_were_created || transfer_completed)) ||
     (transfer_completed && !transfer_marks_were_created)
   ) {
-    console.log(
+    console.error(
       `Job ID ${failed_job.id} failure handing: reached an unexpected state! This should really not happen, and means we can't guarantee data integrity!"`,
     );
   }
@@ -164,7 +164,7 @@ const handle_failed_transfer_request_job = async (
 
       await failed_job.retry();
     } else {
-      console.log(
+      console.error(
         `Job ID ${failed_job.id} failure handling: failed post-transfer to inbound PT, unable to roll back. Still unable to continue after ${failed_job.attemptsMade} attemps, aborting. Data integrity risk!"`,
       );
     }
