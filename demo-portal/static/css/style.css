@@ -104,10 +104,12 @@ main {
 
 a {
   color: white;
+  text-decoration: none;
 }
+
 a:hover {
   color: white;
-  border-bottom: none;
+  text-decoration: none;
 }
 
 .container .btn {
