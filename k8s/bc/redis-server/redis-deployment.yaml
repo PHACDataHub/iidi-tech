@@ -28,7 +28,7 @@ spec:
                   key: REDIS_PASSWORD
           command:
             - "redis-server"
-            - "--port" 
+            - "--port"
             - "6379"
             - "--requirepass"
             - "$(REDIS_PASSWORD)"
@@ -37,11 +37,14 @@ spec:
             - "--appendonly"
             - "yes"
             - "--save"
-            - "900" "1"
+            - "900"
+            - "1"
             - "--save"
-            - "300" "10"
+            - "300"
+            - "10"
             - "--save"
-            - "60" "10000"
+            - "60"
+            - "10000"
           volumeMounts:
             - name: redis-data
               mountPath: /data
