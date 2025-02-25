@@ -4,8 +4,9 @@ import { Worker, QueueEvents, Job } from 'bullmq';
 
 import {
   get_patient_bundle_for_transfer,
+  mark_patient_transfering,
+  unmark_patient_transfering,
   mark_patient_transfered,
-  unmark_patient_transfered,
 } from 'src/fhir_utils.ts';
 
 import { post_bundle_to_inbound_transfer_service } from 'src/transfer_inbound_utils.ts';
@@ -43,7 +44,7 @@ const work_on_transfer_job = async (job: transferRequestJob) => {
         bundle,
       });
     } else if (job.data.stage === 'marking_transfered') {
-      await mark_patient_transfered(
+      await mark_patient_transfering(
         job.data.patient_id,
         job.data.transfer_to,
         job.id,
@@ -76,8 +77,10 @@ const work_on_transfer_job = async (job: transferRequestJob) => {
         );
       }
     } else if (job.data.stage === 'finalizing') {
-      // TODO potentially circle back to add final confirmation mark, maybe the patient ID from the inbound system, to
-      // the patient record in the outbound system
+      await mark_patient_transfered(
+        job.data.patient_id,
+        job.data.new_patient_id,
+      );
     }
 
     const completed_stage = job.data.stage;
@@ -131,7 +134,7 @@ const handle_failed_transfer_request_job = async (
       `Job ID ${failed_job.id} failure handling: attempting to roll back outbound patient transfer marking"`,
     );
 
-    await unmark_patient_transfered(
+    await unmark_patient_transfering(
       failed_job.data.patient_id,
       failed_job.data.transfer_to,
       failed_job.id,
@@ -154,10 +157,9 @@ const handle_failed_transfer_request_job = async (
         `Job ID ${failed_job.id} failure handling: failed post-transfer to inbound PT, unable to roll back. Attempting to continue from last stage (${failed_job.data.stage}) in ${next_delay} milliseconds"`,
       );
 
-      // unfortunately, it doesn't seem like there's a good way to retry _with_ delay. This retry attempt isn't persisted to the
-      // queue till after this timeout passes on the worker server, which may be interupted if the server is killed or dies.
-      // TODO: take a second look through the BullMQ docs, just in case. It'd be more failure-proof if this retry could be queued
-      // (with delay) immediately
+      // unfortunately, it doesn't seem like there's a good way to retry _with_ delay directly on the queue. This retry attempt isn't
+      // persisted to the queue till after this timeout passes on the worker server, which may be interupted if the server is killed or dies.
+      // TODO: take a second look through the BullMQ docs, just in case. It'd be more failure-proof if this retry could be directly queued _with_ delay
       await setTimeout(next_delay);
 
       await failed_job.retry();
@@ -194,7 +196,7 @@ export const initialize_transfer_worker = () => {
     // queue for global failure messages, so we should have all the resiliancy benefits of a queue behind this cleanup stage
     // ... but what if the handler of a failure event fails? Does it still get three attempts? Does it trigger a second-level
     // `failed` event we might have to handle here?
-    // Also, as noted below, is is treated as a child of the original failed job or otherwise prevent the failed job from
+    // Also, as noted below, is it treated as a child of the original failed job or otherwise prevent the failed job from
     // being pruned from the failed queue? Recovery requires that we can get the state of the failing ID still, but this event
     // only receives its ID, so hopefully we can still look it up
 
