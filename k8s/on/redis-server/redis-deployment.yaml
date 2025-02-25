@@ -15,7 +15,7 @@ spec:
     spec:
       initContainers:
         - name: init-config
-          image: alpine:3.18
+          image: bitnami/minideb:latest
           env:
             - name: REDIS_PASSWORD
               valueFrom:
@@ -30,7 +30,7 @@ spec:
               mountPath: /data
           command: ["/bin/sh", "-c"]
           args:
-            - "apk add --no-cache gettext && envsubst < /tmp/redis.conf > /data/redis.conf"
+            - "envsubst < /tmp/redis.conf > /data/redis.conf"
 
       containers:
         - name: redis
