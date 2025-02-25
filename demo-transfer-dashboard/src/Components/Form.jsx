@@ -75,16 +75,10 @@ const Form = () => {
   return (
     <div className="form-container">
       <div className="form-group">
-        <GcdsInput
-          label="Enter Patient First Name"
-          hint="Enter First name."
-        />
+        <GcdsInput label="Enter Patient First Name" hint="Enter First name." />
       </div>
       <div className="form-group">
-        <GcdsInput
-          label="Enter Patient Last Name"
-          hint="Enter Last name."
-        />
+        <GcdsInput label="Enter Patient Last Name" hint="Enter Last name." />
       </div>
       <div className="form-group">
         <GcdsInput
@@ -140,38 +134,40 @@ const Form = () => {
         </p>
       )}
 
-      <table style={{ marginTop: '50px'}}>
-        <thead>
-          <tr>
-            <th>
-              <GcdsText>Patient Name</GcdsText>
-            </th>
-            <th>
-              <GcdsText>Origin PT</GcdsText>
-            </th>
-            <th>
-              <GcdsText>Receiving PT</GcdsText>
-            </th>
-            <th>
-              <GcdsText>Transfer Status</GcdsText>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {transfers.map((transfer, index) => (
-            <tr key={index}>
-              <td>{transfer.patient_id}</td>
-              <td>{transfer.originPT}</td>
-              <td>{transfer.receivingPT}</td>
-              <td
-                className={`status ${transfer.status === 'Transferred' ? 'transferred' : 'failed'}`}
-              >
-                <GcdsText>{transfer.status}</GcdsText>
-              </td>
+      {transfers.length > 0 && (
+        <table style={{ marginTop: '50px' }}>
+          <thead>
+            <tr>
+              <th>
+                <GcdsText>Patient Name</GcdsText>
+              </th>
+              <th>
+                <GcdsText>Origin PT</GcdsText>
+              </th>
+              <th>
+                <GcdsText>Receiving PT</GcdsText>
+              </th>
+              <th>
+                <GcdsText>Transfer Status</GcdsText>
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {transfers.map((transfer, index) => (
+              <tr key={index}>
+                <td>{transfer.patient_id}</td>
+                <td>{transfer.originPT}</td>
+                <td>{transfer.receivingPT}</td>
+                <td
+                  className={`status ${transfer.status === 'Transferred' ? 'transferred' : 'failed'}`}
+                >
+                  <GcdsText>{transfer.status}</GcdsText>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 };
