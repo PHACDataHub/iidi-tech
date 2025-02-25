@@ -29,5 +29,4 @@ spec:
           command: ["redis-server", 
                     "--port", "$(REDIS_PORT)", 
                     "--requirepass", "$(REDIS_PASSWORD)", 
-                    "--loglevel", "notice",
-                    "--loadmodule", "/usr/lib/redis/modules/acl.so"]
+                    "--loglevel", "notice"]
