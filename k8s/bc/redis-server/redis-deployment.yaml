@@ -32,7 +32,7 @@ spec:
               subPath: redis.conf
             - name: redis-data
               mountPath: /data
-          command: ["sh", "-c", "envsubst < /usr/local/etc/redis/redis.conf | redis-server -"]
+          command: ["sh", "-c", "envsubst < /usr/local/etc/redis/redis.conf > /tmp/redis.conf && cat /tmp/redis.conf && redis-server /tmp/redis.conf"]
       volumes:
         - name: redis-config-volume
           configMap:
