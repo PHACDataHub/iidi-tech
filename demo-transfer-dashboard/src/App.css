@@ -36,12 +36,12 @@ main {
 }
 table {
   width: 100%;
-  border-collapse: collapse; 
+  border-collapse: collapse;
 }
 
-table th, table td {
-  border: 1px solid black; 
-  padding: 8px; 
-  text-align: center; 
+table th,
+table td {
+  border: 1px solid black;
+  padding: 8px;
+  text-align: center;
 }
-
