@@ -23,7 +23,7 @@ const Form = () => {
     try {
       setLoadingMessage('Loading transfer requests...');
       const response = await fetch(
-        'http://localhost:3000/transfer-request?start=0&end=10',
+        `${process.env.BC_OUTBOUND_URL}/transfer-request`,
       );
       if (!response.ok) throw new Error('Failed to load transfers');
 
