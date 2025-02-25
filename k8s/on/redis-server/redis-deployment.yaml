@@ -13,11 +13,9 @@ spec:
       labels:
         app: redis
     spec:
-      containers:
-        - name: redis
-          image: redis:7.4.1-alpine
-          ports:
-            - containerPort: 6379
+      initContainers:
+        - name: init-config
+          image: alpine:3.18
           env:
             - name: REDIS_PASSWORD
               valueFrom:
@@ -26,11 +24,24 @@ spec:
                   key: REDIS_PASSWORD
           volumeMounts:
             - name: redis-config
-              mountPath: /usr/local/etc/redis/redis.conf
+              mountPath: /tmp/redis.conf
               subPath: redis.conf
             - name: redis-data
               mountPath: /data
-          command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+          command: ["/bin/sh", "-c"]
+          args:
+            - "envsubst < /tmp/redis.conf > /data/redis.conf"
+
+      containers:
+        - name: redis
+          image: redis:7.4.1-alpine
+          ports:
+            - containerPort: 6379
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+          command: ["redis-server", "/data/redis.conf"]
+
       volumes:
         - name: redis-config
           configMap:
