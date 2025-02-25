@@ -1,4 +1,9 @@
-import type { AllergyIntolerance, Immunization } from 'fhir/r4.d.ts';
+import type {
+  AllergyIntolerance,
+  Bundle,
+  BundleEntry,
+  Immunization,
+} from 'fhir/r4.d.ts';
 
 import { AppError } from './error_utils.ts';
 import {
@@ -10,8 +15,37 @@ import {
   ALLERGY_INTOLERANCE_2,
   createTransactionBundle,
 } from './test_utils.ts';
-import { assert_bundle_follows_business_rules } from './validation_utils.ts';
+import {
+  assert_is_bundle,
+  assert_bundle_follows_business_rules,
+} from './validation_utils.ts';
 
+describe('assert_is_bundle', () => {
+  it('should throw an error when bundle is not an object', () => {
+    let invalidBundle: unknown = null;
+    expect(() => {
+      assert_is_bundle(invalidBundle as Bundle);
+    }).toThrow(new AppError(400, 'Invalid bundle: Bundle must be an object'));
+
+    invalidBundle = 'not an object';
+    expect(() => {
+      assert_is_bundle(invalidBundle as Bundle);
+    }).toThrow(new AppError(400, 'Invalid bundle: Bundle must be an object'));
+  });
+
+  it('should throw an error when resourceType is not "Bundle"', () => {
+    const invalidBundle: unknown = {
+      resourceType: 'NotBundle',
+      entry: [{ resource: PATIENT_1 }],
+    };
+
+    expect(() => {
+      assert_is_bundle(invalidBundle as Bundle);
+    }).toThrow(
+      new AppError(400, 'Invalid bundle: resourceType must be "Bundle"'),
+    );
+  });
+});
 describe('assert_bundle_follows_business_rules', () => {
   it('should not throw an error for a valid bundle with one patient', () => {
     const validBundle = createTransactionBundle(
@@ -25,56 +59,32 @@ describe('assert_bundle_follows_business_rules', () => {
     }).not.toThrow();
   });
 
-  it('should throw an error when bundle is not an object', () => {
-    expect(() => {
-      assert_bundle_follows_business_rules(null);
-    }).toThrow(new AppError(400, 'Invalid bundle: Bundle must be an object'));
-
-    expect(() => {
-      assert_bundle_follows_business_rules('not an object');
-    }).toThrow(new AppError(400, 'Invalid bundle: Bundle must be an object'));
-  });
-
-  it('should throw an error when resourceType is not "Bundle"', () => {
-    const invalidBundle = {
-      resourceType: 'NotBundle',
-      entry: [{ resource: PATIENT_1 }],
-    };
-
-    expect(() => {
-      assert_bundle_follows_business_rules(invalidBundle);
-    }).toThrow(
-      new AppError(400, 'Invalid bundle: resourceType must be "Bundle"'),
-    );
-  });
-
   it('should throw an error when bundle has no entries', () => {
-    const emptyBundle = {
+    const emptyBundle: unknown = {
       resourceType: 'Bundle',
       entry: [],
     };
 
     expect(() => {
-      assert_bundle_follows_business_rules(emptyBundle);
+      assert_bundle_follows_business_rules(emptyBundle as Bundle);
     }).toThrow(
       new AppError(400, 'Invalid bundle: Bundle must contain entries'),
     );
 
-    const nullEntryBundle = {
+    const nullEntryBundle: unknown = {
       resourceType: 'Bundle',
       entry: null,
     };
 
     expect(() => {
-      assert_bundle_follows_business_rules(nullEntryBundle);
+      assert_bundle_follows_business_rules(nullEntryBundle as Bundle);
     }).toThrow(
       new AppError(400, 'Invalid bundle: Bundle must contain entries'),
     );
   });
 
   it('should throw an error when bundle has no Patient resource', () => {
-    // Create a bundle with only immunization and allergy, no patient
-    const noPatientBundle = {
+    const noPatientBundle: unknown = {
       resourceType: 'Bundle',
       entry: [
         { resource: IMMUNIZATION_1 },
@@ -83,7 +93,7 @@ describe('assert_bundle_follows_business_rules', () => {
     };
 
     expect(() => {
-      assert_bundle_follows_business_rules(noPatientBundle);
+      assert_bundle_follows_business_rules(noPatientBundle as Bundle);
     }).toThrow(
       new AppError(
         400,
@@ -97,9 +107,8 @@ describe('assert_bundle_follows_business_rules', () => {
       PATIENT_1,
       IMMUNIZATION_1,
       ALLERGY_INTOLERANCE_1,
-    );
+    ) as Bundle & { entry: BundleEntry[] };
 
-    // Add a second patient to the bundle
     multiplePatientBundle.entry.push({ resource: PATIENT_2 });
 
     expect(() => {
@@ -149,7 +158,6 @@ describe('assert_bundle_follows_business_rules', () => {
   });
 
   it('should throw an error when AllergyIntolerance references wrong patient', () => {
-    // ALLERGY_INTOLERANCE_2 references PATIENT_2, but we're including PATIENT_1
     const invalidBundle = createTransactionBundle(
       PATIENT_1,
       IMMUNIZATION_1,
@@ -188,7 +196,6 @@ describe('assert_bundle_follows_business_rules', () => {
   });
 
   it('should throw an error when Immunization references wrong patient', () => {
-    // IMMUNIZATION_2 references PATIENT_2, but we're including PATIENT_1
     const invalidBundle = createTransactionBundle(
       PATIENT_1,
       IMMUNIZATION_2,
@@ -210,9 +217,8 @@ describe('assert_bundle_follows_business_rules', () => {
       PATIENT_1,
       IMMUNIZATION_1,
       ALLERGY_INTOLERANCE_1,
-    );
+    ) as Bundle & { entry: BundleEntry[] };
 
-    // In the currently defined scope, Observation is not allowed
     validBundle.entry.push({
       resource: {
         resourceType: 'Observation',
@@ -243,9 +249,8 @@ describe('assert_bundle_follows_business_rules', () => {
       PATIENT_1,
       IMMUNIZATION_1,
       ALLERGY_INTOLERANCE_1,
-    );
+    ) as Bundle & { entry: BundleEntry[] };
 
-    // Add another immunization and allergy for the same patient
     const immunization2 = {
       ...IMMUNIZATION_1,
       id: 'imm-extra',

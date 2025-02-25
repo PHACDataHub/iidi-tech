@@ -1,5 +1,6 @@
 import type {
   AllergyIntolerance,
+  Bundle,
   BundleEntry,
   Immunization,
   Patient,
@@ -209,7 +210,7 @@ function createTransactionBundle(
   patient: Patient | null,
   immunization: Immunization | null,
   adverseEvent: AllergyIntolerance | null,
-) {
+): Bundle {
   const entries: BundleEntry[] = [];
 
   if (patient) {

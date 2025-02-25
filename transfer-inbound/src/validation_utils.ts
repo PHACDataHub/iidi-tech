@@ -13,18 +13,17 @@ function extractIdFromReference(reference: string): string {
   return parts.length > 1 ? parts[1] : reference;
 }
 
-export function assert_bundle_follows_business_rules(
-  _bundle: unknown,
-): asserts _bundle is Bundle {
+export function assert_is_bundle(_bundle: unknown): asserts _bundle is Bundle {
   if (!_bundle || typeof _bundle !== 'object') {
     throw new AppError(400, 'Invalid bundle: Bundle must be an object');
   }
 
-  const bundle = _bundle as Bundle;
-
-  if (bundle.resourceType !== 'Bundle') {
+  if (!('resourceType' in _bundle) || _bundle.resourceType !== 'Bundle') {
     throw new AppError(400, 'Invalid bundle: resourceType must be "Bundle"');
   }
+}
+
+export function assert_bundle_follows_business_rules(bundle: Bundle): void {
   // Both write and validate operation end points allow entries to be empty
   if (
     !bundle.entry ||
