@@ -76,10 +76,22 @@ const Form = () => {
     <div className="form-container">
       <div className="form-group">
         <GcdsInput
+          label="Enter Patient First Name"
+          hint="Enter First name."
+        />
+      </div>
+      <div className="form-group">
+        <GcdsInput
+          label="Enter Patient Last Name"
+          hint="Enter Last name."
+        />
+      </div>
+      <div className="form-group">
+        <GcdsInput
           inputId="patientNumber"
           label="Enter Patient Number"
           name="patientNumber"
-          hint="Enter patient ID or name."
+          hint="Enter patient ID."
           value={patientNumber}
           onChange={(e) => setPatientNumber(e.target.value)}
         />
@@ -128,7 +140,7 @@ const Form = () => {
         </p>
       )}
 
-      <table>
+      <table style={{ marginTop: '50px'}}>
         <thead>
           <tr>
             <th>
