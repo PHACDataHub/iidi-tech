@@ -2,12 +2,24 @@ import type { Request, Response, NextFunction } from 'express';
 
 import { get_env } from './env.ts';
 
+interface FHIRValidationError {
+  location: string;
+  diagnostics: string;
+  details: string;
+}
+
 export class AppError extends Error {
   status: number;
+  FHIRValidationError?: FHIRValidationError[];
 
-  constructor(status: number, message: string) {
+  constructor(
+    status: number,
+    message: string,
+    FHIRValidationError?: FHIRValidationError[],
+  ) {
     super(message);
     this.status = status;
+    this.FHIRValidationError = FHIRValidationError;
   }
 }
 
@@ -32,5 +44,16 @@ export const expressErrorHandler = (
 ) => {
   handle_error_logging(err);
 
-  res.status(get_status_code(err)).json({ error: err.message });
+  const errorResponse: {
+    error: string;
+    validationError?: FHIRValidationError[];
+  } = {
+    error: err.message,
+  };
+
+  if (err instanceof AppError && err.FHIRValidationError) {
+    errorResponse.validationError = err.FHIRValidationError;
+  }
+
+  res.status(get_status_code(err)).json(errorResponse);
 };
