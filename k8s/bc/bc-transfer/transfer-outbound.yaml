@@ -26,7 +26,7 @@ spec:
             - name: DEV_IS_LOCAL_ENV
               value: "false"
             - name: REDIS_HOST
-              value: "redis"
+              value: "redis.bc.svc.cluster.local"
             - name: FHIR_URL
               value: "http://hapi-fhir-svc.bc.svc.cluster.local:8080/fhir"
             - name: REDIS_PORT
