@@ -149,7 +149,7 @@ def create_immunization_resource(patient_id, birth_date):
                 },
                 "date": random_date(datetime(2021, 1, 1), datetime(2023, 12, 31))
             }
-        ] ,
+        ] if random.choice([True, False]) else None,
         "extension": [
             {
                 "url": "http://hl7.org/fhir/StructureDefinition/immunization-exemption",
