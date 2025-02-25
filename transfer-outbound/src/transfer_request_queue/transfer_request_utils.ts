@@ -1,37 +1,58 @@
-import type { transferCode } from 'src/types.d.ts';
+import type { Job } from 'bullmq';
 
-import { get_queue } from './get_queue.ts';
+import type { transferCode } from 'src/transfer_code_utils.ts';
+
+import { get_queue } from './queue_utils.ts';
+import { initial_stage } from './transfer_stage_utils.ts';
+import type { transferRequest } from './transferRequest.js';
+
+export const get_transfer_queue = () =>
+  get_queue<transferRequest, transferRequest>('transfer-request-queue');
 
 export type transferRequestJob = Exclude<
-  Awaited<ReturnType<ReturnType<typeof get_queue>['getJob']>>,
+  Awaited<ReturnType<ReturnType<typeof get_transfer_queue>['getJob']>>,
   undefined
 >;
 
+export const transfer_job_name = 'transfer';
 export const initialize_transfer_request = async (
   patient_id: string,
   transfer_to: transferCode,
-) => {
-  return get_queue().add(
-    'transfer',
+) =>
+  get_transfer_queue().add(
+    transfer_job_name,
     {
       patient_id,
       transfer_to,
-      stage: 'pending',
-      stage_history: [],
+      stage: initial_stage,
+      completed_stages: [],
     },
     {
       deduplication: { id: patient_id },
     },
   );
-};
+
+export function assert_is_transfer_job(
+  job: Job,
+): asserts job is transferRequestJob {
+  // TODO assert job.data shape too?
+  if (
+    job === null ||
+    typeof job !== 'object' ||
+    !('name' in job) ||
+    job.name !== transfer_job_name
+  ) {
+    throw new Error(`Expected a "${transfer_job_name}" type job`);
+  }
+}
 
 export const get_transfer_request_by_id = async (id: string) =>
-  get_queue().getJob(id);
+  get_transfer_queue().getJob(id);
 
 export const get_transfer_requests = async (
   start: number | undefined,
   end: number | undefined,
-) => get_queue().getJobs(undefined, start, end);
+) => get_transfer_queue().getJobs(undefined, start, end);
 
 export const get_transfer_request_job_info = async (
   transfer_request_job: transferRequestJob,
@@ -41,14 +62,17 @@ export const get_transfer_request_job_info = async (
   const { failedReason: failed_reason, finishedOn: finished_on } =
     transfer_request_job;
 
-  const { patient_id, transfer_to, stage } = transfer_request_job.data;
+  const { patient_id, transfer_to, stage, completed_stages } =
+    transfer_request_job.data;
 
   return {
+    job_id: transfer_request_job.id,
     state,
     finished_on,
     failed_reason,
     patient_id,
     transfer_to,
     stage,
+    completed_stages,
   };
 };
