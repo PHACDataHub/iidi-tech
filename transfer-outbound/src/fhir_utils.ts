@@ -50,16 +50,29 @@ export const assert_patient_exists_and_is_untransfered = async (
   }
 };
 
-export const get_patient_bundle_for_transfer = async (_patient_id: string) => {
+export const get_patient_bundle_for_transfer = async (patient_id: string) => {
   const { FHIR_URL } = get_env();
 
-  // TODO
-  throw new AppError(
-    501,
-    'Patient bundle collection method not implemented yet',
+  const response = await fetch(
+    // TODO get _type list, possible other search rules, from configuration? See #110
+    // eslint-disable-next-line no-secrets/no-secrets
+    `${FHIR_URL}/Patient/${patient_id}/$everything?_type=Patient,Immunization,AllergyIntolerance`,
   );
+  const json = await response.json();
 
-  await fetch(`${FHIR_URL}/TODO`);
+  if (response.status === 200) {
+    // TODO should the entire bundle be returned as-is? Only the data?
+    // TODO Should some fields be stripped/sanitized at this point
+    return json;
+  } else {
+    const fhir_diagnostic_messages = (
+      json as { issue?: [{ diagnostics?: string }] }
+    )?.issue
+      ?.map(({ diagnostics }) => diagnostics)
+      .join(', ');
+
+    throw new AppError(response.status, fhir_diagnostic_messages ?? '');
+  }
 };
 
 export const mark_patient_transfering = async (
