@@ -79,4 +79,31 @@ describe('expressErrorHandler middlewear', () => {
     expect(response.status).toBe(status_code);
     expect(response.body.error).toBe(error_message);
   });
+
+  it('includes validation errors in the response when present', async () => {
+    const app = express();
+    const status_code = 400;
+    const validationError = {
+      location: 'body',
+      diagnostics: 'Invalid data',
+      details: 'Details about the error',
+    };
+
+    app.get('/error', function (_req, _res, _next) {
+      throw new AppError(status_code, 'Validation failed', [validationError]);
+    });
+
+    const mockedErrorHandler = jest.fn(expressErrorHandler);
+    app.use(mockedErrorHandler);
+
+    const response = await request(app)
+      .get('/error')
+      .set('Accept', 'application/json');
+
+    expect(mockedErrorHandler).toHaveBeenCalled();
+    expect(response.status).toBe(status_code);
+    expect(response.body.error).toBe('Validation failed');
+    expect(response.body.validationError).toHaveLength(1);
+    expect(response.body.validationError[0]).toEqual(validationError);
+  });
 });
