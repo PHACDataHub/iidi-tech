@@ -30,7 +30,7 @@ spec:
               mountPath: /data
           command: ["/bin/sh", "-c"]
           args:
-            - "envsubst < /tmp/redis.conf > /data/redis.conf"
+            - "apk add --no-cache gettext && envsubst < /tmp/redis.conf > /data/redis.conf"
 
       containers:
         - name: redis
