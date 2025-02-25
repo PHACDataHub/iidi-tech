@@ -1,3 +1,5 @@
+import { setTimeout } from 'node:timers/promises';
+
 import { Worker, QueueEvents, Job } from 'bullmq';
 
 import {
@@ -115,17 +117,18 @@ const handle_failed_transfer_request_job = async (
       !(transfer_marks_were_created || transfer_completed)) ||
     (transfer_completed && !transfer_marks_were_created)
   ) {
-    // TODO unexpected combinations, should not be reachable, something really went wrong
-    // log and _maybe_ attempt unmark if applicable
+    console.log(
+      `Job ID ${failed_job.id} failure handing: reached an unexpected state! This should really not happen, and means we can't guarantee data integrity!"`,
+    );
   }
 
   if (!transfer_marks_were_created) {
     console.log(
-      `Job ID ${failed_job.id}: failure handing, nothing to clean up"`,
+      `Job ID ${failed_job.id} failure handling: nothing to clean up"`,
     );
   } else if (transfer_marks_were_created && !transfer_completed) {
     console.log(
-      `Job ID ${failed_job.id}: failure handing, attempting to roll back outbound patient transfer marking"`,
+      `Job ID ${failed_job.id} failure handling: attempting to roll back outbound patient transfer marking"`,
     );
 
     await unmark_patient_transfered(
@@ -135,23 +138,34 @@ const handle_failed_transfer_request_job = async (
     );
 
     console.log(
-      `Job ID ${failed_job.id}: failure handing, successfully rolled back outbound patient transfer marking"`,
+      `Job ID ${failed_job.id} failure handling: successfully rolled back outbound patient transfer marking"`,
     );
   } else if (
     transfer_marks_were_created &&
     transfer_completed &&
     !transfer_finalized
   ) {
-    // Too late to stop, transfer already accepted on inbound end, must have failed during finalizing step. Retry for
-    // data integrity sake.
+    if (failed_job.attemptsMade <= (failed_job.opts.attempts ?? 3) + 3) {
+      const next_delay =
+        Math.pow(2, failed_job.attemptsMade - 1) *
+        (failed_job.opts.delay ?? 1000);
 
-    // TODO check number of attempts, maybe give up evetually with an appropriately serious log
+      console.log(
+        `Job ID ${failed_job.id} failure handling: failed post-transfer to inbound PT, unable to roll back. Attempting to continue from last stage (${failed_job.data.stage}) in ${next_delay} milliseconds"`,
+      );
 
-    console.log(
-      `Job ID ${failed_job.id}: failure handing, failed post-transfer to inbound PT, unable to roll back. Attempting to continue from last stage (${failed_job.data.stage})"`,
-    );
+      // unfortunately, it doesn't seem like there's a good way to retry _with_ delay. This retry attempt isn't persisted to the
+      // queue till after this timeout passes on the worker server, which may be interupted if the server is killed or dies.
+      // TODO: take a second look through the BullMQ docs, just in case. It'd be more failure-proof if this retry could be queued
+      // (with delay) immediately
+      await setTimeout(next_delay);
 
-    await failed_job.retry();
+      await failed_job.retry();
+    } else {
+      console.log(
+        `Job ID ${failed_job.id} failure handling: failed post-transfer to inbound PT, unable to roll back. Still unable to continue after ${failed_job.attemptsMade} attemps, aborting. Data integrity risk!"`,
+      );
+    }
   }
 };
 
