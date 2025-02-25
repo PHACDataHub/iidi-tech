@@ -66,6 +66,7 @@ export const get_transfer_request_job_info = async (
     transfer_request_job.data;
 
   return {
+    job_id: transfer_request_job.id,
     state,
     finished_on,
     failed_reason,
