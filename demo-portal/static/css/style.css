@@ -1,45 +1,25 @@
 /* Global Styles */
 body,
 html {
-  font-family: 'Arial', sans-serif;
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  min-height: 100vh;
+}
+
+main {
+  max-width: 1250px;
   display: flex;
   flex-direction: column;
-  background-color: #222f3e;
+  justify-content: center;
+  margin: 0 auto;
+  text-align: left;
+  padding: 10px 20px;
 }
-
-.container {
-  max-width: 1300px;
-  margin: 20px auto;
-  padding: 10px;
-  background-color: #c8d6e5;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-}
-
-/* Header */
-.header.center-align {
-  text-align: center;
-  margin-bottom: 50px;
-  color: #333;
-  font-weight: bold;
-  font-size: 2.5rem;
-}
-
 /* Disclaimer Styling */
 .disclaimer {
   background: #d7faff;
-  border: 1px solid #ffcc00;
-  padding: 15px;
-  border-radius: 8px;
+  border: 1px solid #75ebfd;
   font-size: 1rem;
   color: #333;
   margin-bottom: 20px;
-  margin-left: 50px; /* Same as card left margin */
-  margin-right: 50px; /* Same as card right margin */
+  padding: 15px;
 }
 
 /* Legend Styling */
@@ -119,6 +99,15 @@ html {
   justify-content: flex-end;
   gap: 10px;
   flex-grow: 0;
+  color: white;
+}
+
+a {
+  color: white;
+}
+a:hover {
+  color: white;
+  border-bottom: none;
 }
 
 .container .btn {
@@ -135,10 +124,6 @@ html {
 
 .container .btn-icon {
   margin-right: 5px;
-}
-
-.container .btn:hover {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 /* Button Color Styles */
@@ -187,9 +172,10 @@ html {
   font-size: 1.2rem;
   font-weight: bold;
   border-radius: 12px 12px 0 0;
-  background-color: #eaf3fb;
   border: none;
   position: relative;
+  background-color: var(--gcds-button-primary-default-background);
+  color: var(--gcds-button-primary-default-text);
 }
 
 .accordion .card-header h5 {
@@ -214,6 +200,7 @@ html {
 /* Add extra space between Ontario (ON) and the first collapsible section */
 .accordion {
   margin-top: 100px !important; /* Ensures spacing from last province */
+  margin-bottom: 100px;
 }
 
 /* Ensure content inside collapsible sections is well-aligned */
@@ -275,10 +262,5 @@ html {
 }
 
 .context-heading {
-  font-size: 1.2rem;
-  font-weight: 600;
-  color: #d9eaf7; /* Dark gray for readability */
-  text-align: center;
-  margin-bottom: 12px;
-  margin-top: 20px;
+  margin: 0 auto;
 }

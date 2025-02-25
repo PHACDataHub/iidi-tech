@@ -12,10 +12,29 @@
       crossorigin="anonymous"
     ></script>
 
+    <!-- Icons Font Awesome (to access icons, import Font Awesome) -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+      crossorigin="anonymous"
+    />
     <link
       rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
     />
+    <!-- GC Design System -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.design-system.alpha.canada.ca/@cdssnc/gcds-components@0.32.0/dist/gcds/gcds.css"
+    />
+    <script
+      type="module"
+      src="https://cdn.design-system.alpha.canada.ca/@cdssnc/gcds-components@0.32.0/dist/gcds/gcds.esm.js"
+    ></script>
+    <script
+      nomodule
+      src="https://cdn.design-system.alpha.canada.ca/@cdssnc/gcds-components@0.32.0/dist/gcds/gcds.js"
+    ></script>
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='css/style.css') }}"
@@ -23,27 +42,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
   <body>
-    <div class="container light-blue-background">
-      <h3 class="header center-align">
-        Interoperable Immunization Data Initiative (IIDI) <br />
+    <header>
+      <gcds-header>
+      </gcds-header>
+    </header>
+    <main >
+
+      <gcds-heading tag="h1">
+        Interoperable Immunization Data Initiative (IIDI) / 
         Initiative de Données d'Immunisation Interopérables (IDII)
-      </h3>
+      </gcds-heading>
       <div class="disclaimer alert alert-warning mt-4" role="alert">
-        <p>
+        <gcds-notice type="info" notice-title-tag="h2" notice-title="Title">
+
+          <gcds-text>
           <strong>Disclaimer (EN):</strong> This web interface is temporary and
           serves as a <strong>Proof of Concept (POC)</strong> to facilitate
           current technical development and testing. It is not intended for
           production use. Full production considerations, including bilingual
           and WCAG compliance, are in progress.
-        </p>
-        <p>
+        </gcds-text>                  
+        <gcds-text>
+
           <strong>Avis (FR) :</strong> Cette interface web est temporaire et
           sert de <strong>Preuve de Concept (POC)</strong> pour faciliter les
           développements techniques actuels et les tests. Elle n'est pas
           destinée à un usage en production. Les considérations complètes de
           production, y compris la conformité bilingue et WCAG, sont en cours.
-        </p>
+        </gcds-text>
       </div>
+    </gcds-notice>
+
 
       {% for province, services in entities.items() %}
       <div class="card">
@@ -65,10 +94,10 @@
           </div>
           <div class="buttons">
             {% for service in services %}
+          <gcds-button>
             <a
               href="{{ service.url }}"
               target="_blank"
-              class="btn {{ 'btn-' + service.name | replace(' ', '-') }}"
             >
               <img
                 src="{{ url_for('static', filename='svg/' + service.name + '.svg') }}"
@@ -77,6 +106,7 @@
               />
               {{ service.name }}
             </a>
+            </gcds-button>  
             {% endfor %}
           </div>
         </div>
@@ -84,7 +114,9 @@
       {% endfor %}
     </div>
 
-    <h4 class="context-heading">Additional Context & Assumptions</h4>
+    <div class="context-heading">    
+      <gcds-heading tag="h5">Additional Context & Assumptions</gcds-heading>
+    </div>
 
     <div class="accordion mt-4" id="iidiAccordion">
       {% for section in collapsible_sections %}
@@ -111,7 +143,7 @@
         </div>
       </div>
       {% endfor %}
-    </div>
+    </main>
 
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
@@ -153,5 +185,9 @@
       updateHealthStatus();
       setInterval(updateHealthStatus, 300000);
     </script>
+    <footer>
+      <gcds-footer>
+      </gcds-footer>
+    </footer>
   </body>
 </html>
