@@ -30,7 +30,8 @@ spec:
             - /bin/sh
             - -c
             - |
-              echo "redis-server --requirepass ${REDIS_PASSWORD} --port ${REDIS_PORT} --loglevel notice" > /tmp/run.sh && chmod +x /tmp/run.sh && /tmp/run.sh
+              echo "Starting Redis with port $REDIS_PORT and password $REDIS_PASSWORD"
+              redis-server --requirepass "$REDIS_PASSWORD" --port "$REDIS_PORT" --loglevel notice
           volumeMounts:
             - name: redis-data
               mountPath: /data
