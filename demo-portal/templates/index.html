@@ -43,36 +43,35 @@
   </head>
   <body>
     <header>
-      <gcds-header>
-      </gcds-header>
+      <gcds-header></gcds-header>
     </header>
-    <main >
 
+    <main>
       <gcds-heading tag="h1">
-        Interoperable Immunization Data Initiative (IIDI) / 
-        Initiative de Données d'Immunisation Interopérables (IDII)
+        Interoperable Immunization Data Initiative (IIDI) / Initiative de
+        Données d'Immunisation Interopérables (IDII)
       </gcds-heading>
+
       <div class="disclaimer alert alert-warning mt-4" role="alert">
         <gcds-notice type="info" notice-title-tag="h2" notice-title="Title">
-          <gcds-text><strong>Disclaimer (EN):</strong> This web interface is temporary and
-          serves as a <strong>Proof of Concept (POC)</strong> to facilitate
-          current technical development and testing. It is not intended for
-          production use. Full production considerations, including bilingual
-          and WCAG compliance, are in progress.
-        </gcds-text>                  
+          <gcds-text
+            ><strong>Disclaimer (EN):</strong> This web interface is temporary
+            and serves as a <strong>Proof of Concept (POC)</strong> to
+            facilitate current technical development and testing. It is not
+            intended for production use. Full production considerations,
+            including bilingual and WCAG compliance, are in progress.</gcds-text
+          >
+        </gcds-notice>
         <gcds-text>
-
           <strong>Avis (FR) :</strong> Cette interface web est temporaire et
           sert de <strong>Preuve de Concept (POC)</strong> pour faciliter les
           développements techniques actuels et les tests. Elle n'est pas
           destinée à un usage en production. Les considérations complètes de
           production, y compris la conformité bilingue et WCAG, sont en cours.
         </gcds-text>
-      </gcds-notice>
-
       </div>
 
-
+      <!-- Loop through provinces and services -->
       {% for province, services in entities.items() %}
       <div class="card">
         <div class="card-body">
@@ -93,57 +92,59 @@
           </div>
           <div class="buttons">
             {% for service in services %}
-          <gcds-button>
-            <a
-              href="{{ service.url }}"
-              target="_blank"
-            >
-              <img
-                src="{{ url_for('static', filename='svg/' + service.name + '.svg') }}"
-                alt="{{ service.name }} Icon"
-                class="btn-icon"
-              />
-              {{ service.name }}
-            </a>
-            </gcds-button>  
+            <gcds-button>
+              <a href="{{ service.url }}" target="_blank">
+                <img
+                  src="{{ url_for('static', filename='svg/' + service.name + '.svg') }}"
+                  alt="{{ service.name }} Icon"
+                  class="btn-icon"
+                />
+                {{ service.name }}
+              </a>
+            </gcds-button>
             {% endfor %}
           </div>
         </div>
       </div>
       {% endfor %}
-    </div>
 
-    <div class="context-heading">    
-      <gcds-heading tag="h5">Additional Context & Assumptions</gcds-heading>
-    </div>
+      <div class="context-heading">
+        <gcds-heading tag="h5">Additional Context & Assumptions</gcds-heading>
+      </div>
 
-    <div class="accordion mt-4" id="iidiAccordion">
-      {% for section in collapsible_sections %}
-      <div class="card">
-        <div
-          class="card-header"
-          id="heading-{{ loop.index }}"
-          data-toggle="collapse"
-          data-target="#collapse-{{ loop.index }}"
-          aria-expanded="false"
-          aria-controls="collapse-{{ loop.index }}"
-        >
-          <h5 class="mb-0">{{ section.title }}</h5>
-        </div>
-        <div
-          id="collapse-{{ loop.index }}"
-          class="collapse"
-          aria-labelledby="heading-{{ loop.index }}"
-          data-parent="#iidiAccordion"
-        >
-          <div class="card-body">
-            <div class="content-wrapper">{{ section.content | safe }}</div>
+      <div class="accordion mt-4" id="iidiAccordion">
+        {% for section in collapsible_sections %}
+        <div class="card">
+          <div
+            class="card-header"
+            id="heading-{{ loop.index }}"
+            data-toggle="collapse"
+            data-target="#collapse-{{ loop.index }}"
+            aria-expanded="false"
+            aria-controls="collapse-{{ loop.index }}"
+          >
+            <h5 class="mb-0">{{ section.title }}</h5>
+          </div>
+          <div
+            id="collapse-{{ loop.index }}"
+            class="collapse"
+            aria-labelledby="heading-{{ loop.index }}"
+            data-parent="#iidiAccordion"
+          >
+            <div class="card-body">
+              <div class="content-wrapper">{{ section.content | safe }}</div>
+            </div>
           </div>
         </div>
+        {% endfor %}
       </div>
-      {% endfor %}
     </main>
 
+    <footer>
+      <gcds-footer></gcds-footer>
+    </footer>
+
+    <!-- Include JS libraries -->
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
       integrity="sha384-UoJ1OgubV4cU+k3n3s+LgmeMIpVZZ62s3+JswZDTk2+Z/ogX7Tsdv/YqCPeKjNU6"
@@ -184,9 +185,5 @@
       updateHealthStatus();
       setInterval(updateHealthStatus, 300000);
     </script>
-    <footer>
-      <gcds-footer>
-      </gcds-footer>
-    </footer>
   </body>
 </html>
