@@ -7,6 +7,9 @@ WORKDIR /app
 COPY . .
 RUN npm ci
 
+USER root
+RUN apk add --no-cache redis
+
 USER node
 
-CMD npm --no-update-notifier start
+CMD ["npm", "--no-update-notifier", "start"]
