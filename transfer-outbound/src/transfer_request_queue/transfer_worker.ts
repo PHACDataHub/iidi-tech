@@ -57,18 +57,18 @@ const work_on_transfer_job = async (job: transferRequestJob) => {
         job.data.transfer_to,
       );
 
-      if (transfer_response.status === 200) {
-        const body = await transfer_response.json();
+      if (transfer_response.ok) {
+        const json = await transfer_response.json().catch(() => null);
 
         if (
-          typeof body === 'object' &&
-          body !== null &&
-          'new_patient_id' in body &&
-          typeof body.new_patient_id === 'string'
+          typeof json === 'object' &&
+          json !== null &&
+          'new_patient_id' in json &&
+          typeof json.new_patient_id === 'string'
         ) {
           await job.updateData({
             ...job.data,
-            new_patient_id: body.new_patient_id,
+            new_patient_id: json.new_patient_id,
           });
         }
       } else {
