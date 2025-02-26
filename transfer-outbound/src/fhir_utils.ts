@@ -10,15 +10,35 @@ const is_patient_resource = (json: unknown): json is Patient =>
   'resourceType' in json &&
   json?.resourceType === 'Patient';
 
+const handle_fhir_response_error = async (response: Response) => {
+  const json = (await response.json().catch(() => null)) as {
+    issue?: [{ diagnostics?: string }];
+  } | null;
+
+  const fhir_diagnostic_messages = json?.issue
+    ?.map(({ diagnostics }) => diagnostics)
+    .join(', ');
+
+  if (fhir_diagnostic_messages !== undefined) {
+    throw new AppError(response.status, fhir_diagnostic_messages);
+  } else {
+    throw new AppError(
+      response.status,
+      `FHIR request returned code "${response.status}", no diagnostic messages available`,
+    );
+  }
+};
+
 export const assert_patient_exists_and_is_untransfered = async (
   patient_id: string,
 ) => {
   const { FHIR_URL } = get_env();
 
   const response = await fetch(`${FHIR_URL}/Patient/${patient_id}`);
-  const json = await response.json();
 
-  if (response.status === 200) {
+  if (response.ok) {
+    const json = await response.json().catch(() => null);
+
     if (is_patient_resource(json)) {
       // TODO transfer mark storage specific TBD, see mark_patient_transfering method
       const patient_transfered_to = json.extension?.find(
@@ -40,13 +60,7 @@ export const assert_patient_exists_and_is_untransfered = async (
       );
     }
   } else {
-    const fhir_diagnostic_messages = (
-      json as { issue?: [{ diagnostics?: string }] }
-    )?.issue
-      ?.map(({ diagnostics }) => diagnostics)
-      .join(', ');
-
-    throw new AppError(response.status, fhir_diagnostic_messages ?? '');
+    await handle_fhir_response_error(response);
   }
 };
 
@@ -54,24 +68,23 @@ export const get_patient_bundle_for_transfer = async (patient_id: string) => {
   const { FHIR_URL } = get_env();
 
   const response = await fetch(
-    // TODO get _type list, possible other search rules, from configuration? See #110
+    // TODO get _type list, possible other search rules, from configuration (issue #110)?
     // eslint-disable-next-line no-secrets/no-secrets
     `${FHIR_URL}/Patient/${patient_id}/$everything?_type=Patient,Immunization,AllergyIntolerance`,
   );
-  const json = await response.json();
 
-  if (response.status === 200) {
+  if (response.ok) {
+    const json = await response.json().catch(() => null);
+
+    // TODO assertion for json being a bundle, throw error if not
+
     // TODO should the entire bundle be returned as-is? Only the data?
-    // TODO Should some fields be stripped/sanitized at this point
+    // Should some fields be stripped/sanitized at this point? "link" values?
+    // Should any filtering rules come from from configuration (issue #110)?
+
     return json;
   } else {
-    const fhir_diagnostic_messages = (
-      json as { issue?: [{ diagnostics?: string }] }
-    )?.issue
-      ?.map(({ diagnostics }) => diagnostics)
-      .join(', ');
-
-    throw new AppError(response.status, fhir_diagnostic_messages ?? '');
+    await handle_fhir_response_error(response);
   }
 };
 
