@@ -83,9 +83,6 @@ export const get_patient_bundle_for_transfer = async (patient_id: string) => {
     const json = await response.json().catch(() => null);
 
     if (is_bundle_resource(json)) {
-      // TODO should the entire bundle be returned as-is with all metadata? Only the data?
-      // Should some fields be stripped/sanitized at this point? "link" values?
-      // Should any filtering rules come from from configuration (issue #110)?
       return json;
     } else {
       throw new AppError(
