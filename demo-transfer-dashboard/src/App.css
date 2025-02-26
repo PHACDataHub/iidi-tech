@@ -34,3 +34,14 @@ main {
   background: #d7faff;
   padding: 10px 15px;
 }
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table th,
+table td {
+  border: 1px solid black;
+  padding: 8px;
+  text-align: center;
+}
