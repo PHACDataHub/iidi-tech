@@ -92,19 +92,39 @@ def process_immunization_record(immunization):
         if not patient:
             return None
         
+        # Determine the jurisdiction from the FHIR URL
+        jurisdiction = "BC" if "bc" in FHIR_URL.lower() else "ON"
+        
+        # Extract relevant data
         dose_number = 1  # Default dose number
         protocol_applied = immunization.get("protocolApplied", [])
         if protocol_applied:
             dose_number = int(protocol_applied[0].get("doseNumberString", 1))
         
         occurrence_date = immunization.get("occurrenceDateTime", "")
+        birth_date = patient.get("birthDate", "")
+        
+        # Calculate the patient's age at the time of immunization
+        if occurrence_date and birth_date:
+            birth_date_obj = datetime.strptime(birth_date, "%Y-%m-%d")
+            occurrence_date_obj = datetime.strptime(occurrence_date, "%Y-%m-%d")
+            age_in_days = (occurrence_date_obj - birth_date_obj).days
+            
+            # Validate if the dose is given before the first birthday
+            if age_in_days < 365:  # Before the first birthday
+                if jurisdiction == "ON":
+                    logging.info(f"Skipping dose for patient {patient_ref} given before first birthday in ON jurisdiction.")
+                    return None  # Skip this record for ON
+                else:
+                    logging.info(f"Accepting early dose for patient {patient_ref} in BC jurisdiction.")
+
         occurrence_year = occurrence_date[:4] if len(occurrence_date) >= 4 else "Unknown"
         
         return {
             "OccurrenceYear": occurrence_year.strip(),
-            "Jurisdiction": "BC" if "bc" in FHIR_URL else "ON",
+            "Jurisdiction": jurisdiction,
             "Sex": patient.get("gender", "Unknown").capitalize(),
-            "AgeGroup": calculate_age_group(patient.get("birthDate")),
+            "AgeGroup": calculate_age_group(birth_date),
             "DoseCount": dose_number,
         }
     except Exception as e:
@@ -134,15 +154,20 @@ def aggregate_data():
     df["Sex"] = df["Sex"].str.capitalize()
     df["AgeGroup"] = df["AgeGroup"].str.strip()
     
+    # Aggregating data
     aggregated = df.groupby([
-        "OccurrenceYear", "Jurisdiction", "Sex", "AgeGroup"
+        "OccurrenceYear", "Jurisdiction", "Sex", "AgeGroup", "DoseCount"
     ], as_index=False).agg(
-        DoseCount=("DoseCount", "sum"),
         Count=("DoseCount", "count")
     )
     
+    # Ensuring ReferenceDate is always 31st December of the OccurrenceYear
+    aggregated["ReferenceDate"] = aggregated["OccurrenceYear"].apply(lambda year: f"{year}-12-31")
+    
+    # Sorting the output for better readability
     aggregated = aggregated.sort_values(
-        by=["OccurrenceYear", "AgeGroup", "Sex"], ascending=[True, True, True]
+        by=["OccurrenceYear", "AgeGroup", "Sex", "DoseCount"],
+        ascending=[True, True, True, True]
     )
     
     return aggregated.to_dict(orient="records")
