@@ -1,4 +1,4 @@
-import type { Patient } from 'fhir/r4.d.ts';
+import type { Patient, Bundle } from 'fhir/r4.d.ts';
 
 import { get_env } from './env.ts';
 import { AppError } from './error_utils.ts';
@@ -9,6 +9,12 @@ const is_patient_resource = (json: unknown): json is Patient =>
   json !== null &&
   'resourceType' in json &&
   json?.resourceType === 'Patient';
+
+const is_bundle_resource = (json: unknown): json is Bundle =>
+  typeof json === 'object' &&
+  json !== null &&
+  'resourceType' in json &&
+  json?.resourceType === 'Bundle';
 
 const handle_fhir_response_error = async (response: Response) => {
   const json = (await response.json().catch(() => null)) as {
@@ -76,13 +82,17 @@ export const get_patient_bundle_for_transfer = async (patient_id: string) => {
   if (response.ok) {
     const json = await response.json().catch(() => null);
 
-    // TODO assertion for json being a bundle, throw error if not
-
-    // TODO should the entire bundle be returned as-is? Only the data?
-    // Should some fields be stripped/sanitized at this point? "link" values?
-    // Should any filtering rules come from from configuration (issue #110)?
-
-    return json;
+    if (is_bundle_resource(json)) {
+      // TODO should the entire bundle be returned as-is with all metadata? Only the data?
+      // Should some fields be stripped/sanitized at this point? "link" values?
+      // Should any filtering rules come from from configuration (issue #110)?
+      return json;
+    } else {
+      throw new AppError(
+        500,
+        `Invalid response from FHIR server for patient ID "${patient_id}": response status was "ok", but response body was not a valid Bundle resource`,
+      );
+    }
   } else {
     await handle_fhir_response_error(response);
   }
