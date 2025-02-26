@@ -2,6 +2,10 @@ import type { Patient, Bundle } from 'fhir/r4.d.ts';
 
 import { get_env } from './env.ts';
 import { AppError } from './error_utils.ts';
+import {
+  assert_patient_id_parameter_is_valid,
+  assert_transfer_code_parameter_is_valid,
+} from './request_parameter_validation_utils.ts';
 import type { transferCode } from './transfer_code_utils.ts';
 
 const is_patient_resource = (json: unknown): json is Patient =>
@@ -38,6 +42,8 @@ const handle_fhir_response_error = async (response: Response) => {
 export const assert_patient_exists_and_is_untransfered = async (
   patient_id: string,
 ) => {
+  assert_patient_id_parameter_is_valid(patient_id);
+
   const { FHIR_URL } = get_env();
 
   const response = await fetch(`${FHIR_URL}/Patient/${patient_id}`);
@@ -71,6 +77,8 @@ export const assert_patient_exists_and_is_untransfered = async (
 };
 
 export const get_patient_bundle_for_transfer = async (patient_id: string) => {
+  assert_patient_id_parameter_is_valid(patient_id);
+
   const { FHIR_URL } = get_env();
 
   const response = await fetch(
@@ -96,10 +104,13 @@ export const get_patient_bundle_for_transfer = async (patient_id: string) => {
 };
 
 export const mark_patient_transfering = async (
-  _patient_id: string,
-  _transfer_to: transferCode,
+  patient_id: string,
+  transfer_to: transferCode,
   _transfer_request_id?: string,
 ) => {
+  assert_patient_id_parameter_is_valid(patient_id);
+  assert_transfer_code_parameter_is_valid(transfer_to);
+
   const { FHIR_URL } = get_env();
 
   // TODO mark patient as being transfered out in outbound province FHIR server,
@@ -116,10 +127,13 @@ export const mark_patient_transfering = async (
 };
 
 export const unmark_patient_transfering = async (
-  _patient_id: string,
-  _transfer_to: transferCode,
+  patient_id: string,
+  transfer_to: transferCode,
   _transfer_request_id?: string,
 ) => {
+  assert_patient_id_parameter_is_valid(patient_id);
+  assert_transfer_code_parameter_is_valid(transfer_to);
+
   const { FHIR_URL } = get_env();
 
   // TODO need to be able to revert the transfer mark if the bundle is rejected by the inbound service
@@ -133,9 +147,14 @@ export const unmark_patient_transfering = async (
 };
 
 export const mark_patient_transfered = async (
-  _patient_id: string,
-  _new_patient_id?: string,
+  patient_id: string,
+  new_patient_id?: string,
 ) => {
+  assert_patient_id_parameter_is_valid(patient_id);
+  if (new_patient_id !== undefined) {
+    assert_patient_id_parameter_is_valid(new_patient_id);
+  }
+
   const { FHIR_URL } = get_env();
 
   // TODO mark patient as fully transfered out in province FHIR server, add id of patient in inbound system
@@ -146,5 +165,6 @@ export const mark_patient_transfered = async (
     'Patient transfer marking method not implemented yet',
   );
 
+  assert_patient_id_parameter_is_valid(patient_id);
   await fetch(`${FHIR_URL}/TODO`);
 };
