@@ -26,13 +26,13 @@ spec:
             - name: DEV_IS_LOCAL_ENV
               value: "false"
             - name: REDIS_HOST
-              value: "redis.bc.svc.cluster.local"
+              value: "redis.on.svc.cluster.local"
             - name: FHIR_URL
               value: "http://hapi-fhir-svc.on.svc.cluster.local:8080/fhir"
             - name: OWN_TRANSFER_CODE
               value: "ON"
             - name: INBOUND_TRANSFER_SERIVCES_BY_TRANSFER_CODE
-              value: '{ "BC": "http://transfer-inbound.bc.svc.cluster.local:3000" }'
+              value: '{ "ON": "http://transfer-inbound.on.svc.cluster.local:3000" }'
             - name: REDIS_PORT
               value: "6379"
             - name: REDIS_PASSWORD
