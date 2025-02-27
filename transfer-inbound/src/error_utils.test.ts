@@ -17,7 +17,7 @@ describe('AppError', () => {
   });
 });
 
-describe('expressErrorHandler middlewear', () => {
+describe('expressErrorHandler middleware', () => {
   it('handles errors passed to next() by express routes', async () => {
     const app = express();
 
@@ -78,5 +78,58 @@ describe('expressErrorHandler middlewear', () => {
     expect(mockedErrorHandler).toHaveBeenCalled();
     expect(response.status).toBe(status_code);
     expect(response.body.error).toBe(error_message);
+  });
+
+  it('includes validation errors in the response when present', async () => {
+    const app = express();
+    const status_code = 400;
+    const errorDetails = {
+      location: 'body',
+      diagnostics: 'Invalid data',
+      details: 'Details about the error',
+    };
+
+    app.get('/error', function (_req, _res, _next) {
+      throw new AppError(status_code, 'Validation failed', errorDetails);
+    });
+
+    const mockedErrorHandler = jest.fn(expressErrorHandler);
+    app.use(mockedErrorHandler);
+
+    const response = await request(app)
+      .get('/error')
+      .set('Accept', 'application/json');
+
+    expect(mockedErrorHandler).toHaveBeenCalled();
+    expect(response.status).toBe(status_code);
+    expect(response.body.error).toBe('Validation failed');
+    expect(response.body.details).toEqual(errorDetails);
+  });
+
+  it('handles non-serializable error details gracefully', async () => {
+    const app = express();
+    const status_code = 400;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const errorDetails: { circular: { self?: any } } = {
+      circular: {},
+    };
+    // Creating a circular reference to trigger error in parsing to JSON
+    errorDetails.circular.self = errorDetails;
+
+    app.get('/error', function (_req, _res, _next) {
+      throw new AppError(status_code, 'Bad data', errorDetails);
+    });
+
+    const mockedErrorHandler = jest.fn(expressErrorHandler);
+    app.use(mockedErrorHandler);
+
+    const response = await request(app)
+      .get('/error')
+      .set('Accept', 'application/json');
+
+    expect(mockedErrorHandler).toHaveBeenCalled();
+    expect(response.status).toBe(status_code);
+    expect(response.body.error).toBe('Bad data');
+    expect(response.body.details).toBeUndefined();
   });
 });

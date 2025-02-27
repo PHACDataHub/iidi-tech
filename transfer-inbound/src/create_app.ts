@@ -5,7 +5,10 @@ import {
   assert_bundle_follows_fhir_spec,
   write_bundle_to_fhir_api,
 } from './fhir_utils.ts';
-import { assert_bundle_follows_business_rules } from './validation_utils.ts';
+import {
+  assert_bundle_follows_business_rules,
+  assert_is_bundle,
+} from './validation_utils.ts';
 
 export const create_app = async () => {
   const app = express();
@@ -24,6 +27,7 @@ export const create_app = async () => {
   app.post('/inbound-transfer', async (req, res) => {
     const { bundle } = req.body;
 
+    assert_is_bundle(bundle);
     assert_bundle_follows_business_rules(bundle);
 
     // TODO might be redundant to write_bundle_to_fhir_api, depends if FHIR servers are configured to validate pre-write

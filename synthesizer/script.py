@@ -134,6 +134,8 @@ def create_immunization_resource(patient_id, birth_date):
             {"doseNumberString": str(random.randint(1, 2)), "series": "MMR Vaccination"}
         ],
         "status": "completed",
+        # TODO: Modify reaction[*].detail. reaction[*].detail.coding doesn't exist in the Immunization resource.
+        # Not saved by the FHIR server.
         "reaction": [
             {
                 "detail": {
