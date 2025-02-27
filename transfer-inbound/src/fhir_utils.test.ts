@@ -69,6 +69,8 @@ describe('assert_bundle_follows_fhir_spec', () => {
 
     // Mocking fetch to return a valid response
     (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      status: 200,
       json: jest.fn().mockResolvedValueOnce(mockResponse),
     });
 
@@ -85,6 +87,84 @@ describe('assert_bundle_follows_fhir_spec', () => {
     // Expecting the function to throw a 500 AppError
     await expect(assert_bundle_follows_fhir_spec(mockBundle)).rejects.toThrow(
       new AppError(500, 'Error during FHIR spec validation: Network Error'),
+    );
+  });
+
+  it('should throw a 500 error when response has no issues field', async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValueOnce({}),
+    });
+
+    await expect(assert_bundle_follows_fhir_spec(mockBundle)).rejects.toThrow(
+      new AppError(
+        200,
+        'Unexpected Error: FHIR validation request returned code "200", with no OperationOutcome available',
+      ),
+    );
+  });
+
+  it('should throw a 500 error when server returns validation errors', async () => {
+    const serverErrors = {
+      issue: [
+        {
+          severity: 'error',
+          code: 'invalid',
+          diagnostics: 'Server validation failed',
+        },
+      ],
+    };
+
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      json: jest.fn().mockResolvedValueOnce(serverErrors),
+    });
+
+    await expect(assert_bundle_follows_fhir_spec(mockBundle)).rejects.toThrow(
+      new AppError(500, 'FHIR spec validation failed', serverErrors.issue),
+    );
+  });
+
+  it('should handle JSON parse failure in response', async () => {
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      status: 200,
+      json: jest.fn().mockRejectedValueOnce(new Error('Invalid JSON')),
+    });
+
+    await expect(assert_bundle_follows_fhir_spec(mockBundle)).rejects.toThrow(
+      new AppError(
+        200,
+        'Unexpected Error: FHIR validation request returned code "200", with no OperationOutcome available',
+      ),
+    );
+  });
+
+  it('should handle validation errors without location or diagnostics', async () => {
+    const mockResponse = {
+      issue: [
+        {
+          severity: 'error',
+          // Deliberately omitting location and diagnostics
+        },
+      ],
+    };
+
+    (fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: jest.fn().mockResolvedValueOnce(mockResponse),
+    });
+
+    await expect(assert_bundle_follows_fhir_spec(mockBundle)).rejects.toThrow(
+      new AppError(400, 'FHIR spec validation failed', [
+        {
+          location: 'Unknown location',
+          diagnostics: 'No additional details',
+          details: 'No details provided',
+        },
+      ]),
     );
   });
 });

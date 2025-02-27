@@ -15,14 +15,18 @@ export const assert_bundle_follows_fhir_spec = async (bundle: Bundle) => {
       body: JSON.stringify(bundle),
     });
 
-    const operationOutcome: OperationOutcome =
-      (await response.json()) as OperationOutcome;
+    const responseBody = (await response
+      .json()
+      .catch(() => null)) as OperationOutcome | null;
 
-    if (
-      operationOutcome.issue &&
-      operationOutcome.issue.some((issue) => issue.severity === 'error')
-    ) {
-      const validationErrors = operationOutcome.issue
+    if (!responseBody?.issue) {
+      throw new AppError(
+        response.status,
+        `Unexpected Error: FHIR validation request returned code "${response.status}", with no OperationOutcome available`,
+      );
+    }
+    if (response.ok) {
+      const validationErrors = responseBody.issue
         .filter((issue) => issue.severity === 'error')
         .map((issue) => ({
           location: issue.location?.join(', ') || 'Unknown location',
@@ -30,16 +34,24 @@ export const assert_bundle_follows_fhir_spec = async (bundle: Bundle) => {
           details: issue.details?.text || 'No details provided',
         }));
 
-      throw new AppError(400, 'FHIR spec validation failed', validationErrors);
+      if (validationErrors.length > 0) {
+        throw new AppError(
+          400,
+          'FHIR spec validation failed',
+          validationErrors,
+        );
+      }
+    } else {
+      const serverErrors = responseBody.issue;
+      throw new AppError(500, 'FHIR spec validation failed', serverErrors);
     }
   } catch (error) {
     if (error instanceof AppError) {
       throw error;
     }
-    const err = error as Error;
     throw new AppError(
       500,
-      `Error during FHIR spec validation: ${err.message}`,
+      `Error during FHIR spec validation: ${(error as Error).message}`,
     );
   }
 };
