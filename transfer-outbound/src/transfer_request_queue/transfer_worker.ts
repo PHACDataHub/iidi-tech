@@ -37,38 +37,32 @@ const work_on_transfer_job = async (job: transferRequestJob) => {
     // TODO for this and all other logging found here, switch to a good struct log approach. These simple logs are placeholders/for dev
     console.log(`Job ID ${job.id}: starting stage "${job.data.stage}"`);
 
-    if (job.data.stage === 'collecting') {
-      const bundle = await get_patient_bundle_for_transfer(job.data.patient_id);
-      await job.updateData({
-        ...job.data,
-        bundle,
-      });
-    } else if (job.data.stage === 'marking_transfered') {
+    if (job.data.stage === 'marking_as_transfering') {
       await mark_patient_transfering(
         job.data.patient_id,
         job.data.transfer_to,
         job.id,
       );
-    } else if (job.data.stage === 'transfering') {
-      // NOTE: vital assumption: this end point returns 200 IF AND ONLY IF the bundle was accepted and fully written to the receiving
-      // FHIR server. Not a big ask, just have to hold to that or else the rollback handling won't work and data integrity is lost
+    } else if (job.data.stage === 'collecting_and_transfering') {
+      const bundle = await get_patient_bundle_for_transfer(job.data.patient_id);
+
       const transfer_response = await post_bundle_to_inbound_transfer_service(
-        job.data.bundle,
+        bundle,
         job.data.transfer_to,
       );
 
-      if (transfer_response.status === 200) {
-        const body = await transfer_response.json();
+      if (transfer_response.ok) {
+        const json = await transfer_response.json().catch(() => null);
 
         if (
-          typeof body === 'object' &&
-          body !== null &&
-          'new_patient_id' in body &&
-          typeof body.new_patient_id === 'string'
+          typeof json === 'object' &&
+          json !== null &&
+          'new_patient_id' in json &&
+          typeof json.new_patient_id === 'string'
         ) {
           await job.updateData({
             ...job.data,
-            new_patient_id: body.new_patient_id,
+            new_patient_id: json.new_patient_id,
           });
         }
       } else {
@@ -76,7 +70,9 @@ const work_on_transfer_job = async (job: transferRequestJob) => {
           `Job ID ${job.id}: inbound-transfer service for "${job.data.transfer_to}" responded to patient ID "${job.data.patient_id}" transfer with a "${transfer_response.status}" status`,
         );
       }
-    } else if (job.data.stage === 'finalizing') {
+    } else if (job.data.stage === 'marking_transferred') {
+      // NOTE: vital assumption: this end point returns 200 IF AND ONLY IF the bundle was accepted and fully written to the receiving
+      // FHIR server. Not a big ask, just have to hold to that or else the rollback handling won't work and data integrity is lost
       await mark_patient_transfered(
         job.data.patient_id,
         job.data.new_patient_id,
@@ -106,32 +102,29 @@ const handle_failed_transfer_request_job = async (
     `Job ID ${failed_job.id}: failed on stage "${failed_job.data.stage}" having completed stages [${failed_job.data.completed_stages.join(', ')}]`,
   );
 
-  const transfer_marks_were_created =
-    failed_job.data.completed_stages.includes('marking_transfered');
+  const transfering_marks_were_created =
+    failed_job.data.completed_stages.includes('marking_as_transfering');
 
-  const transfer_completed =
-    failed_job.data.completed_stages.includes('transfering');
+  const transfer_completed = failed_job.data.completed_stages.includes(
+    'collecting_and_transfering',
+  );
 
-  const transfer_finalized =
-    failed_job.data.completed_stages.includes('finalizing');
+  const transferred_marks_were_created =
+    failed_job.data.completed_stages.includes('marking_transferred');
 
-  if (
-    (transfer_finalized &&
-      !(transfer_marks_were_created || transfer_completed)) ||
-    (transfer_completed && !transfer_marks_were_created)
-  ) {
+  if (!transfering_marks_were_created && transfer_completed) {
     console.error(
       `Job ID ${failed_job.id} failure handing: reached an unexpected state! This should really not happen, and means we can't guarantee data integrity!"`,
     );
   }
 
-  if (!transfer_marks_were_created) {
+  if (!transfering_marks_were_created) {
     console.log(
       `Job ID ${failed_job.id} failure handling: nothing to clean up"`,
     );
-  } else if (transfer_marks_were_created && !transfer_completed) {
+  } else if (transfering_marks_were_created && !transfer_completed) {
     console.log(
-      `Job ID ${failed_job.id} failure handling: attempting to roll back outbound patient transfer marking"`,
+      `Job ID ${failed_job.id} failure handling: attempting to roll back outbound patient transfering markers"`,
     );
 
     await unmark_patient_transfering(
@@ -141,12 +134,12 @@ const handle_failed_transfer_request_job = async (
     );
 
     console.log(
-      `Job ID ${failed_job.id} failure handling: successfully rolled back outbound patient transfer marking"`,
+      `Job ID ${failed_job.id} failure handling: successfully rolled back outbound patient transfering markers"`,
     );
   } else if (
-    transfer_marks_were_created &&
+    transfering_marks_were_created &&
     transfer_completed &&
-    !transfer_finalized
+    !transferred_marks_were_created
   ) {
     if (failed_job.attemptsMade <= (failed_job.opts.attempts ?? 3) + 3) {
       const next_delay =

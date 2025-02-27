@@ -13,8 +13,8 @@ if (endpoint === undefined) {
 
 const try_fetch = (retry_count) =>
   fetch(endpoint)
-    .then(({ status }) => {
-      if (status === 200) {
+    .then((response) => {
+      if (response.ok) {
         console.log(`Service at ${endpoint} responded successfully!`);
         return process.exit(0);
       } else if (retry_count >= retry_max) {
