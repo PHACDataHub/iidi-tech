@@ -52,7 +52,7 @@ export const assert_patient_exists_and_is_untransfered = async (
     const json = await response.json().catch(() => null);
 
     if (is_patient_resource(json)) {
-      // TODO transfer mark storage specific TBD, see mark_patient_transfering method
+      // TODO transfer mark storage specific TBD, see set_patient_transfer_metadata_and_lock method
       const patient_transfered_to = json.extension?.find(
         ({ url }) =>
           url ===
@@ -103,10 +103,11 @@ export const get_patient_bundle_for_transfer = async (patient_id: string) => {
   }
 };
 
-export const mark_patient_transfering = async (
+export const set_patient_transfer_metadata_and_lock = async (
   patient_id: string,
+  _transfer_request_id: string,
   transfer_to: transferCode,
-  _transfer_request_id?: string,
+  // TODO other transfer metadata might be relevant to store, but likely not in scope right now
 ) => {
   assert_patient_id_parameter_is_valid(patient_id);
   assert_transfer_code_parameter_is_valid(transfer_to);
@@ -121,13 +122,11 @@ export const mark_patient_transfering = async (
   // await fetch(`${FHIR_URL}/TODO`);
 };
 
-export const unmark_patient_transfering = async (
+export const unset_patient_transfer_metadata_and_lock = async (
   patient_id: string,
-  transfer_to: transferCode,
-  _transfer_request_id?: string,
+  _transfer_request_id: string,
 ) => {
   assert_patient_id_parameter_is_valid(patient_id);
-  assert_transfer_code_parameter_is_valid(transfer_to);
 
   // TODO need to be able to revert the transfer mark if the bundle is rejected by the inbound service
 
@@ -136,8 +135,9 @@ export const unmark_patient_transfering = async (
   // await fetch(`${FHIR_URL}/TODO`);
 };
 
-export const mark_patient_transfered = async (
+export const set_patient_post_transfer_metadata = async (
   patient_id: string,
+  _transfer_request_id: string,
   new_patient_id?: string,
 ) => {
   assert_patient_id_parameter_is_valid(patient_id);
