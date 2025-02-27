@@ -4,9 +4,9 @@ import { Worker, QueueEvents, Job } from 'bullmq';
 
 import {
   get_patient_bundle_for_transfer,
-  mark_patient_transfering,
-  unmark_patient_transfering,
-  mark_patient_transfered,
+  set_patient_transfer_metadata_and_lock,
+  unset_patient_transfer_metadata_and_lock,
+  set_patient_post_transfer_metadata,
 } from 'src/fhir_utils.ts';
 
 import { post_bundle_to_inbound_transfer_service } from 'src/transfer_inbound_utils.ts';
@@ -24,6 +24,17 @@ import { terminal_stage, get_next_stage } from './transfer_stage_utils.ts';
 
 import type { transferRequest } from './transferRequest.js';
 
+const get_job_id = (job: transferRequestJob) => {
+  // job id's should never be undefined during the work loop, this is just for type narrowing
+  if (job.id === undefined) {
+    throw new Error(
+      'Attempting to process a transfer request job with a missing ID. This should never happen.',
+    );
+  } else {
+    return job.id;
+  }
+};
+
 const work_on_transfer_job = async (job: transferRequestJob) => {
   // NOTE: breaking the job in to work stages similar to a pattern mentioned here https://docs.bullmq.io/patterns/process-step-jobs,
   // note that while the job doesn't return to the queue between stages it does update the job data to track progress which will
@@ -37,11 +48,11 @@ const work_on_transfer_job = async (job: transferRequestJob) => {
     // TODO for this and all other logging found here, switch to a good struct log approach. These simple logs are placeholders/for dev
     console.log(`Job ID ${job.id}: starting stage "${job.data.stage}"`);
 
-    if (job.data.stage === 'marking_as_transfering') {
-      await mark_patient_transfering(
+    if (job.data.stage === 'setting_patient_transfer_metadata_and_lock') {
+      await set_patient_transfer_metadata_and_lock(
         job.data.patient_id,
+        get_job_id(job),
         job.data.transfer_to,
-        job.id,
       );
     } else if (job.data.stage === 'collecting_and_transfering') {
       const bundle = await get_patient_bundle_for_transfer(job.data.patient_id);
@@ -70,11 +81,12 @@ const work_on_transfer_job = async (job: transferRequestJob) => {
           `Job ID ${job.id}: inbound-transfer service for "${job.data.transfer_to}" responded to patient ID "${job.data.patient_id}" transfer with a "${transfer_response.status}" status`,
         );
       }
-    } else if (job.data.stage === 'marking_transferred') {
+    } else if (job.data.stage === 'setting_patient_post_transfer_metadata') {
       // NOTE: vital assumption: this end point returns 200 IF AND ONLY IF the bundle was accepted and fully written to the receiving
       // FHIR server. Not a big ask, just have to hold to that or else the rollback handling won't work and data integrity is lost
-      await mark_patient_transfered(
+      await set_patient_post_transfer_metadata(
         job.data.patient_id,
+        get_job_id(job),
         job.data.new_patient_id,
       );
     }
@@ -102,44 +114,50 @@ const handle_failed_transfer_request_job = async (
     `Job ID ${failed_job.id}: failed on stage "${failed_job.data.stage}" having completed stages [${failed_job.data.completed_stages.join(', ')}]`,
   );
 
-  const transfering_marks_were_created =
-    failed_job.data.completed_stages.includes('marking_as_transfering');
+  const transfer_lock_was_set = failed_job.data.completed_stages.includes(
+    'setting_patient_transfer_metadata_and_lock',
+  );
 
   const transfer_completed = failed_job.data.completed_stages.includes(
     'collecting_and_transfering',
   );
 
-  const transferred_marks_were_created =
-    failed_job.data.completed_stages.includes('marking_transferred');
+  const post_transfer_metadata_was_set =
+    failed_job.data.completed_stages.includes(
+      'setting_patient_post_transfer_metadata',
+    );
 
-  if (!transfering_marks_were_created && transfer_completed) {
+  if (
+    (!transfer_lock_was_set && transfer_completed) ||
+    (post_transfer_metadata_was_set &&
+      (!transfer_lock_was_set || !transfer_completed))
+  ) {
     console.error(
       `Job ID ${failed_job.id} failure handing: reached an unexpected state! This should really not happen, and means we can't guarantee data integrity!"`,
     );
   }
 
-  if (!transfering_marks_were_created) {
+  if (!transfer_lock_was_set) {
     console.log(
       `Job ID ${failed_job.id} failure handling: nothing to clean up"`,
     );
-  } else if (transfering_marks_were_created && !transfer_completed) {
+  } else if (transfer_lock_was_set && !transfer_completed) {
     console.log(
-      `Job ID ${failed_job.id} failure handling: attempting to roll back outbound patient transfering markers"`,
+      `Job ID ${failed_job.id} failure handling: attempting to unset patient transfer metadata and  lock"`,
     );
 
-    await unmark_patient_transfering(
+    await unset_patient_transfer_metadata_and_lock(
       failed_job.data.patient_id,
-      failed_job.data.transfer_to,
-      failed_job.id,
+      get_job_id(failed_job),
     );
 
     console.log(
-      `Job ID ${failed_job.id} failure handling: successfully rolled back outbound patient transfering markers"`,
+      `Job ID ${failed_job.id} failure handling: successfully unset patient transfer metadata and lock""`,
     );
   } else if (
-    transfering_marks_were_created &&
+    transfer_lock_was_set &&
     transfer_completed &&
-    !transferred_marks_were_created
+    !post_transfer_metadata_was_set
   ) {
     if (failed_job.attemptsMade <= (failed_job.opts.attempts ?? 3) + 3) {
       const next_delay =
