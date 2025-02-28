@@ -1,4 +1,7 @@
+import cors from 'cors';
 import express from 'express';
+
+import { get_env } from './env.ts';
 
 import { expressErrorHandler } from './error_utils.ts';
 import {
@@ -18,10 +21,16 @@ import {
 } from './transfer_request_queue/transfer_request_utils.ts';
 
 export const create_app = async () => {
+  const { TRANSFER_DASHBOARD_ORIGIN } = get_env();
+
   const app = express();
 
   // we'll need to be able to read `X-Forwarded-*` headers, both in prod and when using the dev docker setup
   app.set('trust proxy', true);
+
+  // Only need CORS for PoC demo purposes, given the React SPA demo dashboard.
+  // Wouldn't expect browsers to be directly hitting this API in reality
+  app.use(cors({ origin: TRANSFER_DASHBOARD_ORIGIN }));
 
   app.use(express.json()); // parses JSON body payloads, converts req.body from a string to object
   app.use(express.urlencoded({ extended: false })); // parses URL-encoded payload parameters on POST/PUT in to req.body fields
