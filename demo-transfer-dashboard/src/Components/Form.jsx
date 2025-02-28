@@ -19,6 +19,7 @@ const Form = () => {
     fetchTransfers();
   }, []);
 
+  // Logic work in progress
   const fetchTransfers = async () => {
     try {
       setLoadingMessage('Loading transfer requests...');
@@ -52,7 +53,7 @@ const Form = () => {
         : process.env.ON_OUTBOUND_URL;
 
     try {
-      const response = await fetch(`${fhirUrl}transfer-request`, {
+      const response = await fetch(`${fhirUrl}/transfer-request`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
