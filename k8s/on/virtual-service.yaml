@@ -9,6 +9,7 @@ spec:
   gateways:
     - istio-ingress/mesh-gateway
   http:
+    # Route for patient-browser
     - match:
         - headers:
             ":authority":
@@ -18,6 +19,8 @@ spec:
             host: patient-browser-svc.on.svc.cluster.local
             port:
               number: 8079
+
+    # Route for fhir
     - match:
         - headers:
             ":authority":
@@ -27,6 +30,8 @@ spec:
             host: hapi-fhir-svc.on.svc.cluster.local
             port:
               number: 8080
+
+    # Route for aggregator
     - match:
         - headers:
             ":authority":
@@ -36,3 +41,14 @@ spec:
             host: aggregator-service.on.svc.cluster.local
             port:
               number: 80
+
+    # Route for transfer-outbound
+    - match:
+        - headers:
+            ":authority":
+              exact: "transfer-outbound.on.iidi.alpha.phac.gc.ca"
+      route:
+        - destination:
+            host: transfer-outbound-svc.on.svc.cluster.local
+            port:
+              number: 3000

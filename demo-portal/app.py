@@ -13,15 +13,14 @@ entities = {
     "British Columbia (BC)": [
         {"name": "Patient Browser", "url": os.getenv("BC_BROWSER_URL")},
         {"name": "HAPI FHIR Server", "url": os.getenv("BC_FHIR_URL")},
-        {"name": "Aggregator", "url": os.getenv("BC_AGGREGATOR_URL")}
+        {"name": "Aggregator", "url": os.getenv("BC_AGGREGATOR_URL")},
+        {"name": "Patient Transfer Dashboard", "url": os.getenv("DEMO_TRANSFER_DASHBOARD_URL")}
     ],
     "Ontario (ON)": [
         {"name": "Patient Browser", "url": os.getenv("ON_BROWSER_URL")},
         {"name": "HAPI FHIR Server", "url": os.getenv("ON_FHIR_URL")},
-        {"name": "Aggregator", "url": os.getenv("ON_AGGREGATOR_URL")}
-    ],
-    "Demo Utilities": [
-        {"name": "Patient Transfer Dashboard", "url": os.getenv("DEMO_TRANSFER_DASHBOARD_URL")},
+        {"name": "Aggregator", "url": os.getenv("ON_AGGREGATOR_URL")},
+        {"name": "Patient Transfer Dashboard", "url": os.getenv("DEMO_TRANSFER_DASHBOARD_URL")}
     ]
 }
 
