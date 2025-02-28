@@ -8,6 +8,12 @@ COPY package-lock.json /app/package-lock.json
 RUN npm ci
 
 COPY . /app
+
+# These env vars need to exist at build-time, setting them on the container at run-time doesn't change
+# the values in the static content generated here and served when the container is run
+ARG ON_OUTBOUND_URL="https://transfer-outbound.on.iidi.alpha.phac.gc.ca"
+ARG BC_OUTBOUND_URL="https://transfer-outbound.bc.iidi.alpha.phac.gc.ca"
+
 RUN npm run build
 
 # 2. Serve static app via nginx

@@ -19,11 +19,6 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
-          env:
-            - name: ON_OUTBOUND_URL
-              value: "https://transfer-outbound.on.iidi.alpha.phac.gc.ca"
-            - name: BC_OUTBOUND_URL
-              value: "https://transfer-outbound.bc.iidi.alpha.phac.gc.ca"
           readinessProbe:
             httpGet:
               path: /
