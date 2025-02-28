@@ -56,15 +56,83 @@ export const assert_bundle_follows_fhir_spec = async (bundle: Bundle) => {
   }
 };
 
-export const write_bundle_to_fhir_api = async (_bundle: Bundle) => {
+export const handle_response = async (response: Response) => {
+  if (!response.ok) {
+    throw new AppError(
+      500,
+      `FHIR server responded with status ${response.status}`,
+    );
+  }
+
+  const transactionResponse = await response.json().catch(() => null);
+
+  if (
+    typeof transactionResponse === 'object' &&
+    transactionResponse &&
+    'resourceType' in transactionResponse &&
+    'type' in transactionResponse &&
+    'entry' in transactionResponse &&
+    Array.isArray(transactionResponse.entry) &&
+    transactionResponse.entry.length > 0
+  ) {
+    return transactionResponse as Bundle;
+  }
+
+  throw new AppError(
+    500,
+    `FHIR server responded with status ${response.status} but unexpected response body.`,
+  );
+};
+
+export const write_bundle_to_fhir_api = async (
+  bundle: Bundle,
+): Promise<string> => {
   const { FHIR_URL } = get_env();
-  // TODO implement bundle writing here
 
-  // References:
-  // https://build.fhir.org/bundle.html
-  // https://hl7.org/fhir/http.html#transaction
+  const response = await fetch(FHIR_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/fhir+json',
+    },
+    body: JSON.stringify(bundle),
+  });
 
-  throw new AppError(501, 'Writing to FHIR API not implemented');
+  const bundleResponse = await handle_response(response);
 
-  await fetch(`${FHIR_URL}/TODO`);
+  // Check all entries for successful creation
+  const failedEntries = bundleResponse.entry
+    ?.filter((entry) => !entry.response?.status?.startsWith('201'))
+    .map((entry) => ({
+      resource: entry.response?.location?.split('/')[0] || 'Unknown',
+      status: entry.response?.status || 'Unknown',
+      id: entry.response?.location?.split('/')[1] || 'Unknown',
+    }));
+
+  if (failedEntries && failedEntries.length > 0) {
+    throw new AppError(500, 'Some resources failed to create', {
+      failedResources: failedEntries,
+      message: 'The following resources failed to create properly',
+    });
+  }
+
+  // Get Patient id from response
+  const patientEntry = bundleResponse?.entry?.find((entry) =>
+    entry.response?.location?.startsWith('Patient/'),
+  );
+  if (!patientEntry) {
+    throw new AppError(
+      500,
+      'Patient resource not found in transaction response',
+    );
+  }
+
+  const patientId = patientEntry.response?.location?.split('/')[1] || null;
+  if (!patientId) {
+    throw new AppError(
+      500,
+      'Unexpected error: Patient ID not found in response',
+    );
+  }
+
+  return patientId;
 };
