@@ -1,7 +1,11 @@
-import type { Patient } from 'fhir/r4.d.ts';
+import type { Patient, Bundle } from 'fhir/r4.d.ts';
 
 import { get_env } from './env.ts';
 import { AppError } from './error_utils.ts';
+import {
+  assert_patient_id_parameter_is_valid,
+  assert_transfer_code_parameter_is_valid,
+} from './request_parameter_validation_utils.ts';
 import type { transferCode } from './transfer_code_utils.ts';
 
 const is_patient_resource = (json: unknown): json is Patient =>
@@ -10,15 +14,43 @@ const is_patient_resource = (json: unknown): json is Patient =>
   'resourceType' in json &&
   json?.resourceType === 'Patient';
 
+const is_bundle_resource = (json: unknown): json is Bundle =>
+  typeof json === 'object' &&
+  json !== null &&
+  'resourceType' in json &&
+  json?.resourceType === 'Bundle';
+
+const handle_fhir_response_error = async (response: Response) => {
+  const json = (await response.json().catch(() => null)) as {
+    issue?: [{ diagnostics?: string }];
+  } | null;
+
+  const fhir_diagnostic_messages = json?.issue
+    ?.map(({ diagnostics }) => diagnostics)
+    .join(', ');
+
+  if (fhir_diagnostic_messages !== undefined) {
+    throw new AppError(response.status, fhir_diagnostic_messages);
+  } else {
+    throw new AppError(
+      response.status,
+      `FHIR request returned code "${response.status}", no diagnostic messages available`,
+    );
+  }
+};
+
 export const assert_patient_exists_and_is_untransfered = async (
   patient_id: string,
 ) => {
+  assert_patient_id_parameter_is_valid(patient_id);
+
   const { FHIR_URL } = get_env();
 
   const response = await fetch(`${FHIR_URL}/Patient/${patient_id}`);
-  const json = await response.json();
 
-  if (response.status === 200) {
+  if (response.ok) {
+    const json = await response.json().catch(() => null);
+
     if (is_patient_resource(json)) {
       // TODO transfer mark storage specific TBD, see mark_patient_transfering method
       const patient_transfered_to = json.extension?.find(
@@ -40,33 +72,45 @@ export const assert_patient_exists_and_is_untransfered = async (
       );
     }
   } else {
-    const fhir_diagnostic_messages = (
-      json as { issue?: [{ diagnostics?: string }] }
-    )?.issue
-      ?.map(({ diagnostics }) => diagnostics)
-      .join(', ');
-
-    throw new AppError(response.status, fhir_diagnostic_messages ?? '');
+    await handle_fhir_response_error(response);
   }
 };
 
-export const get_patient_bundle_for_transfer = async (_patient_id: string) => {
+export const get_patient_bundle_for_transfer = async (patient_id: string) => {
+  assert_patient_id_parameter_is_valid(patient_id);
+
   const { FHIR_URL } = get_env();
 
-  // TODO
-  throw new AppError(
-    501,
-    'Patient bundle collection method not implemented yet',
+  const response = await fetch(
+    // TODO get _type list, possible other search rules, from configuration (issue #110)?
+    // eslint-disable-next-line no-secrets/no-secrets
+    `${FHIR_URL}/Patient/${patient_id}/$everything?_type=Patient,Immunization,AllergyIntolerance`,
   );
 
-  await fetch(`${FHIR_URL}/TODO`);
+  if (response.ok) {
+    const json = await response.json().catch(() => null);
+
+    if (is_bundle_resource(json)) {
+      return json;
+    } else {
+      throw new AppError(
+        500,
+        `Invalid response from FHIR server for patient ID "${patient_id}": response status was "ok", but response body was not a valid Bundle resource`,
+      );
+    }
+  } else {
+    await handle_fhir_response_error(response);
+  }
 };
 
 export const mark_patient_transfering = async (
-  _patient_id: string,
-  _transfer_to: transferCode,
+  patient_id: string,
+  transfer_to: transferCode,
   _transfer_request_id?: string,
 ) => {
+  assert_patient_id_parameter_is_valid(patient_id);
+  assert_transfer_code_parameter_is_valid(transfer_to);
+
   const { FHIR_URL } = get_env();
 
   // TODO mark patient as being transfered out in outbound province FHIR server,
@@ -83,10 +127,13 @@ export const mark_patient_transfering = async (
 };
 
 export const unmark_patient_transfering = async (
-  _patient_id: string,
-  _transfer_to: transferCode,
+  patient_id: string,
+  transfer_to: transferCode,
   _transfer_request_id?: string,
 ) => {
+  assert_patient_id_parameter_is_valid(patient_id);
+  assert_transfer_code_parameter_is_valid(transfer_to);
+
   const { FHIR_URL } = get_env();
 
   // TODO need to be able to revert the transfer mark if the bundle is rejected by the inbound service
@@ -100,9 +147,14 @@ export const unmark_patient_transfering = async (
 };
 
 export const mark_patient_transfered = async (
-  _patient_id: string,
-  _new_patient_id?: string,
+  patient_id: string,
+  new_patient_id?: string,
 ) => {
+  assert_patient_id_parameter_is_valid(patient_id);
+  if (new_patient_id !== undefined) {
+    assert_patient_id_parameter_is_valid(new_patient_id);
+  }
+
   const { FHIR_URL } = get_env();
 
   // TODO mark patient as fully transfered out in province FHIR server, add id of patient in inbound system
@@ -113,5 +165,6 @@ export const mark_patient_transfered = async (
     'Patient transfer marking method not implemented yet',
   );
 
+  assert_patient_id_parameter_is_valid(patient_id);
   await fetch(`${FHIR_URL}/TODO`);
 };

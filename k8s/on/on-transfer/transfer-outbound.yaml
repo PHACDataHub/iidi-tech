@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: transfer-outbound
-          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-transfer-outbound:main-975149d3fc1d3fe60360d5d91d47293cce56a705-1740524073 # {"$imagepolicy": "flux-system:transfer-outbound-on"}
+          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-transfer-outbound:main-c9d012d5f9b05acf331893c7f447fedd7f833609-1740674440 # {"$imagepolicy": "flux-system:transfer-outbound-on"}
           ports:
             - containerPort: 3000
           env:
@@ -26,13 +26,13 @@ spec:
             - name: DEV_IS_LOCAL_ENV
               value: "false"
             - name: REDIS_HOST
-              value: "redis.bc.svc.cluster.local"
+              value: "redis.on.svc.cluster.local"
             - name: FHIR_URL
               value: "http://hapi-fhir-svc.on.svc.cluster.local:8080/fhir"
             - name: OWN_TRANSFER_CODE
               value: "ON"
             - name: INBOUND_TRANSFER_SERIVCES_BY_TRANSFER_CODE
-              value: '{ "BC": "http://transfer-inbound.bc.svc.cluster.local:3000" }'
+              value: '{ "ON": "http://transfer-inbound.on.svc.cluster.local:3000" }'
             - name: REDIS_PORT
               value: "6379"
             - name: REDIS_PASSWORD

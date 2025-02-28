@@ -1,0 +1,5 @@
+creation_rules:
+  # For all YAML files, encrypt only the data and stringData fields using GCP KMS
+  - path_regex: ".*\\.yaml$"
+    encrypted_regex: "^(data|stringData)$"
+    gcp_kms: "projects/phx-01he5rx4wsv/locations/northamerica-northeast1/keyRings/iidi-redis-secret/cryptoKeys/iidi-redis-secret"

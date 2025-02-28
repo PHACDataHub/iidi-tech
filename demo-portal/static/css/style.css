@@ -4,7 +4,7 @@ html {
 }
 
 main {
-  max-width: 1250px;
+  max-width: 1400px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -155,14 +155,9 @@ a:hover {
   margin-bottom: 20px;
   transition: box-shadow 0.3s ease;
   overflow: hidden;
-  max-width: 1200px; /* Adjust width to match other elements */
   border: none !important;
   margin-left: auto; /* Centers the element */
   margin-right: auto; /* Centers the element */
-}
-
-.accordion .card:hover {
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .accordion .card-header {

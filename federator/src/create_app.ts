@@ -28,8 +28,8 @@ export const create_app = async () => {
 
         const response = await fetch(aggregator_endpoint);
 
-        if (response.status === 200) {
-          const aggregated_data = await response.json();
+        if (response.ok) {
+          const aggregated_data = await response.json().catch(() => null);
 
           if (is_valid_aggregated_data(aggregated_data)) {
             return aggregated_data;
