@@ -40,5 +40,5 @@ spec:
                 secretKeyRef:
                   name: redis-secret
                   key: REDIS_PASSWORD
-            - name: TRANSFER_DASHBOARD_ORIGIN
-              value: "demo-transfer-dashboard.iidi.alpha.phac.gc.ca"
+            - name: TRANSFER_DASHBOARD_ORIGINS
+              value: "https://demo-transfer-dashboard.iidi.alpha.phac.gc.ca,http://localhost:8080,http://localhost:3000,http://localhost:3005"
