@@ -49,6 +49,6 @@ spec:
               exact: "transfer-outbound.bc.iidi.alpha.phac.gc.ca"
       route:
         - destination:
-            host: transfer-outbound-svc.bc.svc.cluster.local
+            host: transfer-outbound.bc.svc.cluster.local
             port:
               number: 3000
