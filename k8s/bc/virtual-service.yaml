@@ -38,7 +38,7 @@ spec:
               exact: "aggregator.bc.iidi.alpha.phac.gc.ca"
       route:
         - destination:
-            host: aggregator-service.bc.svc.cluster.local
+            host: aggregator-svc.bc.svc.cluster.local
             port:
               number: 80
 
@@ -49,6 +49,6 @@ spec:
               exact: "transfer-outbound.bc.iidi.alpha.phac.gc.ca"
       route:
         - destination:
-            host: transfer-outbound.bc.svc.cluster.local
+            host: transfer-outbound-svc.bc.svc.cluster.local
             port:
               number: 3000

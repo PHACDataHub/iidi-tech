@@ -377,7 +377,7 @@ services:
       NUM_RECORDS: 100
       PT: on
       FHIR_URL: http://on-fhir:8080/fhir # in this case, resolved inside the container, with container networking
-  on-aggregator: &aggregator-service
+  on-aggregator: &aggregator-svc
     image: aggregator:1.4
     tty: ${DOCKER_TTY:-true}
     restart: always
@@ -496,7 +496,7 @@ services:
       PT: bc
       FHIR_URL: http://bc-fhir:8080/fhir # in this case, resolved inside the container, with container networking
   bc-aggregator:
-    <<: *aggregator-service
+    <<: *aggregator-svc
     networks:
       - gateway
       - bc-internal
