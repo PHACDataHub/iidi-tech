@@ -306,7 +306,34 @@ collapsible_sections = [
                 <li><strong>Interoperability Layer</strong>: Enables data transformation and validation to align different provincial data formats.</li>
                 <li><strong>Audit & Compliance Framework</strong>: Ensures all data access is logged and follows regulatory requirements.</li>
             </ul>
+            <h6>Federated Immunization Data Architecture (UJ-1)</h6>
+            <p>
+                The <strong>federated model</strong> ensures that each province maintains local control over its immunization records while
+                supporting national-level aggregation for public health surveillance. The architecture consists of:
+            </p>
+            <ul>
+                <li><strong>FHIR Immunization Registries</strong>: Each province maintains its own secure database.</li>
+                <li><strong>Synthetic Data Generator</strong>: Creates test data for validation.</li>
+                <li><strong>SMART Patient Viewer</strong>: Allows healthcare providers to view immunization records.</li>
+                <li><strong>Aggregator</strong>: Summarizes and anonymizes immunization records before sharing with PHAC.</li>
+                <li><strong>Federator (PHAC)</strong>: Receives de-identified, aggregated data for national reporting.</li>
+                <li><strong>R-Shiny Dashboards</strong>: Provides real-time analytics and insights.</li>
+            </ul>
+            <img src="/static/images/UJ-1.png" alt="Federated Immunization Data Architecture (UJ-1)" style="max-width:100%;">
 
+            <h6>PT-to-PT Transfer Workflow (UJ-2)</h6>
+            <p>
+                The PT-to-PT transfer mechanism enables secure, structured movement of immunization records when a patient relocates
+                between jurisdictions. This workflow ensures that records are securely exchanged without centralization.
+            </p>
+            <ul>
+                <li><strong>API Gateway</strong>: Facilitates secure and authenticated communication.</li>
+                <li><strong>FHIR Data Transfer</strong>: Ensures records are formatted correctly.</li>
+                <li><strong>Message Queue</strong>: Manages retries and queued requests.</li>
+                <li><strong>Outbound Transfer Service</strong>: Extracts and sends immunization data.</li>
+                <li><strong>Inbound Transfer Service</strong>: Receives and validates incoming records.</li>
+            </ul>
+            <img src="/static/images/UJ-2.png" alt="PT-to-PT Data Transfer Workflow (UJ-2)" style="max-width:100%;">
             <h6>Data Flow</h6>
             <ol>
                 <li>A request for immunization data is initiated by an authorized system.</li>
