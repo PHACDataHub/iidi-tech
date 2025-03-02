@@ -306,7 +306,7 @@ collapsible_sections = [
                 <li><strong>Interoperability Layer</strong>: Enables data transformation and validation to align different provincial data formats.</li>
                 <li><strong>Audit & Compliance Framework</strong>: Ensures all data access is logged and follows regulatory requirements.</li>
             </ul>
-            <h6>Federated Immunization Data Architecture (UJ-1)</h6>
+            <h6><strong>Federated Immunization Data Architecture (UJ-1)</strong></h6>
             <p>
                 The <strong>federated model</strong> ensures that each province maintains local control over its immunization records while
                 supporting national-level aggregation for public health surveillance. The architecture consists of:
@@ -321,7 +321,7 @@ collapsible_sections = [
             </ul>
             <img src="/static/images/UJ-1.png" alt="Federated Immunization Data Architecture (UJ-1)" style="max-width:100%;">
 
-            <h6>PT-to-PT Transfer Workflow (UJ-2)</h6>
+            <h6><strong>PT-to-PT Transfer Workflow (UJ-2)</strong></h6>
             <p>
                 The PT-to-PT transfer mechanism enables secure, structured movement of immunization records when a patient relocates
                 between jurisdictions. This workflow ensures that records are securely exchanged without centralization.
