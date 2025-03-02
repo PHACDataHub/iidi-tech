@@ -1,3 +1,65 @@
+"""
+Synthetic FHIR Data Generator and Uploader
+
+This script generates synthetic immunization records for testing purposes 
+and uploads them to a FHIR server as a transaction bundle. It supports both 
+British Columbia (BC) and Ontario (ON) jurisdictions, ensuring realistic 
+data generation based on configurable parameters.
+
+Dependencies:
+- `requests`: For making API calls to the FHIR server.
+- `faker`: For generating realistic patient data.
+- `logging`: For logging execution details.
+- `os`: For handling environment variables.
+- `random`, `datetime`, `timedelta`: For generating randomized dates and values.
+
+Environment Variables:
+- `FHIR_URL`: Base URL of the FHIR server (default: "http://localhost:8080/fhir").
+- `NUM_RECORDS`: Number of synthetic records to generate (default: 1).
+- `PT`: Province code ("bc" or "on") to differentiate jurisdiction-specific logic.
+
+Key Functions:
+1. **random_date(start_date, end_date)**
+   - Generates a random date within the given range.
+
+2. **create_patient_resource(patient_id)**
+   - Generates a Patient resource with:
+     - Randomized demographic details (name, gender, birthdate, address).
+     - Unique identifiers (health card number, UUID).
+     - Additional metadata such as consent status, ethnicity, language.
+
+3. **create_allergy_resource(patient_id)**
+   - Generates an AllergyIntolerance resource (only for BC patients).
+   - Assigns a random allergy type, criticality, and onset date.
+
+4. **create_immunization_resource(patient_id, birth_date)**
+   - Generates an Immunization resource with:
+     - Vaccine manufacturer, lot number, and site of administration.
+     - Randomized dose count (1 or 2).
+     - Occurrence date post first birthday.
+     - Optional reaction details (fever) and additional metadata.
+
+5. **create_transaction_bundle(records)**
+   - Constructs a FHIR transaction bundle containing:
+     - Patient, Immunization, and Allergy (if applicable) resources.
+
+6. **generate_synthetic_records(num_records)**
+   - Generates the specified number of synthetic records.
+
+7. **upload_to_fhir_server(bundle)**
+   - Uploads the generated bundle to the FHIR server.
+   - Implements request retries for fault tolerance.
+
+Execution Flow:
+1. Generates `NUM_RECORDS` synthetic immunization records.
+2. Creates a FHIR transaction bundle.
+3. Uploads the bundle to the specified FHIR server.
+4. Logs success or failure messages.
+
+This script is useful for testing FHIR-based immunization record systems 
+and validating API ingestion pipelines.
+"""
+
 import random
 from datetime import datetime, timedelta
 import requests
@@ -107,14 +169,20 @@ def create_allergy_resource(patient_id):
     }
 
 # Create an Immunization resource
+# Create an Immunization resource
 def create_immunization_resource(patient_id, birth_date):
     manufacturer = random.choice(["Pfizer", "Moderna", "AstraZeneca"])
     lot_number = faker.uuid4()[:8].upper()
     site = random.choice(["Left Arm", "Right Arm", "Left Thigh", "Right Thigh"])
-    occurrence_date = random_date(
-        datetime.strptime(birth_date, "%Y-%m-%d") + timedelta(days=365),
-        datetime.today()
-    )
+    
+    # Ensure birth_date is a valid datetime object
+    birth_date_obj = datetime.strptime(birth_date, "%Y-%m-%d")
+    
+    # Ensure occurrence_date is never in the future
+    min_date = birth_date_obj + timedelta(days=365)
+    max_date = datetime.today()
+    occurrence_date = random_date(min_date, max_date)
+
     exemption_reason = random.choice([None, "RELIG", "MED", "PHIL"])
     concurrent_vaccine = random.choice(["Influenza", "COVID-19", None])
 
