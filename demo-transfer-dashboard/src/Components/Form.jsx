@@ -140,11 +140,9 @@ const Form = () => {
           <thead>
             <tr>
               <th>
-                <GcdsText>Patient Name</GcdsText>
+                <GcdsText>Patient ID</GcdsText>
               </th>
-              <th>
-                <GcdsText>Origin PT</GcdsText>
-              </th>
+
               <th>
                 <GcdsText>Receiving PT</GcdsText>
               </th>
@@ -157,12 +155,11 @@ const Form = () => {
             {transfers.map((transfer, index) => (
               <tr key={index}>
                 <td>{transfer.patient_id}</td>
-                <td>{transfer.originPT}</td>
-                <td>{transfer.receivingPT}</td>
+                <td>{transfer.transfer_to}</td>
                 <td
                   className={`status ${transfer.status === 'Transferred' ? 'transferred' : 'failed'}`}
                 >
-                  <GcdsText>{transfer.status}</GcdsText>
+                  <GcdsText>{transfer.stage}</GcdsText>
                 </td>
               </tr>
             ))}
