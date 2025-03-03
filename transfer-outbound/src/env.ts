@@ -32,6 +32,23 @@ const urlByTransferCode = makeValidator((val: string) => {
   }
 });
 
+const originList = makeValidator((val: string) => {
+  if (val === '*') {
+    return val;
+  } else {
+    const url_list = val.split(',');
+    if (
+      url_list.every((value) => validator.isURL(value, { require_tld: false }))
+    ) {
+      return url_list;
+    } else {
+      throw new Error(
+        `Expected JSON string mapping PT codes (${transfer_codes.join(', ')}) to transfer-inbound service URLs`,
+      );
+    }
+  }
+});
+
 const boolFalseIfProd = (spec: { default: boolean }) => {
   const is_prod =
     process.env.DEV_IS_LOCAL_ENV !== 'true' &&
@@ -57,6 +74,10 @@ export const get_env = () => {
 
     OWN_TRANSFER_CODE: transferCode(),
     INBOUND_TRANSFER_SERIVCES_BY_TRANSFER_CODE: urlByTransferCode(),
+
+    // Only for configuring CORS for PoC demo purposes, in reality this is expected to be an
+    // internal server-to-server API, with no direct frontend access
+    TRANSFER_DASHBOARD_ORIGINS: originList({ default: '*' }),
 
     DEV_IS_LOCAL_ENV: boolFalseIfProd({ default: false }),
     DEV_IS_TEST_ENV: boolFalseIfProd({ default: false }),
