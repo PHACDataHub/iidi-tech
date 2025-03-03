@@ -16,28 +16,34 @@ const Form = () => {
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
-    fetchTransfers();
+    //fetchTransfers();
   }, []);
 
   // Logic work in progress
+  /** 
   const fetchTransfers = async () => {
     try {
       setLoadingMessage('Loading transfer requests...');
-      const response = await fetch(
-        `${process.env.BC_OUTBOUND_URL}/transfer-request`,
-      );
+
+      const url =
+        originPT === 'BC'
+          ? process.env.BC_OUTBOUND_URL
+          : process.env.ON_OUTBOUND_URL;
+
+      const response = await fetch(`${url}/transfer-request`);
+
       if (!response.ok) throw new Error('Failed to load transfers');
 
       const data = await response.json();
       console.log(data);
-      setTransfers(data);
+      setTransfers(data); // Set the data to state
       setLoadingMessage('');
     } catch (error) {
       setErrorMessage('Failed to load transfer requests.');
       setLoadingMessage('');
     }
   };
-
+  */
   const initiateTransfer = async () => {
     setErrorMessage('');
     if (!patientNumber.trim()) {
