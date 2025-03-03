@@ -15,15 +15,10 @@ spec:
     spec:
       containers:
         - name: demo-transfer-dashboard
-          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-demo-transfer-dashboard:main-aa51093c9722e9a7bce39892af24933412a1c5b4-1740524908 # {"$imagepolicy": "flux-system:demo-transfer-dashboard"}
+          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-demo-transfer-dashboard:main-7e21d07f8c7ce305174201590ae5919e594afe7d-1741022273 # {"$imagepolicy": "flux-system:demo-transfer-dashboard"}
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
-          env:
-            - name: ON_OUTBOUND_URL
-              value: "http://transfer-outbound.on.svc.cluster.local:3000"
-            - name: BC_OUTBOUND_URL
-              value: "http://transfer-outbound.bc.svc.cluster.local:3000"
           readinessProbe:
             httpGet:
               path: /

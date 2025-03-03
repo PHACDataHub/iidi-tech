@@ -13,15 +13,14 @@ entities = {
     "British Columbia (BC)": [
         {"name": "Patient Browser", "url": os.getenv("BC_BROWSER_URL")},
         {"name": "HAPI FHIR Server", "url": os.getenv("BC_FHIR_URL")},
-        {"name": "Aggregator", "url": os.getenv("BC_AGGREGATOR_URL")}
+        {"name": "Aggregator", "url": os.getenv("BC_AGGREGATOR_URL")},
+        {"name": "Patient Transfer Dashboard", "url": os.getenv("DEMO_TRANSFER_DASHBOARD_URL")}
     ],
     "Ontario (ON)": [
         {"name": "Patient Browser", "url": os.getenv("ON_BROWSER_URL")},
         {"name": "HAPI FHIR Server", "url": os.getenv("ON_FHIR_URL")},
-        {"name": "Aggregator", "url": os.getenv("ON_AGGREGATOR_URL")}
-    ],
-    "Demo Utilities": [
-        {"name": "Patient Transfer Dashboard", "url": os.getenv("DEMO_TRANSFER_DASHBOARD_URL")},
+        {"name": "Aggregator", "url": os.getenv("ON_AGGREGATOR_URL")},
+        {"name": "Patient Transfer Dashboard", "url": os.getenv("DEMO_TRANSFER_DASHBOARD_URL")}
     ]
 }
 
@@ -33,13 +32,13 @@ collapsible_sections = [
             <h5><strong>Overview: What is Being Generated?</strong></h5>
             <p>
                 The synthetic data mimics real-world immunization records from provincial registries while ensuring
-                **FHIR-compliant JSON format** for interoperability. Differences between **BC and ON data models** are accounted for, 
+                FHIR-compliant JSON format for interoperability. Differences between BC and ON data models are accounted for, 
                 including variations in fields such as allergy tracking.
             </p>
 
             <div style="background-color: #f8f9fa; padding: 10px; border-radius: 8px;">
                 <h6><strong>FHIR Patient Resource Structure</strong></h6>
-                <p>A **FHIR Patient Resource** consists of core fields and extensions, ensuring consistency across jurisdictions.</p>
+                <p>A FHIR Patient Resource consists of core fields and extensions, ensuring consistency across jurisdictions.</p>
 
                 <table style="width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid #ddd;">
                     <thead>
@@ -89,14 +88,14 @@ collapsible_sections = [
             <div style="background-color: #f8f9fa; padding: 10px; border-radius: 8px;">
                 <p><strong>British Columbia (BC) Specific Fields</strong></p>
                 <ul style="margin-top: 5px; margin-bottom: 5px;">
-                    <li>Allergy information is included using **FHIR `AllergyIntolerance` resource**.</li>
-                    <li>Uses **SNOMED CT-coded allergy types**, severity levels, and reaction dates.</li>
+                    <li>Allergy information is included using FHIR `AllergyIntolerance` resource.</li>
+                    <li>Uses SNOMED CT-coded allergy types, severity levels, and reaction dates.</li>
                 </ul>
 
                 <p><strong>Ontario (ON) Specific Fields</strong></p>
                 <ul style="margin-top: 5px; margin-bottom: 5px;">
-                    <li>Ontario does **not** track allergy information in immunization records.</li>
-                    <li>The script **skips allergy generation** for ON patients.</li>
+                    <li>Ontario does not track allergy information in immunization records.</li>
+                    <li>The script skips allergy generation for ON patients.</li>
                 </ul>
             </div>
 
@@ -129,7 +128,7 @@ collapsible_sections = [
             <h6><strong>Summary of Key Features</strong></h6>
             <ul style="margin-top: 5px; margin-bottom: 5px;">
                 <li><strong>FHIR-Compliant</strong>: Structured to align with HL7 FHIR.</li>
-                <li><strong>Synthetic but Realistic</strong>: Uses **Faker** for realistic patient data.</li>
+                <li><strong>Synthetic but Realistic</strong>: Uses Faker for realistic patient data.</li>
                 <li><strong>Handles Provincial Variations</strong>: BC and ON have different data models.</li>
                 <li><strong>Includes Adverse Reactions & Exemptions</strong>: Adds realism for testing.</li>
             </ul>

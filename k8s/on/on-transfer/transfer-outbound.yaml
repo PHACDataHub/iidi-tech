@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: transfer-outbound
-          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-transfer-outbound:main-c9d012d5f9b05acf331893c7f447fedd7f833609-1740674440 # {"$imagepolicy": "flux-system:transfer-outbound-on"}
+          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-transfer-outbound:main-6bc3a31b654a46e468a632c395e13c34f49912b5-1740777133 # {"$imagepolicy": "flux-system:transfer-outbound-on"}
           ports:
             - containerPort: 3000
           env:
@@ -40,3 +40,5 @@ spec:
                 secretKeyRef:
                   name: redis-secret
                   key: REDIS_PASSWORD
+            - name: TRANSFER_DASHBOARD_ORIGIN
+              value: "https://demo-transfer-dashboard.iidi.alpha.phac.gc.ca,http://localhost:8080,http://localhost:3000,http://localhost:3005"
