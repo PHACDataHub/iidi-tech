@@ -1,3 +1,56 @@
+"""
+FHIR Immunization Data Aggregator API
+
+This script is a Flask-based API that retrieves, processes, and aggregates immunization data 
+from a FHIR (Fast Healthcare Interoperability Resources) server. The data is then grouped by 
+various attributes and returned as a JSON response.
+
+Main Functionalities:
+1. **Environment Variables Setup**:
+   - `FHIR_URL`: The base URL of the FHIR server (default: `http://localhost:8080/fhir`).
+   - `AGGREGATION_INTERVAL`: Time interval (in seconds) for caching aggregated data.
+
+2. **Flask API Initialization**:
+   - The script initializes a Flask application to serve aggregated immunization data.
+
+3. **Logging and Caching**:
+   - Configures logging for debugging and monitoring.
+   - Implements an LRU cache for patient data retrieval.
+   - Uses a caching mechanism for aggregated data to optimize performance.
+
+4. **FHIR Resource Fetching**:
+   - The `fetch_fhir_resources(resource_type)` function retrieves FHIR resources (e.g., Immunization, Patient).
+   - Handles pagination and error management.
+
+5. **Patient Data Caching**:
+   - `fetch_patient_data(patient_reference)` retrieves and caches patient information to minimize redundant API calls.
+
+6. **Processing Immunization Records**:
+   - `process_immunization_record(immunization)` extracts key attributes from each immunization record:
+     - Determines jurisdiction (BC or ON) based on the FHIR URL.
+     - Extracts dose count, occurrence year, patient sex, and age group.
+     - Uses `calculate_age_group(birth_date)` to categorize patients into predefined age groups.
+
+7. **Data Aggregation**:
+   - `aggregate_data()` processes immunization records and groups them by:
+     - `OccurrenceYear`
+     - `Jurisdiction`
+     - `Sex`
+     - `AgeGroup`
+     - `DoseCount`
+   - Counts the number of records for each combination.
+   - Standardizes data and ensures the `ReferenceDate` is always December 31st of the `OccurrenceYear`.
+
+8. **API Endpoints**:
+   - `GET /aggregated-data`: Returns aggregated immunization data.
+     - Uses caching to avoid unnecessary reprocessing within the aggregation interval.
+   - `GET /health`: A health check endpoint to verify that the API is running.
+
+9. **Script Execution**:
+   - Ensures required environment variables are set.
+   - Starts the Flask server when executed as the main script.
+"""
+
 import requests
 import pandas as pd
 from flask import Flask, jsonify
@@ -92,40 +145,17 @@ def process_immunization_record(immunization):
         if not patient:
             return None
         
-        # Determine the jurisdiction from the FHIR URL
-        jurisdiction = "BC" if "bc" in FHIR_URL.lower() else "ON"
-        
-        # Extract relevant data
-        dose_number = 1  # Default dose number
-        protocol_applied = immunization.get("protocolApplied", [])
-        if protocol_applied:
-            dose_number = int(protocol_applied[0].get("doseNumberString", 1))
-        
         occurrence_date = immunization.get("occurrenceDateTime", "")
         birth_date = patient.get("birthDate", "")
-        
-        # Calculate the patient's age at the time of immunization
-        if occurrence_date and birth_date:
-            birth_date_obj = datetime.strptime(birth_date, "%Y-%m-%d")
-            occurrence_date_obj = datetime.strptime(occurrence_date, "%Y-%m-%d")
-            age_in_days = (occurrence_date_obj - birth_date_obj).days
-            
-            # Validate if the dose is given before the first birthday
-            if age_in_days < 365:  # Before the first birthday
-                if jurisdiction == "ON":
-                    logging.info(f"Skipping dose for patient {patient_ref} given before first birthday in ON jurisdiction.")
-                    return None  # Skip this record for ON
-                else:
-                    logging.info(f"Accepting early dose for patient {patient_ref} in BC jurisdiction.")
 
-        occurrence_year = occurrence_date[:4] if len(occurrence_date) >= 4 else "Unknown"
-        
+        occurrence_year = occurrence_date[:4] if occurrence_date else "Unknown"
+
         return {
-            "OccurrenceYear": occurrence_year.strip(),
-            "Jurisdiction": jurisdiction,
+            "Jurisdiction": "BC" if "bc" in FHIR_URL.lower() else "ON",
+            "OccurrenceYear": occurrence_year,
             "Sex": patient.get("gender", "Unknown").capitalize(),
             "AgeGroup": calculate_age_group(birth_date),
-            "DoseCount": dose_number,
+            "DoseCount": int(immunization.get("protocolApplied", [{}])[0].get("doseNumberString", 1)),  
         }
     except Exception as e:
         logging.error(f"Error processing immunization record: {e}")
@@ -162,14 +192,7 @@ def aggregate_data():
     )
     
     # Ensuring ReferenceDate is always 31st December of the OccurrenceYear
-    aggregated["ReferenceDate"] = aggregated["OccurrenceYear"].apply(lambda year: f"{year}-12-31")
-    
-    # Sorting the output for better readability
-    aggregated = aggregated.sort_values(
-        by=["OccurrenceYear", "AgeGroup", "Sex", "DoseCount"],
-        ascending=[True, True, True, True]
-    )
-    
+    aggregated["ReferenceDate"] = aggregated["OccurrenceYear"].apply(lambda year: f"{year}-12-31" if year.isnumeric() else "Unknown")
     return aggregated.to_dict(orient="records")
 
 @app.route("/aggregated-data", methods=["GET"])
