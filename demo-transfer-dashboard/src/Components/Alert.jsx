@@ -23,7 +23,7 @@ const Alert = () => {
           real-world data governance or validation processes in scope.
         </GcdsText>
         <GcdsText>
-          <Strong>Avertissement (FR):</Strong> Les dossiers des patients
+          <strong>Avertissement (FR):</strong> Les dossiers des patients
           affichés dans ce tableau de bord de transfert PT-à-PT sont uniquement
           à des fins de démonstration. Toutes les données des patients sont
           synthétiques, avec des identifiants uniques attribués pour éviter la
