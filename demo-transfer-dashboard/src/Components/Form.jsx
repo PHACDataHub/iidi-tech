@@ -159,7 +159,7 @@ const Form = () => {
                 <td
                   className={`status ${transfer.status === 'Transferred' ? 'transferred' : 'failed'}`}
                 >
-                  <GcdsText>{transfer.stage}</GcdsText>
+                  <GcdsText>{transfer.state}</GcdsText>
                 </td>
               </tr>
             ))}
