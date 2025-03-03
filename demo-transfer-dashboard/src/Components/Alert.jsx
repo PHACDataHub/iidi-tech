@@ -10,7 +10,6 @@ const Alert = () => {
         noticeTitle="Work in progress / Travail en cours"
       >
         <GcdsText>
-
           <strong>Disclaimer (EN):</strong> The patient records displayed in
           this PT-to-PT Transfer Dashboard are solely for demonstration
           purposes. All patient data is synthetic, with unique patient IDs
@@ -38,7 +37,6 @@ const Alert = () => {
           de transfert de données entre la Colombie-Britannique et l'Ontario,
           sans que les processus réels de gouvernance des données ou de
           validation soient inclus dans la portée.
-
         </GcdsText>
       </GcdsNotice>
     </div>
