@@ -89,16 +89,15 @@ export const write_bundle_to_fhir_api = async (
   bundle: Bundle,
 ): Promise<string> => {
   const { FHIR_URL } = get_env();
-  // Force FHIR server to treat operations as a transaction for integrity.
-  // This assumes that data integrity managed by the FHIR server.
-  bundle.type = 'transaction';
 
   const response = await fetch(FHIR_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/fhir+json',
     },
-    body: JSON.stringify(bundle),
+    // Force FHIR server to treat operations as a transaction for integrity.
+    // This assumes that data integrity managed by the FHIR server.
+    body: JSON.stringify({ ...bundle, type: 'transaction' }),
   });
 
   const bundleResponse = await handle_response(response);
