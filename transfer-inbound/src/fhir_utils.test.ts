@@ -247,36 +247,6 @@ describe('write_bundle_to_fhir_api', () => {
     expect(result).toBe('123');
   });
 
-  it('should throw error when some resources fail to create', async () => {
-    const mockBundleResponse = {
-      resourceType: 'Bundle',
-      type: 'transaction-response',
-      entry: [
-        { response: { status: '201', location: 'Patient/123' } },
-        { response: { status: '400', location: 'Immunization/456' } },
-      ],
-    };
-
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      status: 200,
-      json: jest.fn().mockResolvedValue(mockBundleResponse),
-    });
-
-    await expect(write_bundle_to_fhir_api(mockBundle)).rejects.toThrow(
-      new AppError(500, 'Some resources failed to create', {
-        failedResources: [
-          {
-            resource: 'Immunization',
-            status: '400',
-            id: '456',
-          },
-        ],
-        message: 'The following resources failed to create properly',
-      }),
-    );
-  });
-
   it('should throw error when patient resource is not found in response', async () => {
     const mockBundleResponse = {
       resourceType: 'Bundle',

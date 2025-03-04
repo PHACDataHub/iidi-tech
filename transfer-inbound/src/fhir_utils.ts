@@ -57,9 +57,10 @@ export const assert_bundle_follows_fhir_spec = async (bundle: Bundle) => {
 };
 
 export const handle_response = async (response: Response) => {
+  // FHIR server treats as transaction and rolls back for errors.
   if (!response.ok) {
     throw new AppError(
-      500,
+      response.status,
       `FHIR server responded with status ${response.status}`,
     );
   }
@@ -88,6 +89,9 @@ export const write_bundle_to_fhir_api = async (
   bundle: Bundle,
 ): Promise<string> => {
   const { FHIR_URL } = get_env();
+  // Force FHIR server to treat operations as a transaction for integrity.
+  // This assumes that data integrity managed by the FHIR server.
+  bundle.type = 'transaction';
 
   const response = await fetch(FHIR_URL, {
     method: 'POST',
@@ -98,22 +102,6 @@ export const write_bundle_to_fhir_api = async (
   });
 
   const bundleResponse = await handle_response(response);
-
-  // Check all entries for successful creation
-  const failedEntries = bundleResponse.entry
-    ?.filter((entry) => !entry.response?.status?.startsWith('201'))
-    .map((entry) => ({
-      resource: entry.response?.location?.split('/')[0] || 'Unknown',
-      status: entry.response?.status || 'Unknown',
-      id: entry.response?.location?.split('/')[1] || 'Unknown',
-    }));
-
-  if (failedEntries && failedEntries.length > 0) {
-    throw new AppError(500, 'Some resources failed to create', {
-      failedResources: failedEntries,
-      message: 'The following resources failed to create properly',
-    });
-  }
 
   // Get Patient id from response
   const patientEntry = bundleResponse?.entry?.find((entry) =>
