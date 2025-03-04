@@ -163,9 +163,9 @@ const Form = () => {
                 <td>{transfer.patient_id}</td>
                 <td>{transfer.transfer_to}</td>
                 <td
-                  className={`status ${transfer.status === 'Transferred' ? 'transferred' : 'failed'}`}
+                  className={`status ${transfer.status === 'Completed' ? 'completed' : 'failed'}`}
                 >
-                  <GcdsText>{transfer.state}</GcdsText>
+                  <GcdsText>{transfer.status}</GcdsText>
                 </td>
               </tr>
             ))}
