@@ -53,11 +53,12 @@ Main Functionalities:
 
 import requests
 import pandas as pd
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from datetime import datetime
 import logging
 import os
 from cachetools import LRUCache
+import jwt
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -76,10 +77,44 @@ last_aggregation_time = None
 # Patient cache with LRU eviction policy
 patient_cache = LRUCache(maxsize=1000)
 
-def validate_environment_variables():
-    """Ensure required environment variables are set."""
-    if not FHIR_URL:
-        raise ValueError("FHIR_URL environment variable is required!")
+# Load public key from Kubernetes secret
+PUBLIC_KEY_PATH = os.getenv("PUBLIC_KEY_PATH", "/secrets/public_key.pem")
+
+def load_public_key():
+    """Loads the public key from the mounted secret and validates it."""
+    try:
+        with open(PUBLIC_KEY_PATH, "r") as key_file:
+            public_key = key_file.read().strip()
+            if not public_key:
+                raise ValueError("Public key file is empty!")
+            return public_key
+    except (FileNotFoundError, ValueError) as e:
+        logging.error(f"Error loading public key: {e}")
+        return None  # Prevents JWT verification from failing unexpectedly
+
+PUBLIC_KEY = load_public_key()
+
+def verify_jwt(token):
+    """Verifies JWT using the public key."""
+    if not PUBLIC_KEY:
+        logging.error("Public key is not loaded, cannot verify JWT!")
+        return None
+
+    try:
+        decoded_token = jwt.decode(token, PUBLIC_KEY, algorithms=["RS256"])
+        return decoded_token
+    except jwt.ExpiredSignatureError:
+        logging.error("JWT has expired.")
+        return None
+    except jwt.InvalidSignatureError:
+        logging.error("JWT signature verification failed!")
+        return None
+    except jwt.DecodeError:
+        logging.error("JWT decode failed, invalid format!")
+        return None
+    except Exception as e:
+        logging.error(f"Unexpected JWT error: {e}")
+        return None
 
 def fetch_fhir_resources(resource_type):
     """Fetch resources of the specified type from the FHIR server, handling pagination."""
@@ -197,8 +232,18 @@ def aggregate_data():
 
 @app.route("/aggregated-data", methods=["GET"])
 def get_aggregated_data():
-    """API endpoint to return aggregated data."""
+    """API endpoint to return aggregated data with JWT authentication."""
     global cached_data, last_aggregation_time
+
+    # Require JWT in Authorization header
+    auth_header = request.headers.get("Authorization", "").strip()
+    if not auth_header.startswith("Bearer "):
+        logging.error("Missing or malformed Authorization header.")
+        return jsonify({"error": "Unauthorized"}), 401
+
+    token = auth_header.split(" ", 1)[-1]
+    if not verify_jwt(token):
+        return jsonify({"error": "Invalid token"}), 403
 
     reference_date = datetime.now()
     current_time = reference_date.timestamp()
@@ -208,15 +253,7 @@ def get_aggregated_data():
         return jsonify(cached_data)
     
     logging.info("Calculating new aggregated data...")
-    aggregates_with_reference_date = list(map(
-        lambda aggregate_record: {
-            **aggregate_record,
-            "ReferenceDate": reference_date.strftime('%Y-%m-%d')
-        },
-        aggregate_data()
-    ))
-
-    cached_data = aggregates_with_reference_date
+    cached_data = aggregate_data()
     last_aggregation_time = current_time
 
     return jsonify(cached_data)
@@ -226,5 +263,4 @@ def health_check():
     return jsonify({"status": "healthy"}), 200
 
 if __name__ == "__main__":
-    validate_environment_variables()
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=5000, threaded=True)

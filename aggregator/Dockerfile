@@ -16,10 +16,16 @@ COPY . .
 # Add build-time arguments with default values
 ARG FHIR_URL=http://localhost:8080/fhir
 ARG AGGREGATION_INTERVAL=60
+ARG PUBLIC_KEY_PATH=/secrets/public_key.pem
 
 # Set environment variables for Flask and FHIR configuration
 ENV FHIR_URL=$FHIR_URL
 ENV AGGREGATION_INTERVAL=$AGGREGATION_INTERVAL
+ENV PUBLIC_KEY_PATH=$PUBLIC_KEY_PATH
+
+# Ensure the secrets directory exists
+RUN mkdir -p /secrets
+
 # Expose the Flask port
 EXPOSE 5000
 
