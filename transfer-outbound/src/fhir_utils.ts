@@ -111,19 +111,14 @@ export const mark_patient_transfering = async (
   assert_patient_id_parameter_is_valid(patient_id);
   assert_transfer_code_parameter_is_valid(transfer_to);
 
-  const { FHIR_URL } = get_env();
-
   // TODO mark patient as being transfered out in outbound province FHIR server,
   // possibly with a FHIR spec extension field for the inbound province and transfer request ID,
   // expect this to happen after bundle collection step and before the bundle
   // is sent to the inbound service
 
-  throw new AppError(
-    501,
-    'Patient transfering marking method not implemented yet',
-  );
+  // const { FHIR_URL } = get_env();
 
-  await fetch(`${FHIR_URL}/TODO`);
+  // await fetch(`${FHIR_URL}/TODO`);
 };
 
 export const unmark_patient_transfering = async (
@@ -134,16 +129,11 @@ export const unmark_patient_transfering = async (
   assert_patient_id_parameter_is_valid(patient_id);
   assert_transfer_code_parameter_is_valid(transfer_to);
 
-  const { FHIR_URL } = get_env();
-
   // TODO need to be able to revert the transfer mark if the bundle is rejected by the inbound service
 
-  throw new AppError(
-    501,
-    'Patient transfering unmarking method not implemented yet',
-  );
+  // const { FHIR_URL } = get_env();
 
-  await fetch(`${FHIR_URL}/TODO`);
+  // await fetch(`${FHIR_URL}/TODO`);
 };
 
 export const mark_patient_transfered = async (
@@ -155,16 +145,10 @@ export const mark_patient_transfered = async (
     assert_patient_id_parameter_is_valid(new_patient_id);
   }
 
-  const { FHIR_URL } = get_env();
-
   // TODO mark patient as fully transfered out in province FHIR server, add id of patient in inbound system
   // Might not want to assume the inbound province shared a new patient ID, cover case where it's undefined
 
-  throw new AppError(
-    501,
-    'Patient transfer marking method not implemented yet',
-  );
+  // const { FHIR_URL } = get_env();
 
-  assert_patient_id_parameter_is_valid(patient_id);
-  await fetch(`${FHIR_URL}/TODO`);
+  // await fetch(`${FHIR_URL}/TODO`);
 };
