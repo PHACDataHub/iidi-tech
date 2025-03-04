@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: demo-portal
-          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/demo-portal:main-7fc46e3aa52a603c2d61516a14bfe797c7c44129-1741037174 # {"$imagepolicy": "flux-system:demo-portal"}
+          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/demo-portal:main-637aab3725fb0d989f33abed62fb3bddbcce72f1-1741093317 # {"$imagepolicy": "flux-system:demo-portal"}
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
