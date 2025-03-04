@@ -200,23 +200,14 @@ def get_aggregated_data():
     """API endpoint to return aggregated data."""
     global cached_data, last_aggregation_time
 
-    reference_date = datetime.now()
-    current_time = reference_date.timestamp()
+    current_time = datetime.now().timestamp()
     
     if cached_data and last_aggregation_time and (current_time - last_aggregation_time < AGGREGATION_INTERVAL):
         logging.info("Returning cached aggregated data...")
         return jsonify(cached_data)
     
     logging.info("Calculating new aggregated data...")
-    aggregates_with_reference_date = list(map(
-        lambda aggregate_record: {
-            **aggregate_record,
-            "ReferenceDate": reference_date.strftime('%Y-%m-%d')
-        },
-        aggregate_data()
-    ))
-
-    cached_data = aggregates_with_reference_date
+    cached_data = aggregate_data()
     last_aggregation_time = current_time
 
     return jsonify(cached_data)
