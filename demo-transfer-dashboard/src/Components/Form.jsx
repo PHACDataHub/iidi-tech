@@ -16,11 +16,11 @@ const Form = () => {
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
-    //fetchTransfers();
+    fetchTransfers();
   }, []);
 
   // Logic work in progress
-  /** 
+
   const fetchTransfers = async () => {
     try {
       setLoadingMessage('Loading transfer requests...');
@@ -43,7 +43,7 @@ const Form = () => {
       setLoadingMessage('');
     }
   };
-  */
+
   const initiateTransfer = async () => {
     setErrorMessage('');
     if (!patientNumber.trim()) {
@@ -155,6 +155,9 @@ const Form = () => {
               <th>
                 <GcdsText>Transfer Status</GcdsText>
               </th>
+              <th>
+                <GcdsText>Transfer Stage </GcdsText>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -163,9 +166,12 @@ const Form = () => {
                 <td>{transfer.patient_id}</td>
                 <td>{transfer.transfer_to}</td>
                 <td
-                  className={`status ${transfer.status === 'Completed' ? 'completed' : 'failed'}`}
+                  className={`status ${transfer.state === 'Completed' ? 'completed' : 'failed'}`}
                 >
-                  <GcdsText>{transfer.status}</GcdsText>
+                  <GcdsText>{transfer.state}</GcdsText>
+                </td>
+                <td>
+                  <GcdsText>{transfer.stage}</GcdsText>
                 </td>
               </tr>
             ))}
