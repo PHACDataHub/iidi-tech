@@ -9,8 +9,14 @@ export const post_bundle_to_inbound_transfer_service = async (
 ) => {
   const { INBOUND_TRANSFER_SERIVCES_BY_TRANSFER_CODE } = get_env();
 
-  return await fetch(
+  return fetch(
     `${INBOUND_TRANSFER_SERIVCES_BY_TRANSFER_CODE[transfer_to]}/inbound-transfer`,
-    { method: 'post', body: JSON.stringify(bundle) },
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ bundle }),
+    },
   );
 };
