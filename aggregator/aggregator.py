@@ -59,7 +59,6 @@ import logging
 import os
 from cachetools import LRUCache
 import jwt
-import asyncio
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -82,21 +81,21 @@ patient_cache = LRUCache(maxsize=1000)
 # Load public key from Kubernetes secret
 PUBLIC_KEY_PATH = os.getenv("PUBLIC_KEY_PATH", "/secrets/public_key.pem")
 
-async def load_public_key():
-    """Loads the public key from the mounted secret and validates it."""
+def load_public_key():
+    """Loads the public key from the mounted secret synchronously."""
     if IS_LOCAL_DEV:
-        return None  # Skip auth in local development
+        return None
     try:
-        async with aiofiles.open(PUBLIC_KEY_PATH, "r") as key_file:
-            public_key = await key_file.read()
-            if not public_key.strip():
+        with open(PUBLIC_KEY_PATH, "r") as key_file:
+            public_key = key_file.read().strip()
+            if not public_key:
                 raise ValueError("Public key file is empty!")
-            return public_key.strip()
+            return public_key
     except (FileNotFoundError, ValueError) as e:
         logging.error(f"Error loading public key: {e}")
         return None
 
-PUBLIC_KEY = asyncio.run(load_public_key())
+PUBLIC_KEY = load_public_key()
 
 async def verify_jwt(token):
     """Verifies JWT using the public key."""
