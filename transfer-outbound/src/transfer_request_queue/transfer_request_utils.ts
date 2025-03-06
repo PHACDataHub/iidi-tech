@@ -28,6 +28,9 @@ export const initialize_transfer_request = async (
       completed_stages: [],
     },
     {
+      // IMPORTANT: this is effectively our transfer-lock mechanism, important that a patient can't have more than one active
+      // transfer request at a time (and if the transfer succeeds, assume the patient resource is updated in such a way as
+      // to no longer be considered valid to queue a transfer job for)
       deduplication: { id: patient_id },
     },
   );

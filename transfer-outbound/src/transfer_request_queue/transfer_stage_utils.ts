@@ -1,10 +1,9 @@
-export const initial_stage = 'setting_patient_transfer_metadata_and_lock';
+export const initial_stage = 'collecting_and_transfering';
 
 export const terminal_stage = 'done';
 
 export const transfer_stages = [
   initial_stage,
-  'collecting_and_transfering',
   'setting_patient_post_transfer_metadata',
   terminal_stage,
 ] as const;
@@ -16,7 +15,6 @@ const non_terminal_transfer_stages = transfer_stages.filter(
 type nonTerminalTransferStage = (typeof non_terminal_transfer_stages)[number];
 
 const next_stage_map: Record<nonTerminalTransferStage, transferStage> = {
-  setting_patient_transfer_metadata_and_lock: 'collecting_and_transfering',
   collecting_and_transfering: 'setting_patient_post_transfer_metadata',
   setting_patient_post_transfer_metadata: terminal_stage,
 };
