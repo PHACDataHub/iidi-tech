@@ -140,17 +140,24 @@ export const add_replaced_by_link_to_transfered_patient = async (
     type: 'replaced-by',
     other: {
       type: 'Patient',
+      // NOTE: something of a missuse of "display". Valid in that it describes the what (along with the why) of the referenced entity,
+      // but the spec technically calls for a plain text description, so using stringified JSON maaaay be an abuse, haha. Good enough for PoC,
+      // would require further refinement in future stages
       display: JSON.stringify({
         explanation: `This patient and their immunization records have been transfered from "${OWN_TRANSFER_CODE}" to "${transfer_code}".`,
-        transfer_request_id,
+        transfer_request_id, // TODO may not be unique across time; if a job is done and flushed from the queue, its ID can be reused. Maybe useful if paired with time
         transfered_from: OWN_TRANSFER_CODE,
         transfered_to: transfer_code,
         patient_id_in_recipient_system: new_patient_id ?? 'unknown',
+        // TODO request timestamp? Other metadata? We don't currently require a "requestor id" or a "transfer reason" etc, and those are out of scope,
+        // but those values may be useful here
       }),
-      identifier: {
-        system: 'TODO', // TODO considering having the inbound system return the URL of the receiving FHIR server, even if it can't be reached externally
-        value: new_patient_id,
-      },
+      // TODO consider using `identifier` field as well, for logical reference. Main question here is whether it's worth/acceptable to
+      // give one province the system URL information of another province's FHIR server
+      // identifier: {
+      //   system: 'TODO',
+      //   value: new_patient_id,
+      // },
     },
   };
 
@@ -160,6 +167,15 @@ export const add_replaced_by_link_to_transfered_patient = async (
       'content-type': 'application/json-patch+json',
     },
     body: JSON.stringify([
+      {
+        op: 'add',
+        // Reference: https://www.hl7.org/fhir/patient-definitions.html#Patient.active
+        // "If a record is inactive, and linked to an active record, then future patient/record updates should occur on the other patient."
+        // Might be debatable in this case, the "linked" record is probably active, but isn't assumed to be reachable from this system.
+        // That could potantially cause problems if not handled by related provincial systems?
+        path: '/active',
+        value: false,
+      },
       patient?.link !== undefined
         ? {
             op: 'add',
