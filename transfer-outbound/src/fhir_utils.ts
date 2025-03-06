@@ -67,6 +67,11 @@ export const assert_patient_exists_and_can_be_transfered = async (
 ) => {
   const patient = await get_patient(patient_id);
 
+  // IMPORTANT: the logic for "can_be_transfered" must return false for a patient that has been transfered
+  // (in addition to any other reasons why a patient might be un-transferable).
+  // See `add_replaced_by_link_to_transfered_patient`, which is assumed to be called following a patient transfer.
+  // There is a coupling between that method and this assertion check, via the underlying buisness logic
+
   const replaced_by = patient.link?.find(({ type }) => type === 'replaced-by');
   if (replaced_by !== undefined) {
     // See https://www.hl7.org/fhir/references.html#reference
@@ -106,7 +111,7 @@ export const get_patient_bundle_for_transfer = async (patient_id: string) => {
   }
 };
 
-export const set_replaced_by_link_on_transfered_patient = async (
+export const add_replaced_by_link_to_transfered_patient = async (
   patient_id: string,
   transfer_request_id: string,
   transfer_code: transferCode,
@@ -120,15 +125,16 @@ export const set_replaced_by_link_on_transfered_patient = async (
 
   const { FHIR_URL, OWN_TRANSFER_CODE } = get_env();
 
-  // IMPORTANT: the behaviour here is tightly coupled to the logic of assert_patient_exists_and_can_be_transfered
+  const patient = await get_patient(patient_id);
+
+  // IMPORTANT: the behaviour here is coupled to the logic of assert_patient_exists_and_can_be_transfered
+  // namely, a patient "can_be_transfered" iff it has NOT been "replaced-by" another patient instance
 
   // References:
   //    https://www.hl7.org/fhir/patient-definitions.html#Patient.link
   //    https://www.hl7.org/fhir/valueset-link-type.html
   //    https://www.hl7.org/fhir/references.html#logical
   //    https://build.fhir.org/patient.html#links
-
-  const patient = await get_patient(patient_id);
 
   const replaced_by_link = {
     type: 'replaced-by',
