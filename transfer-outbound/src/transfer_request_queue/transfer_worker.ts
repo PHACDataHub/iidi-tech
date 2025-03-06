@@ -4,9 +4,7 @@ import { Worker, QueueEvents, Job } from 'bullmq';
 
 import {
   get_patient_bundle_for_transfer,
-  set_patient_transfer_metadata_and_lock,
-  unset_patient_transfer_metadata_and_lock,
-  set_patient_post_transfer_metadata,
+  set_replaced_by_link_on_transfered_patient,
 } from 'src/fhir_utils.ts';
 
 import { post_bundle_to_inbound_transfer_service } from 'src/transfer_inbound_utils.ts';
@@ -48,19 +46,16 @@ const work_on_transfer_job = async (job: transferRequestJob) => {
     // TODO for this and all other logging found here, switch to a good struct log approach. These simple logs are placeholders/for dev
     console.log(`Job ID ${job.id}: starting stage "${job.data.stage}"`);
 
-    if (job.data.stage === 'setting_patient_transfer_metadata_and_lock') {
-      await set_patient_transfer_metadata_and_lock(
-        job.data.patient_id,
-        get_job_id(job),
-        job.data.transfer_to,
-      );
-    } else if (job.data.stage === 'collecting_and_transfering') {
+    if (job.data.stage === 'collecting_and_transfering') {
       const bundle = await get_patient_bundle_for_transfer(job.data.patient_id);
 
       const transfer_response = await post_bundle_to_inbound_transfer_service(
         bundle,
         job.data.transfer_to,
       );
+
+      // TODO handle rejected bundles (validation failed), shouldn't retry, should move to a "rejected" stage (replace `terminal_stage` with
+      // `terminal_stages` for both `done` and `rejected`)
 
       if (transfer_response.ok) {
         const json = await transfer_response.json().catch(() => null);
@@ -75,6 +70,12 @@ const work_on_transfer_job = async (job: transferRequestJob) => {
             ...job.data,
             new_patient_id: json.new_patient_id,
           });
+        } else {
+          console.warn(
+            `Job ID ${job.id}: (patient "${job.data.patient_id}" to "${job.data.transfer_to}") received` +
+              `an ok response from the inbound system, but did not receive a "new_patient_id" in the response body.` +
+              `The transfer process will continue, but the outbound system's reference to the new patient will be incomplete`,
+          );
         }
       } else {
         throw new Error(
@@ -84,9 +85,10 @@ const work_on_transfer_job = async (job: transferRequestJob) => {
     } else if (job.data.stage === 'setting_patient_post_transfer_metadata') {
       // NOTE: vital assumption: this end point returns 200 IF AND ONLY IF the bundle was accepted and fully written to the receiving
       // FHIR server. Not a big ask, just have to hold to that or else the rollback handling won't work and data integrity is lost
-      await set_patient_post_transfer_metadata(
+      await set_replaced_by_link_on_transfered_patient(
         job.data.patient_id,
         get_job_id(job),
+        job.data.transfer_to,
         job.data.new_patient_id,
       );
     }
@@ -114,10 +116,6 @@ const handle_failed_transfer_request_job = async (
     `Job ID ${failed_job.id}: failed on stage "${failed_job.data.stage}" having completed stages [${failed_job.data.completed_stages.join(', ')}]`,
   );
 
-  const transfer_lock_was_set = failed_job.data.completed_stages.includes(
-    'setting_patient_transfer_metadata_and_lock',
-  );
-
   const transfer_completed = failed_job.data.completed_stages.includes(
     'collecting_and_transfering',
   );
@@ -127,38 +125,7 @@ const handle_failed_transfer_request_job = async (
       'setting_patient_post_transfer_metadata',
     );
 
-  if (
-    (!transfer_lock_was_set && transfer_completed) ||
-    (post_transfer_metadata_was_set &&
-      (!transfer_lock_was_set || !transfer_completed))
-  ) {
-    console.error(
-      `Job ID ${failed_job.id} failure handing: reached an unexpected state! This should really not happen, and means we can't guarantee data integrity!"`,
-    );
-  }
-
-  if (!transfer_lock_was_set) {
-    console.log(
-      `Job ID ${failed_job.id} failure handling: nothing to clean up"`,
-    );
-  } else if (transfer_lock_was_set && !transfer_completed) {
-    console.log(
-      `Job ID ${failed_job.id} failure handling: attempting to unset patient transfer metadata and  lock"`,
-    );
-
-    await unset_patient_transfer_metadata_and_lock(
-      failed_job.data.patient_id,
-      get_job_id(failed_job),
-    );
-
-    console.log(
-      `Job ID ${failed_job.id} failure handling: successfully unset patient transfer metadata and lock""`,
-    );
-  } else if (
-    transfer_lock_was_set &&
-    transfer_completed &&
-    !post_transfer_metadata_was_set
-  ) {
+  if (transfer_completed && !post_transfer_metadata_was_set) {
     if (failed_job.attemptsMade <= (failed_job.opts.attempts ?? 3) + 3) {
       const next_delay =
         Math.pow(2, failed_job.attemptsMade - 1) *
@@ -204,7 +171,7 @@ export const initialize_transfer_worker = () => {
   });
   queueEvents.on('failed', async ({ jobId }) => {
     // IMPORTANT: if the auto-job removal is ever configured to remove failed state job history, this may not find anything.
-    // See error state below. If auto-job removal for failed state jobs is enabled, it should be allow a window for failure event handling attempts.
+    // See error state below. If auto-job removal for failed state jobs is enabled, it should allow a suitable window for failure event handling attempts.
     const failed_job = await get_transfer_request_by_id(jobId);
 
     if (failed_job === undefined) {
