@@ -9,46 +9,55 @@ Main Functionalities:
 1. **Environment Variables Setup**:
    - `FHIR_URL`: The base URL of the FHIR server (default: `http://localhost:8080/fhir`).
    - `AGGREGATION_INTERVAL`: Time interval (in seconds) for caching aggregated data.
+   - `PUBLIC_KEY_PATH`: Path to the public key used for JWT validation.
+   - `IS_LOCAL_DEV`: Boolean flag to disable authentication for local development.
 
 2. **Flask API Initialization**:
    - The script initializes a Flask application to serve aggregated immunization data.
+   - Supports asynchronous operations to optimize API calls and data processing.
 
 3. **Logging and Caching**:
    - Configures logging for debugging and monitoring.
-   - Implements an LRU cache for patient data retrieval.
-   - Uses a caching mechanism for aggregated data to optimize performance.
+   - Implements an **LRU cache** for patient data retrieval to reduce redundant FHIR API calls.
+   - Uses a **caching mechanism** for aggregated data to avoid unnecessary recalculations within the configured interval.
 
 4. **FHIR Resource Fetching**:
-   - The `fetch_fhir_resources(resource_type)` function retrieves FHIR resources (e.g., Immunization, Patient).
-   - Handles pagination and error management.
+   - The `fetch_fhir_resources(resource_type)` function retrieves FHIR resources asynchronously (e.g., Immunization, Patient).
+   - Handles **pagination** and **error management** to ensure robust data retrieval.
 
 5. **Patient Data Caching**:
-   - `fetch_patient_data(patient_reference)` retrieves and caches patient information to minimize redundant API calls.
+   - `fetch_patient_data(patient_reference)`:  
+     - Fetches **FHIR Patient resource** asynchronously using a **cache** to minimize API calls.
+     - If data is not in cache, retrieves from FHIR server and stores it in **LRU cache**.
 
 6. **Processing Immunization Records**:
-   - `process_immunization_record(immunization)` extracts key attributes from each immunization record:
-     - Determines jurisdiction (BC or ON) based on the FHIR URL.
-     - Extracts dose count, occurrence year, patient sex, and age group.
-     - Uses `calculate_age_group(birth_date)` to categorize patients into predefined age groups.
+   - `process_immunization_record(immunization)`:  
+     - Extracts key attributes from each **immunization record**, including:
+       - **Jurisdiction** (BC or ON) based on `FHIR_URL`.
+       - **Dose count**, **occurrence year**, **patient sex**, and **age group**.
+     - Uses `calculate_age_group(birth_date)` to categorize patients into predefined **age groups**.
 
 7. **Data Aggregation**:
-   - `aggregate_data()` processes immunization records and groups them by:
-     - `OccurrenceYear`
-     - `Jurisdiction`
-     - `Sex`
-     - `AgeGroup`
-     - `DoseCount`
-   - Counts the number of records for each combination.
-   - Standardizes data and ensures the `ReferenceDate` is always December 31st of the `OccurrenceYear`.
+   - `aggregate_data()`:  
+     - **Asynchronously** processes immunization records and groups them by:
+       - `OccurrenceYear`
+       - `Jurisdiction`
+       - `Sex`
+       - `AgeGroup`
+       - `DoseCount`
+     - Counts the number of records for each combination.
+     - Standardizes data format and ensures `ReferenceDate` is always **December 31st** of the `OccurrenceYear`.
 
 8. **API Endpoints**:
    - `GET /aggregated-data`: Returns aggregated immunization data.
      - Uses caching to avoid unnecessary reprocessing within the aggregation interval.
+     - Requires JWT authentication if `IS_LOCAL_DEV` is `false`.
    - `GET /health`: A health check endpoint to verify that the API is running.
 
 9. **Script Execution**:
-   - Ensures required environment variables are set.
-   - Starts the Flask server when executed as the main script.
+   - Ensures required **environment variables** are set before execution.
+   - **Starts the Flask server** when executed as the main script.
+   - Uses **Gunicorn** with multiple workers for production deployment.
 """
 
 import httpx
@@ -187,6 +196,41 @@ async def process_immunization_record(immunization):
         "DoseCount": int(immunization.get("protocolApplied", [{}])[0].get("doseNumberString", 1)),
     }
 
+async def aggregate_data():
+    """Fetch and aggregate data from the FHIR server asynchronously."""
+    logging.info("Fetching Immunization resources...")
+    immunizations = await fetch_fhir_resources("Immunization")
+
+    if not immunizations:
+        logging.warning("No Immunization records found.")
+        return []
+
+    records = [await process_immunization_record(entry.get("resource", {})) for entry in immunizations]
+    records = [r for r in records if r]
+    
+    if not records:
+        logging.warning("No valid records processed.")
+        return []
+    
+    df = pd.DataFrame(records)
+    
+    # Standardizing data
+    df["OccurrenceYear"] = df["OccurrenceYear"].astype(str).str.strip()
+    df["Sex"] = df["Sex"].str.capitalize()
+    df["AgeGroup"] = df["AgeGroup"].str.strip()
+    
+    # Aggregating data
+    aggregated = df.groupby([
+        "OccurrenceYear", "Jurisdiction", "Sex", "AgeGroup", "DoseCount"
+    ], as_index=False).agg(
+        Count=("DoseCount", "count")
+    )
+    
+    # Ensuring ReferenceDate is always 31st December of the OccurrenceYear
+    aggregated["ReferenceDate"] = aggregated["OccurrenceYear"].apply(lambda year: f"{year}-12-31" if year.isnumeric() else "Unknown")
+    
+    return aggregated.to_dict(orient="records")
+
 @app.route("/aggregated-data", methods=["GET"])
 async def get_aggregated_data():
     """API endpoint to return aggregated data with JWT authentication."""
@@ -200,18 +244,14 @@ async def get_aggregated_data():
         if not await verify_jwt(token):
             return jsonify({"error": "Invalid token"}), 403
 
-    reference_date = datetime.now()
-    current_time = reference_date.timestamp()
+    current_time = datetime.now().timestamp()
 
     if cached_data and last_aggregation_time and (current_time - last_aggregation_time < AGGREGATION_INTERVAL):
+        logging.info("Returning cached aggregated data...")
         return jsonify(cached_data)
     
-    immunizations = await fetch_fhir_resources("Immunization")
-    records = [await process_immunization_record(entry.get("resource", {})) for entry in immunizations]
-    df = pd.DataFrame([r for r in records if r])
-    aggregated = df.groupby(["OccurrenceYear", "Jurisdiction", "Sex", "AgeGroup", "DoseCount"], as_index=False).agg(Count=("DoseCount", "count"))
-    aggregated["ReferenceDate"] = aggregated["OccurrenceYear"].apply(lambda year: f"{year}-12-31" if year.isnumeric() else "Unknown")
-    cached_data = aggregated.to_dict(orient="records")
+    logging.info("Calculating new aggregated data...")  
+    cached_data = await aggregate_data()
     last_aggregation_time = current_time
     return jsonify(cached_data)
 
