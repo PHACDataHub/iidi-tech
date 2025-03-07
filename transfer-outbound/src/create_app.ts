@@ -80,7 +80,7 @@ export const create_app = async () => {
 
     const bundle = await get_patient_bundle_for_transfer(patient_id);
 
-    res.status(501).type('json').send({ bundle });
+    res.status(200).type('json').send({ bundle });
   });
 
   app.get('/transfer-request/:transferRequestId', async (req, res) => {

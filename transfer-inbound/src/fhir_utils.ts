@@ -56,15 +56,70 @@ export const assert_bundle_follows_fhir_spec = async (bundle: Bundle) => {
   }
 };
 
-export const write_bundle_to_fhir_api = async (_bundle: Bundle) => {
+export const handle_response = async (response: Response) => {
+  // FHIR server treats as transaction and rolls back for errors.
+  if (!response.ok) {
+    throw new AppError(
+      response.status,
+      `FHIR server responded with status ${response.status}`,
+    );
+  }
+
+  const transactionResponse = await response.json().catch(() => null);
+
+  if (
+    typeof transactionResponse === 'object' &&
+    transactionResponse &&
+    'resourceType' in transactionResponse &&
+    'type' in transactionResponse &&
+    'entry' in transactionResponse &&
+    Array.isArray(transactionResponse.entry) &&
+    transactionResponse.entry.length > 0
+  ) {
+    return transactionResponse as Bundle;
+  }
+
+  throw new AppError(
+    500,
+    `FHIR server responded with status ${response.status} but unexpected response body.`,
+  );
+};
+
+export const write_bundle_to_fhir_api = async (
+  bundle: Bundle,
+): Promise<string> => {
   const { FHIR_URL } = get_env();
-  // TODO implement bundle writing here
 
-  // References:
-  // https://build.fhir.org/bundle.html
-  // https://hl7.org/fhir/http.html#transaction
+  const response = await fetch(FHIR_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/fhir+json',
+    },
+    // Force FHIR server to treat operations as a transaction for integrity.
+    // This assumes that data integrity managed by the FHIR server.
+    body: JSON.stringify({ ...bundle, type: 'transaction' }),
+  });
 
-  throw new AppError(501, 'Writing to FHIR API not implemented');
+  const bundleResponse = await handle_response(response);
 
-  await fetch(`${FHIR_URL}/TODO`);
+  // Get Patient id from response
+  const patientEntry = bundleResponse?.entry?.find((entry) =>
+    entry.response?.location?.startsWith('Patient/'),
+  );
+  if (!patientEntry) {
+    throw new AppError(
+      500,
+      'Patient resource not found in transaction response',
+    );
+  }
+
+  const patientId = patientEntry.response?.location?.split('/')[1] || null;
+  if (!patientId) {
+    throw new AppError(
+      500,
+      'Unexpected error: Patient ID not found in response',
+    );
+  }
+
+  return patientId;
 };

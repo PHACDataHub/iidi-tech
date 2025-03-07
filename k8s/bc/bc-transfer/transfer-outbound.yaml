@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: transfer-outbound
-          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-transfer-outbound:main-6bc3a31b654a46e468a632c395e13c34f49912b5-1740777133 # {"$imagepolicy": "flux-system:transfer-outbound-bc"}
+          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-transfer-outbound:main-02fda5c2efcd38990eb1280fb1f8a3bf360f95c9-1741207596 # {"$imagepolicy": "flux-system:transfer-outbound-bc"}
           ports:
             - containerPort: 3000
           env:
