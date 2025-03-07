@@ -389,6 +389,7 @@ services:
     ports:
       - 5000:5000
     environment:
+      IS_LOCAL_DEV: true
       AGGREGATION_INTERVAL: 60
       FHIR_URL: http://on-fhir:8080/fhir # in this case, resolved inside the container, with container networking
   on-patient-browser: &patient-browser-service
@@ -501,6 +502,7 @@ services:
       - gateway
       - bc-internal
     environment:
+      IS_LOCAL_DEV: true
       AGGREGATION_INTERVAL: 60
       FHIR_URL: http://bc-fhir:8080/fhir # in this case, resolved inside the container, with container networking
   bc-patient-browser:
