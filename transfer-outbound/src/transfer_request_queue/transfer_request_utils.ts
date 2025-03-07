@@ -65,7 +65,7 @@ export const get_transfer_request_job_info = async (
   const { failedReason: failed_reason, finishedOn: finished_on } =
     transfer_request_job;
 
-  const { patient_id, transfer_to, stage, completed_stages } =
+  const { patient_id, transfer_to, stage, completed_stages, rejection_reason } =
     transfer_request_job.data;
 
   return {
@@ -77,5 +77,6 @@ export const get_transfer_request_job_info = async (
     transfer_to,
     stage,
     completed_stages,
+    rejection_reason,
   };
 };
