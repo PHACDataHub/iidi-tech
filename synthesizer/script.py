@@ -192,7 +192,7 @@ def create_immunization_resource(patient_id, birth_date):
     max_date = datetime.today()
     occurrence_date = random_date(min_date, max_date)
 
-    exemption_reason = random.choice([None, "RELIG", "MED", "PHIL"])
+    exemption_reason = random.choice([None, "RELIG", "MED", "PHILISOP"])
     concurrent_vaccine = random.choice(["Influenza", "COVID-19", None])
 
     return {
