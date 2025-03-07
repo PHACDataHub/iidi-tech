@@ -65,17 +65,20 @@ const work_on_transfer_job = async (job: transferRequestJob) => {
         if (
           typeof json === 'object' &&
           json !== null &&
-          'new_patient_id' in json &&
-          typeof json.new_patient_id === 'string'
+          'patient' in json &&
+          typeof json.patient === 'object' &&
+          json.patient !== null &&
+          'id' in json.patient &&
+          typeof json.patient.id === 'string'
         ) {
           await job.updateData({
             ...job.data,
-            new_patient_id: json.new_patient_id,
+            new_patient_id: json.patient.id,
           });
         } else {
           console.warn(
             `Job ID ${job.id}: (patient "${job.data.patient_id}" to "${job.data.transfer_to}") received` +
-              `an ok response from the inbound system, but did not receive a "new_patient_id" in the response body.` +
+              `an ok response from the inbound system, but did not receive "patient.id" in the response body.` +
               `The transfer process will continue, but the outbound system's reference to the new patient will be incomplete`,
           );
         }
