@@ -165,7 +165,16 @@ def create_allergy_resource(patient_id):
         "criticality": random.choice(["low", "high", "unable-to-assess"]),
         "type": random.choice(["allergy", "intolerance"]),
         "note": [{"text": faker.paragraph()}],
-        "onsetDateTime": random_date(datetime(2015, 1, 1), datetime(2023, 12, 31))
+        "onsetDateTime": random_date(datetime(2015, 1, 1), datetime(2023, 12, 31)),
+        # Since all provinces here are assumed to be FHIR compliant, ensure correct fields
+        "clinicalStatus": {
+            "coding": [
+                {
+                    "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", 
+                    "code": random.choice(["active", "inactive", "resolved"])
+                }
+            ]
+        }
     }
 
 # Create an Immunization resource
