@@ -33,7 +33,6 @@ export const create_app = async () => {
 
     const transactionBundle = await set_bundle_type_to_transaction(bundle);
 
-    // TODO might be redundant to write_bundle_to_fhir_api, depends if FHIR servers are configured to validate pre-write
     await assert_bundle_follows_fhir_spec(transactionBundle);
 
     const new_patient_id = await write_bundle_to_fhir_api(transactionBundle);
