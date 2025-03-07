@@ -36,8 +36,8 @@ Main Functionalities:
      - `OccurrenceYear`
      - `Jurisdiction`
      - `Sex`
-     - `AgeGroup`
-     - `DoseCount`
+     - `Age`
+     - `Dose`
    - Counts the number of records for each combination.
    - Standardizes data and ensures the `ReferenceDate` is always December 31st of the `OccurrenceYear`.
 
@@ -58,6 +58,7 @@ from datetime import datetime
 import logging
 import os
 from cachetools import LRUCache
+from datetime import datetime
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -122,15 +123,17 @@ def calculate_age_group(birth_date):
     try:
         if not birth_date:
             return "Unknown"
-        age = (datetime.now() - datetime.strptime(birth_date, "%Y-%m-%d")).days // 365
-        if age < 2:
-            return "0-2 years"
-        elif age < 5:
-            return "3-5 years"
-        elif age < 18:
-            return "6-17 years"
-        else:
-            return "18+ years"
+
+        birth_date = datetime.strptime(birth_date, "%Y-%m-%d")
+        today = datetime.now()
+
+        if birth_date > today:
+            return "Unknown"
+
+        age = (today - birth_date).days // 365
+
+        return "1 year" if age <= 1 else f"{age} years"
+
     except ValueError:
         return "Unknown"
 
@@ -154,8 +157,8 @@ def process_immunization_record(immunization):
             "Jurisdiction": "BC" if "bc" in FHIR_URL.lower() else "ON",
             "OccurrenceYear": occurrence_year,
             "Sex": patient.get("gender", "Unknown").capitalize(),
-            "AgeGroup": calculate_age_group(birth_date),
-            "DoseCount": int(immunization.get("protocolApplied", [{}])[0].get("doseNumberString", 1)),  
+            "Age": calculate_age_group(birth_date),
+            "Dose": int(immunization.get("protocolApplied", [{}])[0].get("doseNumberString", 1)),  
         }
     except Exception as e:
         logging.error(f"Error processing immunization record: {e}")
@@ -182,13 +185,13 @@ def aggregate_data():
     # Standardizing data
     df["OccurrenceYear"] = df["OccurrenceYear"].astype(str).str.strip()
     df["Sex"] = df["Sex"].str.capitalize()
-    df["AgeGroup"] = df["AgeGroup"].str.strip()
+    df["Age"] = df["Age"].str.strip()
     
     # Aggregating data
     aggregated = df.groupby([
-        "OccurrenceYear", "Jurisdiction", "Sex", "AgeGroup", "DoseCount"
+        "OccurrenceYear", "Jurisdiction", "Sex", "Age", "Dose"
     ], as_index=False).agg(
-        Count=("DoseCount", "count")
+        Count=("Dose", "count")
     )
     
     # Ensuring ReferenceDate is always 31st December of the OccurrenceYear
