@@ -22,10 +22,7 @@ function App() {
           PT-to-PT MMR Immunization Record Transfer
         </GcdsHeading>
         <Form />
-        <GcdsDateModified>
-          {' '}
-          {new Date().toLocaleDateString('en-GB')}
-        </GcdsDateModified>
+        <GcdsDateModified> {process.env.BUILD_DATE}</GcdsDateModified>
       </main>
 
       <footer>
