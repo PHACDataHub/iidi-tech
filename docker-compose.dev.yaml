@@ -366,7 +366,7 @@ services:
       DB_HOST: on-fhir-db
       FHIR_SERVER_ADDRESS: http://localhost:8080/on/fhir # see proxy address via gateway.default.conf
   on-synthesizer: &synthesizer-service
-    image: synthesizer:1.1
+    image: synthesizer:1.2
     tty: ${DOCKER_TTY:-true}
     restart: on-failure # reattempt until successful
     build:
