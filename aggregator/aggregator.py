@@ -79,21 +79,10 @@ app = Flask(__name__)
 FHIR_URL = os.getenv("FHIR_URL", "http://localhost:8080/fhir")
 AGGREGATION_INTERVAL = int(os.getenv("AGGREGATION_INTERVAL", 60))  # Default to 60 seconds
 IS_LOCAL_DEV = os.getenv("IS_LOCAL_DEV", "false").lower() == "true"
-
-# Cache variables for aggregation
-cached_data = None
-last_aggregation_time = None
-
-# Patient cache with LRU eviction policy
-patient_cache = LRUCache(maxsize=1000)
-
-# Load public key from Kubernetes secret
 PUBLIC_KEY_PATH = os.getenv("PUBLIC_KEY_PATH", "/secrets/public_key.pem")
 
 def load_public_key():
     """Loads the public key from the mounted secret synchronously."""
-    if IS_LOCAL_DEV:
-        return None
     try:
         with open(PUBLIC_KEY_PATH, "r") as key_file:
             public_key = key_file.read().strip()
@@ -101,10 +90,22 @@ def load_public_key():
                 raise ValueError("Public key file is empty!")
             return public_key
     except (FileNotFoundError, ValueError) as e:
-        logging.error(f"Error loading public key: {e}")
-        return None
-
+        # Missing public key is acceptable in local dev, but should be an immediate program error exit in prod
+        if IS_LOCAL_DEV:
+          logging.error(f"Error loading public key: {e}")
+          return None
+        else:
+          raise e
 PUBLIC_KEY = load_public_key()
+
+is_auth_required = not IS_LOCAL_DEV or (IS_LOCAL_DEV and not PUBLIC_KEY is None)
+
+# Cache variables for aggregation
+cached_data = None
+last_aggregation_time = None
+
+# Patient cache with LRU eviction policy
+patient_cache = LRUCache(maxsize=1000)
 
 async def verify_jwt(token):
     """Verifies JWT using the public key."""
@@ -236,7 +237,7 @@ async def get_aggregated_data():
     """API endpoint to return aggregated data with JWT authentication."""
     global cached_data, last_aggregation_time
 
-    if not IS_LOCAL_DEV:
+    if is_auth_required:
         auth_header = request.headers.get("Authorization", "").strip()
         if not auth_header.startswith("Bearer "):
             return jsonify({"error": "Unauthorized"}), 401
