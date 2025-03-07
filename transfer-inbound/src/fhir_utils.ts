@@ -3,6 +3,19 @@ import type { Bundle, OperationOutcome } from 'fhir/r4.d.ts';
 import { get_env } from './env.ts';
 import { AppError } from './error_utils.ts';
 
+export const set_bundle_type_to_transaction = async (bundle: Bundle) => ({
+  resourceType: bundle.resourceType,
+  type: 'transaction' as const,
+  entry: bundle?.entry?.map(({ resource, fullUrl }) => ({
+    resource,
+    request: {
+      method: 'POST' as const,
+      url: resource?.resourceType || 'UNKNOWN RESOURCE TYPE',
+    },
+    fullUrl,
+  })),
+});
+
 export const assert_bundle_follows_fhir_spec = async (bundle: Bundle) => {
   const { FHIR_URL } = get_env();
 

@@ -3,6 +3,7 @@ import express from 'express';
 import { expressErrorHandler } from './error_utils.ts';
 import {
   assert_bundle_follows_fhir_spec,
+  set_bundle_type_to_transaction,
   write_bundle_to_fhir_api,
 } from './fhir_utils.ts';
 import {
@@ -30,18 +31,7 @@ export const create_app = async () => {
     assert_is_bundle(bundle);
     assert_bundle_follows_business_rules(bundle);
 
-    const transactionBundle = {
-      resourceType: bundle.resourceType,
-      type: 'transaction' as const,
-      entry: bundle?.entry?.map(({ resource, fullUrl }) => ({
-        resource,
-        request: {
-          method: 'POST' as const,
-          url: resource?.resourceType || 'UNKNOWN RESOURCE TYPE',
-        },
-        fullUrl,
-      })),
-    };
+    const transactionBundle = await set_bundle_type_to_transaction(bundle);
 
     // TODO might be redundant to write_bundle_to_fhir_api, depends if FHIR servers are configured to validate pre-write
     await assert_bundle_follows_fhir_spec(transactionBundle);
@@ -53,10 +43,12 @@ export const create_app = async () => {
 
   app.get('/inbound-transfer/dry-run', async (req, res) => {
     const { bundle } = req.body;
+    assert_is_bundle(bundle);
+    const transactionBundle = await set_bundle_type_to_transaction(bundle);
 
-    assert_bundle_follows_business_rules(bundle);
+    assert_bundle_follows_business_rules(transactionBundle);
 
-    await assert_bundle_follows_fhir_spec(bundle);
+    await assert_bundle_follows_fhir_spec(transactionBundle);
 
     res.status(200).send();
   });
