@@ -589,7 +589,7 @@ services:
       AGGREGATOR_URL: http://federator:3000/aggregated-data
 
   demo-portal:
-    image: demo-portal:1.4
+    image: demo-portal:1.5
     tty: ${DOCKER_TTY:-true}
     build:
       context: ./demo-portal
@@ -603,10 +603,11 @@ services:
       BC_BROWSER_URL: http://localhost:8080/bc/browser
       BC_FHIR_URL: http://localhost:8080/bc/fhir
       BC_AGGREGATOR_URL: http://localhost:8080/bc/aggregator/aggregated-data
+      BC_DEMO_TRANSFER_DASHBOARD_URL: http://localhost:8080/demo-transfer-dashboard?default_pt=BC
       ON_BROWSER_URL: http://localhost:8080/on/browser
       ON_FHIR_URL: http://localhost:8080/on/fhir
       ON_AGGREGATOR_URL: http://localhost:8080/on/aggregator/aggregated-data
-      DEMO_TRANSFER_DASHBOARD_URL: http://localhost:8080/demo-transfer-dashboard
+      ON_DEMO_TRANSFER_DASHBOARD_URL: http://localhost:8080/demo-transfer-dashboard?default_pt=ON
   demo-transfer-dashboard:
     image: node-dev:1.0
     tty: ${DOCKER_TTY:-true}
