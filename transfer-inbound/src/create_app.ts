@@ -30,10 +30,23 @@ export const create_app = async () => {
     assert_is_bundle(bundle);
     assert_bundle_follows_business_rules(bundle);
 
-    // TODO might be redundant to write_bundle_to_fhir_api, depends if FHIR servers are configured to validate pre-write
-    await assert_bundle_follows_fhir_spec(bundle);
+    const transactionBundle = {
+      resourceType: bundle.resourceType,
+      type: 'transaction' as const,
+      entry: bundle?.entry?.map(({ resource, fullUrl }) => ({
+        resource,
+        request: {
+          method: 'POST' as const,
+          url: resource?.resourceType || 'UNKNOWN RESOURCE TYPE',
+        },
+        fullUrl,
+      })),
+    };
 
-    const new_patient_id = await write_bundle_to_fhir_api(bundle);
+    // TODO might be redundant to write_bundle_to_fhir_api, depends if FHIR servers are configured to validate pre-write
+    await assert_bundle_follows_fhir_spec(transactionBundle);
+
+    const new_patient_id = await write_bundle_to_fhir_api(transactionBundle);
 
     res.status(200).send({ new_patient_id });
   });

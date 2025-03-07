@@ -97,7 +97,7 @@ export const write_bundle_to_fhir_api = async (
     },
     // Force FHIR server to treat operations as a transaction for integrity.
     // This assumes that data integrity managed by the FHIR server.
-    body: JSON.stringify({ ...bundle, type: 'transaction' }),
+    body: JSON.stringify(bundle),
   });
 
   const bundleResponse = await handle_response(response);
