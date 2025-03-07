@@ -37,7 +37,7 @@ Main Functionalities:
      - `Jurisdiction`
      - `Sex`
      - `AgeGroup`
-     - `DoseCount`
+     - `Dose`
    - Counts the number of records for each combination.
    - Standardizes data and ensures the `ReferenceDate` is always December 31st of the `OccurrenceYear`.
 
@@ -123,14 +123,10 @@ def calculate_age_group(birth_date):
         if not birth_date:
             return "Unknown"
         age = (datetime.now() - datetime.strptime(birth_date, "%Y-%m-%d")).days // 365
-        if age < 2:
-            return "0-2 years"
-        elif age < 5:
-            return "3-5 years"
-        elif age < 18:
-            return "6-17 years"
+        if age < 1:
+            return "1 year"
         else:
-            return "18+ years"
+            return f"{age} years"
     except ValueError:
         return "Unknown"
 
@@ -155,7 +151,7 @@ def process_immunization_record(immunization):
             "OccurrenceYear": occurrence_year,
             "Sex": patient.get("gender", "Unknown").capitalize(),
             "AgeGroup": calculate_age_group(birth_date),
-            "DoseCount": int(immunization.get("protocolApplied", [{}])[0].get("doseNumberString", 1)),  
+            "Dose": int(immunization.get("protocolApplied", [{}])[0].get("doseNumberString", 1)),  
         }
     except Exception as e:
         logging.error(f"Error processing immunization record: {e}")
@@ -186,9 +182,9 @@ def aggregate_data():
     
     # Aggregating data
     aggregated = df.groupby([
-        "OccurrenceYear", "Jurisdiction", "Sex", "AgeGroup", "DoseCount"
+        "OccurrenceYear", "Jurisdiction", "Sex", "AgeGroup", "Dose"
     ], as_index=False).agg(
-        Count=("DoseCount", "count")
+        Count=("Dose", "count")
     )
     
     # Ensuring ReferenceDate is always 31st December of the OccurrenceYear

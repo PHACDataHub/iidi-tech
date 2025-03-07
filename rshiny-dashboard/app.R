@@ -80,7 +80,7 @@ server <- function(input, output, session) {
     })
 
     if (is.null(data) || length(data) == 0) {
-      return(data.frame(AgeGroup=character(), Count=numeric(), DoseCount=numeric(),
+      return(data.frame(AgeGroup=character(), Count=numeric(), Dose=numeric(),
                         Jurisdiction=character(), OccurrenceYear=numeric(), 
                         ReferenceDate=character(), Sex=character()))
     }
@@ -108,7 +108,7 @@ server <- function(input, output, session) {
       df <- df %>% filter(OccurrenceYear == as.numeric(input$year))
     }
     if (input$dose != "All") {
-      df <- df %>% filter(DoseCount == as.numeric(input$dose))
+      df <- df %>% filter(Dose == as.numeric(input$dose))
     }
     
     return(df)
@@ -119,7 +119,7 @@ server <- function(input, output, session) {
     df <- filtered_data()
     if (nrow(df) == 0) return()  # Prevent errors when no data
 
-    ggplot(df, aes(x = DoseCount)) +
+    ggplot(df, aes(x = Dose)) +
       geom_histogram(binwidth = 1, fill = "blue", color = "white", alpha = 0.7) +
       theme_minimal() +
       labs(title = "Dose Count Distribution", x = "Dose Count", y = "Frequency")
@@ -132,7 +132,7 @@ server <- function(input, output, session) {
 
     df_summary <- df %>%
       group_by(OccurrenceYear, AgeGroup) %>%
-      summarize(coverage = sum(DoseCount) / sum(Count) * 100, .groups = "drop")
+      summarize(coverage = sum(Dose) / sum(Count) * 100, .groups = "drop")
 
     ggplot(df_summary, aes(x = OccurrenceYear, y = coverage, color = AgeGroup)) +
       geom_line(size = 1.2) +

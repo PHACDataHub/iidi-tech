@@ -11,7 +11,7 @@ const valid_sample_data = [
   {
     AgeGroup: expected_age_groups[0],
     Count: 3,
-    DoseCount: 4,
+    Dose: 4,
     Jurisdiction: expected_jurisdictions[0],
     ReferenceDate: '2025-02-05',
     OccurrenceYear: '2025',
@@ -20,7 +20,7 @@ const valid_sample_data = [
   {
     AgeGroup: expected_age_groups[_.random(1, expected_age_groups.length - 1)],
     Count: 4,
-    DoseCount: 7,
+    Dose: 7,
     Jurisdiction:
       expected_jurisdictions[_.random(1, expected_jurisdictions.length - 1)],
     ReferenceDate: '2025-03-06',
@@ -54,7 +54,7 @@ describe('is_valid_aggregated_data', () => {
 
     const sample_with_invalid_dose_count = [
       ...valid_sample_data,
-      { ...valid_sample_data[0], DoseCount: -1 },
+      { ...valid_sample_data[0], Dose: -1 },
     ];
     expect(is_valid_aggregated_data(sample_with_invalid_dose_count)).toBe(
       false,
