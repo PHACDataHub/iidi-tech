@@ -69,7 +69,7 @@ export const create_app = async () => {
 
     const info = await get_transfer_request_job_info(transfer_request_job);
 
-    res.status(200).type('json').send(info);
+    res.status(202).type('json').send(info);
   });
 
   app.get('/transfer-request/dry-run', async (req, res) => {
