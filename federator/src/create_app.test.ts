@@ -2,7 +2,6 @@ import _ from 'lodash';
 import request from 'supertest';
 
 import {
-  expected_age_groups,
   expected_jurisdictions,
   expected_sexes,
 } from './aggregation_validation_utils.ts';
@@ -10,7 +9,7 @@ import { create_app } from './create_app.ts';
 
 const valid_sample_data = [
   {
-    AgeGroup: expected_age_groups[0],
+    AgeGroup: '1 year',
     Count: 3,
     Dose: 4,
     Jurisdiction: expected_jurisdictions[0],
@@ -19,7 +18,7 @@ const valid_sample_data = [
     Sex: expected_sexes[0],
   },
   {
-    AgeGroup: expected_age_groups[_.random(1, expected_age_groups.length - 1)],
+    AgeGroup: '2 years',
     Count: 4,
     Dose: 7,
     Jurisdiction: expected_jurisdictions[0],
