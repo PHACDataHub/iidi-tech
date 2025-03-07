@@ -8,7 +8,7 @@ export const expected_jurisdictions = ['BC', 'ON'] as const;
 export const expected_sexes = ['Other', 'Female', 'Male'] as const;
 
 export interface AggregationGroupedData {
-  AgeGroup: '1 year' | `${number} years` | 'Unknown';
+  Age: '1 year' | `${number} years` | 'Unknown';
   Count: number;
   Dose: number;
   Jurisdiction: Writable<typeof expected_jurisdictions>[number];
@@ -26,7 +26,7 @@ export const is_valid_aggregated_data = (
     return aggregated_data.every(
       (data) =>
         _.difference(_.keys(data), [
-          'AgeGroup',
+          'Age',
           'Count',
           'Dose',
           'Jurisdiction',
@@ -34,7 +34,7 @@ export const is_valid_aggregated_data = (
           'OccurrenceYear',
           'Sex',
         ]).length === 0 &&
-        expected_age_pattern.test(data.AgeGroup) &&
+        expected_age_pattern.test(data.Age) &&
         _.isInteger(data.Count) &&
         data.Count >= 0 &&
         _.isInteger(data.Dose) &&

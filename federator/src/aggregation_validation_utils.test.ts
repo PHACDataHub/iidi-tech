@@ -8,7 +8,7 @@ import {
 
 const valid_sample_data = [
   {
-    AgeGroup: '1 year',
+    Age: '1 year',
     Count: 3,
     Dose: 4,
     Jurisdiction: expected_jurisdictions[0],
@@ -17,7 +17,7 @@ const valid_sample_data = [
     Sex: expected_sexes[0],
   },
   {
-    AgeGroup: '100 years',
+    Age: '100 years',
     Count: 4,
     Dose: 7,
     Jurisdiction:
@@ -41,7 +41,7 @@ describe('is_valid_aggregated_data', () => {
   it('Returns false if any provided data does not match the expected response of an aggregator API', () => {
     const sample_with_invalid_age_group = [
       ...valid_sample_data,
-      { ...valid_sample_data[0], AgeGroup: -1 },
+      { ...valid_sample_data[0], Age: -1 },
     ];
     expect(is_valid_aggregated_data(sample_with_invalid_age_group)).toBe(false);
 

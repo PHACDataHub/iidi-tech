@@ -9,7 +9,7 @@ import { create_app } from './create_app.ts';
 
 const valid_sample_data = [
   {
-    AgeGroup: '1 year',
+    Age: '1 year',
     Count: 3,
     Dose: 4,
     Jurisdiction: expected_jurisdictions[0],
@@ -18,7 +18,7 @@ const valid_sample_data = [
     Sex: expected_sexes[0],
   },
   {
-    AgeGroup: '2 years',
+    Age: '2 years',
     Count: 4,
     Dose: 7,
     Jurisdiction: expected_jurisdictions[0],

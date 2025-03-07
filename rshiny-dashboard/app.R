@@ -23,7 +23,7 @@ ui <- dashboardPage(
       selectInput("jurisdiction", "Select Jurisdiction", 
                   choices = c("All", "ON", "BC"), selected = "All"),
       
-      selectInput("ageGroup", "Select Age Group", 
+      selectInput("Age", "Select Age Group", 
                   choices = c("All", "3-5 years", "6-17 years"), selected = "All"),
       
       selectInput("sex", "Select Sex", 
@@ -80,7 +80,7 @@ server <- function(input, output, session) {
     })
 
     if (is.null(data) || length(data) == 0) {
-      return(data.frame(AgeGroup=character(), Count=numeric(), Dose=numeric(),
+      return(data.frame(Age=character(), Count=numeric(), Dose=numeric(),
                         Jurisdiction=character(), OccurrenceYear=numeric(), 
                         ReferenceDate=character(), Sex=character()))
     }
@@ -98,8 +98,8 @@ server <- function(input, output, session) {
     if (input$jurisdiction != "All") {
       df <- df %>% filter(Jurisdiction == input$jurisdiction)
     }
-    if (input$ageGroup != "All") {
-      df <- df %>% filter(AgeGroup == input$ageGroup)
+    if (input$Age != "All") {
+      df <- df %>% filter(Age == input$Age)
     }
     if (input$sex != "All") {
       df <- df %>% filter(Sex == input$sex)
@@ -131,10 +131,10 @@ server <- function(input, output, session) {
     if (nrow(df) == 0) return()
 
     df_summary <- df %>%
-      group_by(OccurrenceYear, AgeGroup) %>%
+      group_by(OccurrenceYear, Age) %>%
       summarize(coverage = sum(Dose) / sum(Count) * 100, .groups = "drop")
 
-    ggplot(df_summary, aes(x = OccurrenceYear, y = coverage, color = AgeGroup)) +
+    ggplot(df_summary, aes(x = OccurrenceYear, y = coverage, color = Age)) +
       geom_line(size = 1.2) +
       geom_point(size = 2) +
       theme_minimal() +
