@@ -84,14 +84,22 @@ const work_on_transfer_job = async (job: transferRequestJob) => {
           `Job ID ${job.id}: inbound-transfer service for "${job.data.transfer_to}" responded to` +
           `patient ID "${job.data.patient_id}" transfer with a "${transfer_response.status}" status.`;
 
-        if (typeof json === 'object' && json !== null && 'error' in json) {
-          // Handle validation failure (explicit rejection) with an explicit state rather than letting an error throw,
-          // don't want the queue's failure handling/retry logic hammering the transfer endpoint with known-bad requests
-          const rejection_reason = JSON.stringify(json);
+        const is_non_timing_client_error_status =
+          /4[0-9][0-9]/.test(transfer_response.status.toString()) &&
+          ![408, 429].includes(transfer_response.status); // timeout and too many request errors are worth retrying
 
-          console.error(base_error_message + '\n' + rejection_reason);
-
+        if (is_non_timing_client_error_status) {
+          // Handle explicit rejection of the transfer request with an explicit state rather than letting an error throw,
+          // don't want the queue's failure handling/retry logic hammering the transfer endpoint with known-bad request attempts
           next_stage = 'rejected';
+
+          const rejection_reason =
+            base_error_message +
+            (typeof json === 'object' && json !== null && 'error' in json
+              ? JSON.stringify(json)
+              : 'Rejection reason not provided.');
+
+          console.error(rejection_reason);
 
           await job.updateData({
             ...job.data,
