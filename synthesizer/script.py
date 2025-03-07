@@ -193,6 +193,12 @@ def create_immunization_resource(patient_id, birth_date):
     occurrence_date = random_date(min_date, max_date)
 
     exemption_reason = random.choice([None, "RELIG", "MED", "PHILISOP"])
+    exemption_display = {
+        "RELIG": "Religious objection",
+        "MED": "Medical contraindication",
+        "PHILISOP": "Philosophical objection"
+    }.get(exemption_reason, "")
+
     concurrent_vaccine = random.choice(["Influenza", "COVID-19", None])
 
     return {
@@ -228,26 +234,22 @@ def create_immunization_resource(patient_id, birth_date):
             }
         ] if random.choice([True, False]) else None,
         "extension": [
-            {
+            *([{
                 "url": "http://hl7.org/fhir/StructureDefinition/immunization-exemption",
                 "valueCodeableConcept": {
                     "coding": [
                         {
                             "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
                             "code": exemption_reason,
-                            "display": random.choice([
-                                "Religious objection",
-                                "Medical contraindication",
-                                "Philosophical objection"
-                            ]) if exemption_reason else None
+                            "display": exemption_display
                         }
                     ]
                 }
-            },
-            {
+            }] if exemption_reason else []),
+            *([{
                 "url": "http://hl7.org/fhir/StructureDefinition/immunization-concurrent-administration",
                 "valueString": concurrent_vaccine
-            },
+            }] if concurrent_vaccine else []),
             {
                 "url": "http://hl7.org/fhir/StructureDefinition/immunization-expiry-date",
                 "valueDate": random_date(datetime(2023, 1, 1), datetime(2025, 12, 31))
