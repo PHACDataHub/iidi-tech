@@ -18,7 +18,10 @@ import {
 } from './transfer_request_utils.ts';
 import type { transferRequestJob } from './transfer_request_utils.ts';
 
-import { terminal_stage, get_next_stage } from './transfer_stage_utils.ts';
+import {
+  is_non_terminal_stage,
+  get_next_stage,
+} from './transfer_stage_utils.ts';
 
 import type { transferRequest } from './transferRequest.js';
 
@@ -42,9 +45,11 @@ const work_on_transfer_job = async (job: transferRequestJob) => {
   // Could try a more complicated use of BullMQ, either spawning child jobs for each stage or using the flow concept, but both of those
   // add a good bit more complexity than we may need. The biggest trade off of the current approach, AFAIK, is that the stages all share
   // the same "attempts" count, so we can't fine tune the number of retries per-stage. Child jobs/a job flow would enable that
-  while (job.data.stage !== terminal_stage) {
+  while (is_non_terminal_stage(job.data.stage)) {
     // TODO for this and all other logging found here, switch to a good struct log approach. These simple logs are placeholders/for dev
     console.log(`Job ID ${job.id}: starting stage "${job.data.stage}"`);
+
+    let next_stage = get_next_stage(job.data.stage);
 
     if (job.data.stage === 'collecting_and_transfering') {
       const bundle = await get_patient_bundle_for_transfer(job.data.patient_id);
@@ -54,33 +59,58 @@ const work_on_transfer_job = async (job: transferRequestJob) => {
         job.data.transfer_to,
       );
 
-      // TODO handle rejected bundles (validation failed), shouldn't retry, should move to a "rejected" stage (replace `terminal_stage` with
-      // `terminal_stages` for both `done` and `rejected`)
+      const json = await transfer_response.json().catch(() => null);
 
       if (transfer_response.ok) {
-        const json = await transfer_response.json().catch(() => null);
-
         if (
           typeof json === 'object' &&
           json !== null &&
-          'new_patient_id' in json &&
-          typeof json.new_patient_id === 'string'
+          'patient' in json &&
+          typeof json.patient === 'object' &&
+          json.patient !== null &&
+          'id' in json.patient &&
+          typeof json.patient.id === 'string'
         ) {
           await job.updateData({
             ...job.data,
-            new_patient_id: json.new_patient_id,
+            new_patient_id: json.patient.id,
           });
         } else {
           console.warn(
             `Job ID ${job.id}: (patient "${job.data.patient_id}" to "${job.data.transfer_to}") received` +
-              `an ok response from the inbound system, but did not receive a "new_patient_id" in the response body.` +
+              `an ok response from the inbound system, but did not receive "patient.id" in the response body.` +
               `The transfer process will continue, but the outbound system's reference to the new patient will be incomplete`,
           );
         }
       } else {
-        throw new Error(
-          `Job ID ${job.id}: inbound-transfer service for "${job.data.transfer_to}" responded to patient ID "${job.data.patient_id}" transfer with a "${transfer_response.status}" status`,
-        );
+        const base_error_message =
+          `Job ID ${job.id}: inbound-transfer service for "${job.data.transfer_to}" responded to` +
+          `patient ID "${job.data.patient_id}" transfer with a "${transfer_response.status}" status.`;
+
+        const is_non_timing_client_error_status =
+          /4[0-9][0-9]/.test(transfer_response.status.toString()) &&
+          ![408, 429].includes(transfer_response.status); // timeout and too many request errors are worth retrying
+
+        if (is_non_timing_client_error_status) {
+          // Handle explicit rejection of the transfer request with an explicit state rather than letting an error throw,
+          // don't want the queue's failure handling/retry logic hammering the transfer endpoint with known-bad request attempts
+          next_stage = 'rejected';
+
+          const rejection_reason =
+            base_error_message +
+            (typeof json === 'object' && json !== null && 'error' in json
+              ? JSON.stringify(json)
+              : 'Rejection reason not provided.');
+
+          console.error(rejection_reason);
+
+          await job.updateData({
+            ...job.data,
+            rejection_reason,
+          });
+        } else {
+          throw new Error(base_error_message);
+        }
       }
     } else if (job.data.stage === 'setting_patient_post_transfer_metadata') {
       // NOTE: vital assumption: this end point returns 200 IF AND ONLY IF the bundle was accepted and fully written to the receiving
@@ -93,18 +123,20 @@ const work_on_transfer_job = async (job: transferRequestJob) => {
       );
     }
 
-    const completed_stage = job.data.stage;
+    console.log(
+      `Job ID ${job.id}: completed stage "${job.data.stage}, moving to next stage "${next_stage}"`,
+    );
 
     await job.updateData({
       ...job.data,
       completed_stages: [...job.data.completed_stages, job.data.stage],
-      stage: get_next_stage(job.data.stage),
+      stage: next_stage,
     });
-
-    console.log(`Job ID ${job.id}: completed stage "${completed_stage}"`);
   }
 
-  console.log(`Job ID ${job.id}: all done`);
+  console.log(
+    `Job ID ${job.id}: finished on terminal stage "${job.data.stage}"`,
+  );
 
   return job.data;
 };

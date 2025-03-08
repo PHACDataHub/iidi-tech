@@ -20,7 +20,7 @@ const is_bundle_resource = (json: unknown): json is Bundle =>
   'resourceType' in json &&
   json?.resourceType === 'Bundle';
 
-const get_error_from_fhir_response = async (response: Response) => {
+export const get_error_from_fhir_response = async (response: Response) => {
   const json = (await response.json().catch(() => null)) as {
     issue?: [{ diagnostics?: string }];
   } | null;

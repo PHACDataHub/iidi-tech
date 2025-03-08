@@ -33,12 +33,14 @@ export const create_app = async () => {
 
     const transactionBundle = await set_bundle_type_to_transaction(bundle);
 
-    // TODO might be redundant to write_bundle_to_fhir_api, depends if FHIR servers are configured to validate pre-write
     await assert_bundle_follows_fhir_spec(transactionBundle);
 
     const new_patient_id = await write_bundle_to_fhir_api(transactionBundle);
 
-    res.status(200).send({ new_patient_id });
+    res.status(201).send({
+      message: 'Patient bundle accepted by FHIR server',
+      patient: { id: new_patient_id },
+    });
   });
 
   app.get('/inbound-transfer/dry-run', async (req, res) => {
@@ -50,7 +52,10 @@ export const create_app = async () => {
 
     await assert_bundle_follows_fhir_spec(transactionBundle);
 
-    res.status(200).send();
+    res.status(200).send({
+      message:
+        'Dry run successful, provided patient bundle would have been accepted by FHIR server',
+    });
   });
 
   app.use(expressErrorHandler);

@@ -8,4 +8,5 @@ export interface transferRequest {
   stage: transferStage;
   completed_stages: transferStage[];
   new_patient_id?: string;
+  rejection_reason?: string;
 }
