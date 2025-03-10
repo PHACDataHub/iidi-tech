@@ -87,15 +87,13 @@
           </div>
           <div class="buttons">
             {% for service in services %}
-            <gcds-button>
-              <a href="{{ service.url }}" target="_blank">
-                <img
-                  src="{{ url_for('static', filename='svg/' + service.name + '.svg') }}"
-                  alt="{{ service.name }} Icon"
-                  class="btn-icon"
-                />
-                {{ service.name }}
-              </a>
+            <gcds-button onclick="window.open('{{ service.url }}', '_blank')">
+              <img
+                src="{{ url_for('static', filename='svg/' + service.name + '.svg') }}"
+                alt="{{ service.name }} Icon"
+                class="btn-icon"
+              />
+              {{ service.name }}
             </gcds-button>
             {% endfor %}
           </div>
