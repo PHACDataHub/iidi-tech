@@ -75,12 +75,12 @@ Once immunization records are ingested, the **Aggregator microservice** processe
 
 - **FHIR Data Extraction**: Queries the **HAPI FHIR Server** for **Immunization and Patient data**.
 - **De-identification & Grouping**: Data is categorized by:
-    - **Jurisdiction (BC, ON)**
-    - **Occurrence Year**
-    - **Age Group**
-    - **Sex**
-    - **Vaccine Type**
-    - **Dose**
+  - **Jurisdiction (BC, ON)**
+  - **Occurrence Year**
+  - **Age Group**
+  - **Sex**
+  - **Vaccine Type**
+  - **Dose**
 - **API Endpoint (`/aggregated-data`)**: Exposes the processed dataset via a **REST API**, caching results to improve performance.
 
 All aggregation happens **within PT namespaces**, ensuring that **PHAC only receives high-level, de-identified summaries**.
@@ -95,8 +95,8 @@ Once PT data is aggregated, it is securely transmitted to PHAC via the **Federat
 
 - **Role**: Serves as an **API Gateway**, securely routing PT aggregation services to PHAC.
 - **Security**:
-    - **Mutual TLS (mTLS)** encryption ensures **end-to-end security**.
-    - **Ingress controls with fine-grained RBAC** ensure **minimum-privilege access**.
+  - **Mutual TLS (mTLS)** encryption ensures **end-to-end security**.
+  - **Ingress controls with fine-grained RBAC** ensure **minimum-privilege access**.
 
 ### **5.2 R Shiny Dashboard for Visualization**
 
