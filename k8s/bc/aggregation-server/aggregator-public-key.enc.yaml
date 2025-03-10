@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Secret
+metadata:
+    name: aggregator-public-key
+    namespace: bc
+type: Opaque
+data:
+    public_key.pem: ENC[AES256_GCM,data:H8IP1s1g9BwZarwPcPzC7PTeYfy8U0hNIea+y5y7wi8BaiyDGJNfZBmnCEgmD2e9dPxiPMv+V7SWFSNutBKZAs/q7U4DwSuQcWohbBGWUU/IcKQwyXPMXwdFWSx6ZIM7k44mOWNPgGmrvTk07sNBZfONW929vmn9eAcVhmFLqQAJ65mMdYJndH3dkKfwvjLrS2T8EickMHbQGI9sgU+k/Elyr0+J+X3u+fKn4PfrlH+JKylnkpjPjjHLWo3X169FqQ2QYKgBvgs5PXw4g8lGFK+4zIhYZrD/09e+LvkYexYBnjUIxt4gTDt1z3u7xXikwidQl6C6F0DKOGYgk/dsNAe9Nm0CI9fhHa8lt872I/bPE+DZwuDUaM460RYtxlq/GUxyD1XsN7zVCW41CG0cCDzTNWhwOCacLcYNPENNKv2T2GPbK9//jBiJp067u5+5rF0IIP8RRCkJnTf8X1YeGDy9NZ6j69DSmb2BrHHD622cTqH9P7bLCIzgVVNFbjpRhh69/Px1tcEjSfHNwEXgZ6p/2AYpI+nwTChMqbwfE4OYe/eZdqW13mfPFcKZLCIpajMzb/yN5P2HJp+8q1JjDwd0f4En9ZKHdmyjnOmJDzwuV+nXrzm8y8Z25fnrzd8BM1Q5OLZEH8BM9Yjot6CwgUE93g4Gy+p7WUXOBcVAlE4fX60r5SiQmfPfngtzaP4Sym34x2uY/AUrypR6mRA9ERQ3Th1qfXYPHmMlJ9IqSc3Y7LDd5EyO+G0EkDF/RXcI17BPUjBhFJKVm/eXwMjOVVOcvRibrgcq5EIydA==,iv:x/bYyDSFal6aPXjeLTX3dpA9dVTNM1jHbXvxFLBHeyw=,tag:11cfRz+4m/pVsSDhiPvjFQ==,type:str]
+sops:
+    kms: []
+    gcp_kms:
+        - resource_id: projects/phx-01he5rx4wsv/locations/northamerica-northeast1/keyRings/iidi-redis-secret/cryptoKeys/iidi-redis-secret
+          created_at: "2025-03-04T17:46:36Z"
+          enc: CiQAxKHEzsjl/zBjTclGqtOMKVKbb4BBwp9h3+OxdNMQBevj76YSSQAoSs8ujc5y9nQqt7KkmN5iTOiB9pie+TM7aEp8RN4I1aPzQq1Osn0LS44F5DMyioB9TaShRBihp6wdQPziniIcBn+KyHpJLYo=
+    azure_kv: []
+    hc_vault: []
+    age: []
+    lastmodified: "2025-03-04T17:46:36Z"
+    mac: ENC[AES256_GCM,data:C3hc0Js/hHRe/OvGtVr91j6nmIsBuG1IXv1SotkYsSjD9T3wYlzT7OFwMPyZVREVn+BmotWGYbLUS3K6Df0XpsBo+w4FaVOSLpjYG7Y4WixwrrAB2qStsChWRYKFkwNfv4AkzZDfIJKuiW+7Q2b94fAC/s4PyEiEtcgvKWASNI8=,iv:SuXkuYzDQFuQ4enNgUaNgHfIOqunXebBjMV+JI/jRuE=,tag:JoU32u5/kU85I3PmK7QdQA==,type:str]
+    pgp: []
+    encrypted_regex: ^(data|stringData)$
+    version: 3.8.1
