@@ -312,20 +312,61 @@ configs:
       }
   hapi:
     file: ./hapi-dev.application.yaml
+  dev-private-key.conf:
+    content: |
+      -----BEGIN PRIVATE KEY-----
+      MIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCkfEGarFSuxaUt
+      GHC7m/Rr45AbUge7S7DRUyqofM6SWDt4tWE3/JNlsVWsNUyrIJKYIMrOVcfmKTRS
+      Ber8WFuE7MjTRqXJvupO6vNxo3G/Y63CEoHIxkzsR01OZaGCbaU/yejs5HKXnn+g
+      KNxLJGRYxOHg+IsRIM2ZkqjSdGvY2Z+XzUuMA2HhFv3BOMcnAoqTUpat4YsahKfs
+      8XRUhf57FWttbRjNz5t6MMdahD3rLGyGkxlTCw1T6LpGMscj2c36r8JRITXp688x
+      y6k1JktpVlUFVkY6aykgIzjClDCE53dAEq1V6qa6EqvMkgAPBl9jNRdY9N6u/Ln5
+      q4KDLj6hAgMBAAECggEATzIemjzgNxglm+1ZFhOUXz/9mhHodBcRBvBOqToSceb2
+      l3tpWD4NsBhuohA1nm1797BORYOK0HhFXzrHNgHK6tjhJsystVLtWNsKJMxnz5lM
+      R5WGlKdZ0SfRgm4vke998ZUjR7AEtpjTZUdXLfzTLeR5x0qUFsafB5LUIyR36ruz
+      1VxXcTntdSPu199J1BcUFbsH0tW3b3oK0NR/iCbtISpohBfqO70XADHZdUzJ2uGU
+      3JWKG9EXMPhjO1jbwrQU6God7or1WagLrddCqGa72eGJhSt5cQEcgin0gayPH2Be
+      zwydfJYmoTPdGdFJgD8HEnQlY/DRxfALE7Iv0PevqwKBgQDRYlVNCiptZUK4QFdh
+      P27ylqMU52S8i2CGL/LA4QY36Wx7zXIlgeMPKtn6FLJatnhffVOFWnCutND8E/6J
+      c39/EUcBZcLYsOS3SL8zyTOykNbuA4nGoagYLie0WHFKMJTH+wZ4Rtmx4xxSgXIr
+      lByLpbUN6iqW6DB1FawjIbl5LwKBgQDJGvVP+hUZTs2fgYlaz6Xtc0zL1/Vb6NJk
+      N391aQWHCSaxgADvYX5kgWfAqwXYe7VWwt2C3botJfEDn/OD103nFAa79QDtnsCz
+      5yip0V1K3PTmIIr6NC1eut4S8BB4AH761qKYv8XyRvYq+Jq59WkZtu1Icwsvr+eY
+      8mmAg0ExLwKBgGiew5Rs4eorUH0T2RVERsF7txy4ycLTuXUS/C6XwS2quoPZkZFg
+      Jv3rIWMteDiPN/Iugs7885S30DxEGUjApxHsphfyqrrvGDjkZnUPsX8lk971caAI
+      Ih+C4F/iWSkCwTRzHzZ14Exb+EjZWRyhMuor8B11xbYFakD2hT5AmZYNAoGBAIFv
+      hXZ9SnkofDXuhL5bKbuj20jT7YrDVi7EfZfPCYy5OhtCfNeV02jS1TlvmeqU7Mkz
+      0Kh7F2oZon8nwu8Xc3+IJzFwZrGJ3ROtc0GhjD8z6bf4OBsD3DO9aFOeCauC/jdq
+      T+qqe7gNLkHIEqYfqw6u6xgXW5rMx+5sD7V0RVBnAoGBAIczI4KAvqCFiQm3I4iM
+      a7Cig+xuYWcupgRZ/9oLMSoGjnlKoVPQXkFI3xSD1+tGFOReQkY8D0xuBlVliWT9
+      IfasWSXTObh81fantIiqmgZzMQ1Wbz2OjCexF/vOHh+Ryr1a9+7WEqBwfdXAvSw6
+      KwdDDg03Wzhv0UyXhk4fp/Nt
+      -----END PRIVATE KEY-----
+  dev-public-key.conf:
+    content: |
+      -----BEGIN PUBLIC KEY-----
+      MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApHxBmqxUrsWlLRhwu5v0
+      a+OQG1IHu0uw0VMqqHzOklg7eLVhN/yTZbFVrDVMqyCSmCDKzlXH5ik0UgXq/Fhb
+      hOzI00alyb7qTurzcaNxv2OtwhKByMZM7EdNTmWhgm2lP8no7ORyl55/oCjcSyRk
+      WMTh4PiLESDNmZKo0nRr2Nmfl81LjANh4Rb9wTjHJwKKk1KWreGLGoSn7PF0VIX+
+      exVrbW0Yzc+bejDHWoQ96yxshpMZUwsNU+i6RjLHI9nN+q/CUSE16evPMcupNSZL
+      aVZVBVZGOmspICM4wpQwhOd3QBKtVeqmuhKrzJIADwZfYzUXWPTervy5+auCgy4+
+      oQIDAQAB
+      -----END PUBLIC KEY-----
 
 services:
   gateway:
     image: nginx:1.27.3
     tty: ${DOCKER_TTY:-true}
     restart: always
+    configs:
+      - source: gateway.default.conf
+        target: /etc/nginx/conf.d/default.conf
     networks:
       - gateway
       - host-loopback
     ports:
       - 8080:80
-    configs:
-      - source: gateway.default.conf
-        target: /etc/nginx/conf.d/default.conf
 
   on-fhir-db: &fhir-db-service
     image: postgres:14.11-alpine
@@ -383,6 +424,9 @@ services:
     restart: always
     build:
       context: ./aggregator
+    configs:
+      - source: dev-public-key.conf
+        target: /dev-secrets/public_key.pem
     networks:
       - gateway
       - on-internal
@@ -392,6 +436,7 @@ services:
       IS_LOCAL_DEV: true
       AGGREGATION_INTERVAL: 60
       FHIR_URL: http://on-fhir:8080/fhir # in this case, resolved inside the container, with container networking
+      PUBLIC_KEY_PATH: /dev-secrets/public_key.pem
   on-patient-browser: &patient-browser-service
     image: patient-browser:1.1
     tty: ${DOCKER_TTY:-true}
@@ -505,6 +550,7 @@ services:
       IS_LOCAL_DEV: true
       AGGREGATION_INTERVAL: 60
       FHIR_URL: http://bc-fhir:8080/fhir # in this case, resolved inside the container, with container networking
+      PUBLIC_KEY_PATH: /dev-secrets/public_key.pem
   bc-patient-browser:
     <<: *patient-browser-service
     networks:
@@ -562,6 +608,9 @@ services:
     volumes:
       - ./federator:/home/node-dev/project
       - ./federator/.env.node-dev-docker-env-overrides:/home/node-dev/project/.env
+    configs:
+      - source: dev-private-key.conf
+        target: /dev-secrets/private_key.pem
     command: npm run dev:${DOCKER_API_COMMAND:-docker} # 'docker' or 'docker-debug'
     networks:
       - gateway
@@ -576,6 +625,7 @@ services:
       EXPRESS_PORT: 3000
       DEV_IS_LOCAL_ENV: True
       AGGREGATOR_URLS: 'http://gateway/on/aggregator,http://gateway/bc/aggregator'
+      PRIVATE_KEY_PATH: '/dev-secrets/private_key.pem'
   dashboard:
     image: rshiny-dashboard:1.0
     tty: ${DOCKER_TTY:-true}
