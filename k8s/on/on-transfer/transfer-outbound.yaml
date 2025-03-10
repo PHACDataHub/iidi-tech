@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: transfer-outbound
-          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-transfer-outbound:main-b5f847693de3ba902ded265c7d083250b6a52cd6-1741037232 # {"$imagepolicy": "flux-system:transfer-outbound-on"}
+          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-transfer-outbound:main-a473a60e7698a98e73d769d820f6f93d2185fa34-1741372974 # {"$imagepolicy": "flux-system:transfer-outbound-on"}
           ports:
             - containerPort: 3000
           env:
@@ -32,7 +32,7 @@ spec:
             - name: OWN_TRANSFER_CODE
               value: "ON"
             - name: INBOUND_TRANSFER_SERIVCES_BY_TRANSFER_CODE
-              value: '{ "ON": "http://transfer-inbound.on.svc.cluster.local:3000" }'
+              value: '{ "BC": "http://transfer-inbound.bc.svc.cluster.local:3000" }'
             - name: REDIS_PORT
               value: "6379"
             - name: REDIS_PASSWORD

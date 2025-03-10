@@ -2,25 +2,24 @@ import _ from 'lodash';
 
 import {
   is_valid_aggregated_data,
-  expected_age_groups,
   expected_jurisdictions,
   expected_sexes,
 } from './aggregation_validation_utils.ts';
 
 const valid_sample_data = [
   {
-    AgeGroup: expected_age_groups[0],
+    Age: '1 year',
     Count: 3,
-    DoseCount: 4,
+    Dose: 4,
     Jurisdiction: expected_jurisdictions[0],
     ReferenceDate: '2025-02-05',
     OccurrenceYear: '2025',
     Sex: expected_sexes[0],
   },
   {
-    AgeGroup: expected_age_groups[_.random(1, expected_age_groups.length - 1)],
+    Age: '100 years',
     Count: 4,
-    DoseCount: 7,
+    Dose: 7,
     Jurisdiction:
       expected_jurisdictions[_.random(1, expected_jurisdictions.length - 1)],
     ReferenceDate: '2025-03-06',
@@ -42,7 +41,7 @@ describe('is_valid_aggregated_data', () => {
   it('Returns false if any provided data does not match the expected response of an aggregator API', () => {
     const sample_with_invalid_age_group = [
       ...valid_sample_data,
-      { ...valid_sample_data[0], AgeGroup: -1 },
+      { ...valid_sample_data[0], Age: -1 },
     ];
     expect(is_valid_aggregated_data(sample_with_invalid_age_group)).toBe(false);
 
@@ -54,7 +53,7 @@ describe('is_valid_aggregated_data', () => {
 
     const sample_with_invalid_dose_count = [
       ...valid_sample_data,
-      { ...valid_sample_data[0], DoseCount: -1 },
+      { ...valid_sample_data[0], Dose: -1 },
     ];
     expect(is_valid_aggregated_data(sample_with_invalid_dose_count)).toBe(
       false,

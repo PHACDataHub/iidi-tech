@@ -22,7 +22,7 @@ function App() {
           PT-to-PT MMR Immunization Record Transfer
         </GcdsHeading>
         <Form />
-        <GcdsDateModified>2025-02-19</GcdsDateModified>
+        <GcdsDateModified> {process.env.BUILD_DATE}</GcdsDateModified>
       </main>
 
       <footer>

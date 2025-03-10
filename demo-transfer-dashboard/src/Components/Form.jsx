@@ -7,10 +7,33 @@ import {
   GcdsText,
 } from '@cdssnc/gcds-components-react';
 
+const pt_codes = ['BC', 'ON'];
+const pt_name_by_code = {
+  BC: 'British Columbia',
+  ON: 'Ontario',
+};
+const transfer_service_url_by_pt_code = {
+  BC: process.env.BC_OUTBOUND_URL,
+  ON: process.env.ON_OUTBOUND_URL,
+};
+
+const get_default_pt = () => {
+  const default_pt_query_param = new URLSearchParams(
+    window.location.search,
+  ).get('default_pt');
+
+  return pt_codes.includes(default_pt_query_param)
+    ? default_pt_query_param
+    : pt_codes[0];
+};
+
 const Form = () => {
+  const default_pt = get_default_pt();
+  const default_receiving_pt = pt_codes.find((pt) => pt !== default_pt);
+
   const [patientNumber, setPatientNumber] = useState('');
-  const [originPT, setOriginPT] = useState('BC');
-  const [receivingPT, setReceivingPT] = useState('ON');
+  const [originPT, setOriginPT] = useState(default_pt);
+  const [receivingPT, setReceivingPT] = useState(default_receiving_pt);
   const [transfers, setTransfers] = useState([]);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -20,17 +43,20 @@ const Form = () => {
   }, []);
 
   // Logic work in progress
+
   const fetchTransfers = async () => {
     try {
       setLoadingMessage('Loading transfer requests...');
+
       const response = await fetch(
-        `${process.env.BC_OUTBOUND_URL}/transfer-request`,
+        `${transfer_service_url_by_pt_code[originPT]}/transfer-request`,
       );
+
       if (!response.ok) throw new Error('Failed to load transfers');
 
       const data = await response.json();
       console.log(data);
-      setTransfers(data);
+      setTransfers(data); // Set the data to state
       setLoadingMessage('');
     } catch (error) {
       setErrorMessage('Failed to load transfer requests.');
@@ -47,20 +73,18 @@ const Form = () => {
 
     setLoadingMessage('Processing transfer... Please wait.');
 
-    const fhirUrl =
-      originPT === 'BC'
-        ? process.env.BC_OUTBOUND_URL
-        : process.env.ON_OUTBOUND_URL;
-
     try {
-      const response = await fetch(`${fhirUrl}/transfer-request`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          patient_id: patientNumber,
-          transfer_to: receivingPT,
-        }),
-      });
+      const response = await fetch(
+        `${transfer_service_url_by_pt_code[originPT]}/transfer-request`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            patient_id: patientNumber,
+            transfer_to: receivingPT,
+          }),
+        },
+      );
 
       if (!response.ok) throw new Error('Failed to initiate transfer');
 
@@ -99,10 +123,20 @@ const Form = () => {
           name="originPT"
           hint="Select originating PT."
           value={originPT}
-          onChange={(e) => setOriginPT(e.target.value)}
+          onChange={(e) => {
+            const new_origin_pt = e.target.value;
+
+            if (receivingPT === new_origin_pt) {
+              setReceivingPT(pt_codes.find((pt) => pt !== new_origin_pt));
+            }
+            setOriginPT(new_origin_pt);
+          }}
         >
-          <option value="BC">British Columbia</option>
-          <option value="ON">Ontario</option>
+          {pt_codes.map((pt) => (
+            <option value={pt} index={pt}>
+              {pt_name_by_code[pt]}
+            </option>
+          ))}
         </GcdsSelect>
       </div>
 
@@ -113,10 +147,20 @@ const Form = () => {
           name="receivingPT"
           hint="Select receiving PT."
           value={receivingPT}
-          onChange={(e) => setReceivingPT(e.target.value)}
+          onChange={(e) => {
+            const new_receiving_pt = e.target.value;
+
+            if (originPT === new_receiving_pt) {
+              setOriginPT(pt_codes.find((pt) => pt !== new_receiving_pt));
+            }
+            setReceivingPT(new_receiving_pt);
+          }}
         >
-          <option value="ON">Ontario</option>
-          <option value="BC">British Columbia</option>
+          {pt_codes.map((pt) => (
+            <option value={pt} index={pt}>
+              {pt_name_by_code[pt]}
+            </option>
+          ))}
         </GcdsSelect>
       </div>
 
@@ -140,16 +184,17 @@ const Form = () => {
           <thead>
             <tr>
               <th>
-                <GcdsText>Patient Name</GcdsText>
+                <GcdsText>Patient ID</GcdsText>
               </th>
-              <th>
-                <GcdsText>Origin PT</GcdsText>
-              </th>
+
               <th>
                 <GcdsText>Receiving PT</GcdsText>
               </th>
               <th>
                 <GcdsText>Transfer Status</GcdsText>
+              </th>
+              <th>
+                <GcdsText>Transfer Stage </GcdsText>
               </th>
             </tr>
           </thead>
@@ -157,12 +202,14 @@ const Form = () => {
             {transfers.map((transfer, index) => (
               <tr key={index}>
                 <td>{transfer.patient_id}</td>
-                <td>{transfer.originPT}</td>
-                <td>{transfer.receivingPT}</td>
+                <td>{transfer.transfer_to}</td>
                 <td
-                  className={`status ${transfer.status === 'Transferred' ? 'transferred' : 'failed'}`}
+                  className={`status ${transfer.state === 'Completed' ? 'completed' : 'failed'}`}
                 >
-                  <GcdsText>{transfer.status}</GcdsText>
+                  <GcdsText>{transfer.state}</GcdsText>
+                </td>
+                <td>
+                  <GcdsText>{transfer.stage}</GcdsText>
                 </td>
               </tr>
             ))}

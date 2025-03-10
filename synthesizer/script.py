@@ -165,7 +165,16 @@ def create_allergy_resource(patient_id):
         "criticality": random.choice(["low", "high", "unable-to-assess"]),
         "type": random.choice(["allergy", "intolerance"]),
         "note": [{"text": faker.paragraph()}],
-        "onsetDateTime": random_date(datetime(2015, 1, 1), datetime(2023, 12, 31))
+        "onsetDateTime": random_date(datetime(2015, 1, 1), datetime(2023, 12, 31)),
+        # Since all provinces here are assumed to be FHIR compliant, ensure correct fields
+        "clinicalStatus": {
+            "coding": [
+                {
+                    "system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", 
+                    "code": random.choice(["active", "inactive", "resolved"])
+                }
+            ]
+        }
     }
 
 # Create an Immunization resource
@@ -183,7 +192,13 @@ def create_immunization_resource(patient_id, birth_date):
     max_date = datetime.today()
     occurrence_date = random_date(min_date, max_date)
 
-    exemption_reason = random.choice([None, "RELIG", "MED", "PHIL"])
+    exemption_reason = random.choice([None, "RELIG", "MED", "PHILISOP"])
+    exemption_display = {
+        "RELIG": "Religious objection",
+        "MED": "Medical contraindication",
+        "PHILISOP": "Philosophical objection"
+    }.get(exemption_reason, "")
+
     concurrent_vaccine = random.choice(["Influenza", "COVID-19", None])
 
     return {
@@ -219,26 +234,22 @@ def create_immunization_resource(patient_id, birth_date):
             }
         ] if random.choice([True, False]) else None,
         "extension": [
-            {
+            *([{
                 "url": "http://hl7.org/fhir/StructureDefinition/immunization-exemption",
                 "valueCodeableConcept": {
                     "coding": [
                         {
                             "system": "http://terminology.hl7.org/CodeSystem/v3-ActReason",
                             "code": exemption_reason,
-                            "display": random.choice([
-                                "Religious objection",
-                                "Medical contraindication",
-                                "Philosophical objection"
-                            ]) if exemption_reason else None
+                            "display": exemption_display
                         }
                     ]
                 }
-            },
-            {
+            }] if exemption_reason else []),
+            *([{
                 "url": "http://hl7.org/fhir/StructureDefinition/immunization-concurrent-administration",
                 "valueString": concurrent_vaccine
-            },
+            }] if concurrent_vaccine else []),
             {
                 "url": "http://hl7.org/fhir/StructureDefinition/immunization-expiry-date",
                 "valueDate": random_date(datetime(2023, 1, 1), datetime(2025, 12, 31))

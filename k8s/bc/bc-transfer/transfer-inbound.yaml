@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: transfer-inbound
-          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-transfer-inbound:main-1806507b56ade6b634b181c2c752c2adc290e2ef-1740676482 # {"$imagepolicy": "flux-system:transfer-inbound-bc"}
+          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-transfer-inbound:main-d9b19a6977d4ad692cea6468f817bda10a8b3c71-1741373120 # {"$imagepolicy": "flux-system:transfer-inbound-bc"}
           ports:
             - containerPort: 3000
           env:

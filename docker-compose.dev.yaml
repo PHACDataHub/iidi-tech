@@ -366,7 +366,7 @@ services:
       DB_HOST: on-fhir-db
       FHIR_SERVER_ADDRESS: http://localhost:8080/on/fhir # see proxy address via gateway.default.conf
   on-synthesizer: &synthesizer-service
-    image: synthesizer:1.1
+    image: synthesizer:1.4
     tty: ${DOCKER_TTY:-true}
     restart: on-failure # reattempt until successful
     build:
@@ -378,7 +378,7 @@ services:
       PT: on
       FHIR_URL: http://on-fhir:8080/fhir # in this case, resolved inside the container, with container networking
   on-aggregator: &aggregator-service
-    image: aggregator:1.6
+    image: aggregator:1.7
     tty: ${DOCKER_TTY:-true}
     restart: always
     build:
@@ -469,7 +469,7 @@ services:
       REDIS_HOST: on-bullmq-redis
       FHIR_URL: http://on-fhir:8080/fhir # in this case, resolved inside the container, with container networking
       OWN_TRANSFER_CODE: 'ON'
-      INBOUND_TRANSFER_SERIVCES_BY_TRANSFER_CODE: '{ "BC": "http://localhost:8080/bc/inbound" }'
+      INBOUND_TRANSFER_SERIVCES_BY_TRANSFER_CODE: '{ "BC": "http://gateway:80/bc/inbound" }' # resolved inside the container, with container networking
 
   bc-fhir-db:
     <<: *fhir-db-service
@@ -550,7 +550,7 @@ services:
       REDIS_HOST: bc-bullmq-redis
       FHIR_URL: http://bc-fhir:8080/fhir # in this case, resolved inside the container, with container networking
       OWN_TRANSFER_CODE: 'BC'
-      INBOUND_TRANSFER_SERIVCES_BY_TRANSFER_CODE: '{ "ON": "http://localhost:8080/on/inbound" }'
+      INBOUND_TRANSFER_SERIVCES_BY_TRANSFER_CODE: '{ "ON": "http://gateway:80/on/inbound" }' # resolved inside the container, with container networking
 
   federator:
     image: node-dev:1.0
@@ -591,7 +591,7 @@ services:
       AGGREGATOR_URL: http://federator:3000/aggregated-data
 
   demo-portal:
-    image: demo-portal:1.4
+    image: demo-portal:1.5
     tty: ${DOCKER_TTY:-true}
     build:
       context: ./demo-portal
@@ -605,10 +605,11 @@ services:
       BC_BROWSER_URL: http://localhost:8080/bc/browser
       BC_FHIR_URL: http://localhost:8080/bc/fhir
       BC_AGGREGATOR_URL: http://localhost:8080/bc/aggregator/aggregated-data
+      BC_DEMO_TRANSFER_DASHBOARD_URL: http://localhost:8080/demo-transfer-dashboard?default_pt=BC
       ON_BROWSER_URL: http://localhost:8080/on/browser
       ON_FHIR_URL: http://localhost:8080/on/fhir
       ON_AGGREGATOR_URL: http://localhost:8080/on/aggregator/aggregated-data
-      DEMO_TRANSFER_DASHBOARD_URL: http://localhost:8080/demo-transfer-dashboard
+      ON_DEMO_TRANSFER_DASHBOARD_URL: http://localhost:8080/demo-transfer-dashboard?default_pt=ON
   demo-transfer-dashboard:
     image: node-dev:1.0
     tty: ${DOCKER_TTY:-true}

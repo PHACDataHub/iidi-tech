@@ -14,6 +14,9 @@ export default defineConfig({
       'process.env.BC_OUTBOUND_URL': JSON.stringify(
         process.env.BC_OUTBOUND_URL,
       ),
+      'process.env.BUILD_DATE': JSON.stringify(
+        new Date().toLocaleDateString('en-GB'),
+      ),
     },
   },
 });
