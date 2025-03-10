@@ -72,22 +72,6 @@ export const expressErrorHandler = (
 ) => {
   handle_error_logging(err);
 
-  const errorResponse: {
-    error: string;
-    details?: SerializableErrorData;
-  } = {
-    error: err.message,
-  };
-
-  if (err instanceof AppError && err.errorData) {
-    try {
-      JSON.parse(JSON.stringify(err.errorData));
-      errorResponse.details = err.errorData;
-    } catch (e) {
-      console.error('Invalid error data provided:', e);
-    }
-  }
-
   res
     .status(get_status_code(err))
     .json(is_app_error(err) ? err.toJSON() : { error: err.message });
