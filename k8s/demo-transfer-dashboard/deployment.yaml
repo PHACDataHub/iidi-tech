@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: demo-transfer-dashboard
-          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-demo-transfer-dashboard:main-91ead1ad3c225c0e976703953b52220e163dd6e9-1741372070 # {"$imagepolicy": "flux-system:demo-transfer-dashboard"}
+          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-demo-transfer-dashboard:main-a50ee9c929ba2d7e72088bbf3ad0abbe1d51e4d4-1741614860 # {"$imagepolicy": "flux-system:demo-transfer-dashboard"}
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
