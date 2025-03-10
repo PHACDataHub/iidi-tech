@@ -191,7 +191,7 @@ describe('handle_response', () => {
     });
 
     await expect(handle_response(mockResponse)).rejects.toThrow(
-      new AppError(500, 'FHIR server responded with status 404'),
+      new AppError(404, 'FHIR server responded with status 404'),
     );
   });
 
