@@ -26,13 +26,6 @@ spec:
           value: "http://hapi-fhir-svc.bc.svc.cluster.local:8080/fhir"
         - name: AGGREGATION_INTERVAL
           value: "60"
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "500m"
-          limits:
-            memory: "1Gi"
-            cpu: "1"
         readinessProbe:
           httpGet:
             path: /health
