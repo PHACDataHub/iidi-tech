@@ -7,32 +7,17 @@ import {
 } from '@cdssnc/gcds-components-react';
 import { useState, useEffect } from 'react';
 
-const pt_codes = ['BC', 'ON'];
-const pt_name_by_code = {
-  BC: 'British Columbia',
-  ON: 'Ontario',
-};
-const transfer_service_url_by_pt_code = {
-  BC: process.env.BC_OUTBOUND_URL,
-  ON: process.env.ON_OUTBOUND_URL,
-};
+import {
+  pt_codes,
+  transfer_service_url_by_pt_code,
+  pt_name_by_code,
+} from 'src/pt_utils.js';
 
-const get_default_pt = () => {
-  const default_pt_query_param = new URLSearchParams(
-    window.location.search,
-  ).get('default_pt');
-
-  return pt_codes.includes(default_pt_query_param)
-    ? default_pt_query_param
-    : pt_codes[0];
-};
-
-const TransferForm = () => {
-  const default_pt = get_default_pt();
-  const default_receiving_pt = pt_codes.find((pt) => pt !== default_pt);
+const TransferForm = ({ defaultPT }) => {
+  const default_receiving_pt = pt_codes.find((pt) => pt !== defaultPT);
 
   const [patientNumber, setPatientNumber] = useState('');
-  const [originPT, setOriginPT] = useState(default_pt);
+  const [originPT, setOriginPT] = useState(defaultPT);
   const [receivingPT, setReceivingPT] = useState(default_receiving_pt);
   const [transfers, setTransfers] = useState([]);
   const [loadingMessage, setLoadingMessage] = useState('');
