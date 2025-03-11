@@ -1,3 +1,5 @@
+import './TransferForm.css';
+
 import {
   GcdsInput,
   GcdsSelect,
@@ -13,135 +15,125 @@ import {
   pt_name_by_code,
 } from 'src/pt_utils.js';
 
-const TransferForm = ({ defaultPT }) => {
-  const default_receiving_pt = pt_codes.find((pt) => pt !== defaultPT);
+const TransferForm = ({ outboundPT }) => {
+  const transfer_service_url = transfer_service_url_by_pt_code[outboundPT];
+  const default_inbound_pt = pt_codes.find((pt) => pt !== outboundPT);
 
-  const [patientNumber, setPatientNumber] = useState('');
-  const [originPT, setOriginPT] = useState(defaultPT);
-  const [receivingPT, setReceivingPT] = useState(default_receiving_pt);
-  const [transferRequest, setTransferRequest] = useState([]);
-  const [loadingMessage, setLoadingMessage] = useState('');
+  const [patientId, setPatientId] = useState('');
+  const [patientIdErrorMessage, setPatientIdErrorMessage] = useState('');
+
+  const [inboundPT, setInboundPT] = useState(default_inbound_pt);
+
+  const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [transferRequest, setTransferRequest] = useState();
 
-  const transfer_service_url = transfer_service_url_by_pt_code[originPT];
-
-  const initiateTransfer = async () => {
+  const submitTransferRequest = async () => {
     setErrorMessage('');
-    if (!patientNumber.trim()) {
-      setErrorMessage('Please enter a valid patient number.');
-      return;
-    }
-
-    setLoadingMessage('Processing transfer... Please wait.');
+    setTransferRequest(undefined);
+    setLoading(true);
 
     try {
       const response = await fetch(`${transfer_service_url}/transfer-request`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          patient_id: patientNumber,
-          transfer_to: receivingPT,
+          patient_id: patientId,
+          transfer_to: inboundPT,
         }),
       });
 
-      if (!response.ok) throw new Error('Failed to initiate transfer');
+      const data = await response.json().catch(() => null);
 
-      const data = await response.json();
-
-      setTransferRequest(data);
-      setLoadingMessage('');
+      if (!response.ok) {
+        throw new Error(
+          `Failed to initiate transfer: ${'error' in data ? data.error : response.statusText}`,
+        );
+      } else {
+        if (data) {
+          setTransferRequest(data);
+        } else {
+          throw new Error(
+            'Transfer service did not respond with expected data, please contact a developer.',
+          );
+        }
+      }
     } catch (error) {
-      console.log(error); // TODO delete console log, display relevant error information to user
-      setErrorMessage('Transfer request failed. Please try again.');
-      setLoadingMessage('');
+      setErrorMessage(error.toString());
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="form-container">
-      <div className="form-group">
-        <GcdsInput label="Enter Patient First Name" hint="Enter First name." />
-      </div>
-      <div className="form-group">
-        <GcdsInput label="Enter Patient Last Name" hint="Enter Last name." />
-      </div>
-      <div className="form-group">
+    <form
+      className="transfer-request-form"
+      onSubmit={(e) => e.preventDefault()}
+    >
+      <div className="transfer-request-form__field-row">
         <GcdsInput
-          inputId="patientNumber"
-          label="Enter Patient Number"
-          name="patientNumber"
-          hint="Enter patient ID."
-          value={patientNumber}
-          onChange={(e) => setPatientNumber(e.target.value)}
-        />
-      </div>
+          inputId="patientId"
+          label="Patient ID"
+          name="patientId"
+          hint={`ID of a patient in ${pt_name_by_code[outboundPT]}'s system`}
+          errorMessage={patientIdErrorMessage}
+          value={patientId}
+          onKeyUp={(e) => {
+            e.stopPropagation();
 
-      <div className="form-group">
-        <GcdsSelect
-          selectId="originPT"
-          label="Originating PT"
-          name="originPT"
-          hint="Select originating PT."
-          value={originPT}
-          onChange={(e) => {
-            const new_origin_pt = e.target.value;
+            const new_patient_id = e.target.value;
 
-            if (receivingPT === new_origin_pt) {
-              setReceivingPT(pt_codes.find((pt) => pt !== new_origin_pt));
+            if (!/^[1-9][0-9]*$/.test(new_patient_id)) {
+              setPatientIdErrorMessage(
+                'Patient ID should be a positive integer value.',
+              );
+            } else {
+              setPatientIdErrorMessage('');
             }
-            setOriginPT(new_origin_pt);
+            setPatientId(new_patient_id);
           }}
-        >
-          {pt_codes.map((pt) => (
-            <option value={pt} index={pt}>
-              {pt_name_by_code[pt]}
-            </option>
-          ))}
-        </GcdsSelect>
-      </div>
+        />
 
-      <div className="form-group">
         <GcdsSelect
-          selectId="receivingPT"
+          selectId="inboundPT"
           label="Receiving PT"
-          name="receivingPT"
-          hint="Select receiving PT."
-          value={receivingPT}
+          name="inboundPT"
+          hint="Province or Teritory to transfer records to"
+          value={inboundPT}
           onChange={(e) => {
             const new_receiving_pt = e.target.value;
-
-            if (originPT === new_receiving_pt) {
-              setOriginPT(pt_codes.find((pt) => pt !== new_receiving_pt));
-            }
-            setReceivingPT(new_receiving_pt);
+            setInboundPT(new_receiving_pt);
           }}
         >
-          {pt_codes.map((pt) => (
-            <option value={pt} index={pt}>
-              {pt_name_by_code[pt]}
-            </option>
-          ))}
+          {pt_codes
+            .filter((code) => code !== outboundPT)
+            .map((pt) => (
+              <option value={pt} index={pt}>
+                {pt_name_by_code[pt]}
+              </option>
+            ))}
         </GcdsSelect>
       </div>
 
-      <GcdsButton onClick={initiateTransfer}>Initiate Transfer</GcdsButton>
+      <GcdsButton
+        disabled={patientIdErrorMessage || loading}
+        onClick={submitTransferRequest}
+      >
+        {!loading ? 'Submit transfer request' : 'Awaiting response...'}
+      </GcdsButton>
 
       {errorMessage && (
-        <p id="errorMessage" className="error">
-          <GcdsErrorMessage messageId="message-props">
-            {errorMessage}
-          </GcdsErrorMessage>
+        <p>
+          <GcdsErrorMessage>{errorMessage}</GcdsErrorMessage>
         </p>
       )}
-      {loadingMessage && (
-        <p id="loadingMessage" className="loading">
-          <GcdsText>{loadingMessage}</GcdsText>
-        </p>
-      )}
+
       {transferRequest && (
-        <GcdsText>TODO display transferRequest response</GcdsText>
+        <p>
+          <GcdsText>TODO display transferRequest response</GcdsText>
+        </p>
       )}
-    </div>
+    </form>
   );
 };
 

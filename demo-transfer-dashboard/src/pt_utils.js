@@ -10,12 +10,12 @@ export const transfer_service_url_by_pt_code = {
   ON: process.env.ON_OUTBOUND_URL,
 };
 
-export const get_default_pt = () => {
-  const default_pt_query_param = new URLSearchParams(
+export const get_outbound_pt = () => {
+  const outbound_pt_query_param = new URLSearchParams(
     window.location.search,
-  ).get('default_pt');
+  ).get('pt');
 
-  return pt_codes.includes(default_pt_query_param)
-    ? default_pt_query_param
+  return pt_codes.includes(outbound_pt_query_param)
+    ? outbound_pt_query_param
     : pt_codes[0];
 };
