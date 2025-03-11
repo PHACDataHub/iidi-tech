@@ -37,10 +37,16 @@ export const create_app = async () => {
 
         const token =
           PRIVATE_KEY_PATH !== undefined
-            ? jwt.sign({ foo: 'bar' }, get_private_key(PRIVATE_KEY_PATH), {
-                algorithm: 'RS256',
-                expiresIn: '5m',
-              })
+            ? jwt.sign(
+                // TODO payload currently arbitrary, the asymetric signing/decrypting is all that matters right now.
+                // Consider a second layer, maybe a shared secret or a time-based OTP exchanged inside the JWT, any value to that?
+                { foo: 'bar' },
+                get_private_key(PRIVATE_KEY_PATH),
+                {
+                  algorithm: 'RS256',
+                  expiresIn: '5m',
+                },
+              )
             : undefined;
 
         const response = await fetch(aggregator_endpoint, {
