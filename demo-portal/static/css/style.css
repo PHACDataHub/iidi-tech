@@ -87,8 +87,8 @@ main {
 }
 
 .province {
-  font-size: 24px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 500;
   white-space: nowrap;
   margin-right: 10px;
 }
