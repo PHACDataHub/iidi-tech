@@ -1,10 +1,10 @@
 import './WorkInProgressAlert.css';
-import React from 'react';
 import {
   GcdsNotice,
   GcdsText,
   GcdsDetails,
 } from '@cdssnc/gcds-components-react';
+import React from 'react';
 
 const WorkInProgressAlert = () => {
   return (
