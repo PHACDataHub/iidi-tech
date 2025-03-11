@@ -40,27 +40,29 @@ const Form = () => {
 
   const transfer_service_url = transfer_service_url_by_pt_code[originPT];
 
-  const fetchTransfers = async () => {
-    try {
-      setLoadingMessage('Loading transfer requests...');
-
-      const response = await fetch(`${transfer_service_url}/transfer-request`);
-
-      if (!response.ok) throw new Error('Failed to load transfers');
-
-      const data = await response.json();
-      console.log(data);
-      setTransfers(data); // Set the data to state
-      setLoadingMessage('');
-    } catch (error) {
-      console.log(error); // TODO delete console log, display relevant error information to user
-      setErrorMessage('Failed to load transfer requests.');
-      setLoadingMessage('');
-    }
-  };
   useEffect(() => {
+    const fetchTransfers = async () => {
+      try {
+        setLoadingMessage('Loading transfer requests...');
+
+        const response = await fetch(
+          `${transfer_service_url}/transfer-request`,
+        );
+
+        if (!response.ok) throw new Error('Failed to load transfers');
+
+        const data = await response.json();
+        console.log(data);
+        setTransfers(data); // Set the data to state
+        setLoadingMessage('');
+      } catch (error) {
+        console.log(error); // TODO delete console log, display relevant error information to user
+        setErrorMessage('Failed to load transfer requests.');
+        setLoadingMessage('');
+      }
+    };
     fetchTransfers();
-  }, []);
+  }, [transfer_service_url]);
 
   const initiateTransfer = async () => {
     setErrorMessage('');
