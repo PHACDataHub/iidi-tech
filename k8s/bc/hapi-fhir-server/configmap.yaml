@@ -45,6 +45,9 @@ data:
           hibernate.jdbc.batch_size: 20 
     hapi:
       fhir:
+        delete_expunge_enabled: true
+        allow_multiple_delete: true
+        expunge_enabled: true
         server_address: "https://fhir.bc.iidi.alpha.phac.gc.ca/fhir"
         ### This enables the swagger-ui at /fhir/swagger-ui/index.html as well as the /fhir/api-docs (see https://hapifhir.io/hapi-fhir/docs/server_plain/openapi.html)
         openapi_enabled: true
