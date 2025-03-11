@@ -10,10 +10,10 @@ import TransferForm from './Components/TransferForm.jsx';
 import TransferTable from './Components/TransferTable.jsx';
 import WorkInProgressAlert from './Components/WorkInProgressAlert.jsx';
 
-import { get_default_pt } from './pt_utils.js';
+import { get_outbound_pt, pt_name_by_code } from './pt_utils.js';
 
 function App() {
-  const default_pt = get_default_pt();
+  const outbound_pt = get_outbound_pt();
 
   return (
     <>
@@ -25,10 +25,16 @@ function App() {
         <WorkInProgressAlert />
 
         <GcdsHeading tag="h1">
-          PT-to-PT MMR Immunization Record Transfer
+          PT-to-PT MMR Immunization Record Transfer:{' '}
+          {pt_name_by_code[outbound_pt]}
         </GcdsHeading>
-        <TransferForm defaultPT={default_pt} />
-        <TransferTable defaultPT={default_pt} />
+
+        <GcdsHeading tag="h2">Transfer Request Form</GcdsHeading>
+        <TransferForm outboundPT={outbound_pt} />
+
+        <GcdsHeading tag="h2">Transfer Requests</GcdsHeading>
+        <TransferTable outboundPT={outbound_pt} />
+
         <GcdsDateModified> {process.env.BUILD_DATE}</GcdsDateModified>
       </main>
 

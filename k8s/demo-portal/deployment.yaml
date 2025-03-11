@@ -35,7 +35,7 @@ spec:
             - name: BC_AGGREGATOR_URL
               value: https://aggregator.bc.iidi.alpha.phac.gc.ca/aggregated-data
             - name: BC_DEMO_TRANSFER_DASHBOARD_URL
-              value: 'https://demo-transfer-dashboard.iidi.alpha.phac.gc.ca?default_pt=BC'
+              value: 'https://demo-transfer-dashboard.iidi.alpha.phac.gc.ca?pt=BC'
             - name: ON_BROWSER_URL
               value: https://patient-browser.on.iidi.alpha.phac.gc.ca
             - name: ON_FHIR_URL
@@ -43,7 +43,7 @@ spec:
             - name: ON_AGGREGATOR_URL
               value: https://aggregator.on.iidi.alpha.phac.gc.ca/aggregated-data
             - name: ON_DEMO_TRANSFER_DASHBOARD_URL
-              value: 'https://demo-transfer-dashboard.iidi.alpha.phac.gc.ca?default_pt=ON'
+              value: 'https://demo-transfer-dashboard.iidi.alpha.phac.gc.ca?pt=ON'
           livenessProbe:
             httpGet:
               path: /health

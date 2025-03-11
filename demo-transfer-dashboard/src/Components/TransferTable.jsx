@@ -3,12 +3,12 @@ import { useState, useEffect } from 'react';
 
 import { transfer_service_url_by_pt_code } from 'src/pt_utils.js';
 
-const TransferTable = ({ defaultPT }) => {
+const TransferTable = ({ outboundPT }) => {
   const [transfers, setTransfers] = useState([]);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  const transfer_service_url = transfer_service_url_by_pt_code[defaultPT];
+  const transfer_service_url = transfer_service_url_by_pt_code[outboundPT];
 
   useEffect(() => {
     const fetchTransfers = async () => {
