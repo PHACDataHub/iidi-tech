@@ -28,15 +28,6 @@ spec:
           value: "60"
         - name: PUBLIC_KEY_PATH
           value: "/secrets/public_key.pem"
-        - name: IS_LOCAL_DEV
-          value: "true"
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "500m"
-          limits:
-            memory: "1Gi"
-            cpu: "1"
         readinessProbe:
           httpGet:
             path: /health

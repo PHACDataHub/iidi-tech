@@ -12,8 +12,9 @@ describe('AppError', () => {
 
     expect(appError).toBeInstanceOf(Error);
     expect(appError).toBeInstanceOf(AppError);
-    expect(appError.message).toBe(message);
     expect(appError.status).toBe(status);
+    expect(appError.message).toContain(message);
+    expect(appError.message).toContain(status.toString());
   });
 });
 

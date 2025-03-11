@@ -5,3 +5,34 @@ resources:
 - deployment.yaml
 - service.yaml
 
+patches:
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: patient-browser
+        namespace: "on"
+      spec:
+        template:
+          spec:
+            containers:
+              - name: patient-browser
+                resources:
+                  requests:
+                    cpu: 250m
+                    memory: 512Mi
+                  limits:
+                    cpu: 1.5
+                    memory: 2Gi
+              - name: istio-proxy
+                image: auto
+                resources:
+                  requests:
+                    cpu: 50m
+                    memory: 56Mi
+                securityContext:
+                  allowPrivilegeEscalation: false
+    target:
+      kind: Deployment
+      name: patient-browser
+      namespace: "on"
