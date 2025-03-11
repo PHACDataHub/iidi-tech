@@ -6,7 +6,7 @@ import {
   GcdsHeader,
 } from '@cdssnc/gcds-components-react';
 
-import Form from './Components/Form.jsx';
+import TransferForm from './Components/TransferForm.jsx';
 import WorkInProgressAlert from './Components/WorkInProgressAlert.jsx';
 
 function App() {
@@ -22,7 +22,7 @@ function App() {
         <GcdsHeading tag="h1">
           PT-to-PT MMR Immunization Record Transfer
         </GcdsHeading>
-        <Form />
+        <TransferForm />
         <GcdsDateModified> {process.env.BUILD_DATE}</GcdsDateModified>
       </main>
 
