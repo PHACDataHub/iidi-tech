@@ -39,6 +39,7 @@ export const create_app = async () => {
           PRIVATE_KEY_PATH !== undefined
             ? jwt.sign({ foo: 'bar' }, get_private_key(PRIVATE_KEY_PATH), {
                 algorithm: 'RS256',
+                expiresIn: '5m',
               })
             : undefined;
 
