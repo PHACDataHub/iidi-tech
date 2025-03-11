@@ -99,6 +99,7 @@ const make_config_for_react_spa_dir = (dir_path) => ({
     ...reactHooksPlugin.configs.recommended.rules,
 
     'react/prop-types': 'off',
+    'security/detect-object-injection': 'off',
   },
 });
 

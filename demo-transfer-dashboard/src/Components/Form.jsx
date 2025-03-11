@@ -38,19 +38,13 @@ const Form = () => {
   const [loadingMessage, setLoadingMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
-  useEffect(() => {
-    fetchTransfers();
-  }, []);
-
-  // Logic work in progress
+  const transfer_service_url = transfer_service_url_by_pt_code[originPT];
 
   const fetchTransfers = async () => {
     try {
       setLoadingMessage('Loading transfer requests...');
 
-      const response = await fetch(
-        `${transfer_service_url_by_pt_code[originPT]}/transfer-request`,
-      );
+      const response = await fetch(`${transfer_service_url}/transfer-request`);
 
       if (!response.ok) throw new Error('Failed to load transfers');
 
@@ -59,10 +53,14 @@ const Form = () => {
       setTransfers(data); // Set the data to state
       setLoadingMessage('');
     } catch (error) {
+      console.log(error); // TODO delete console log, display relevant error information to user
       setErrorMessage('Failed to load transfer requests.');
       setLoadingMessage('');
     }
   };
+  useEffect(() => {
+    fetchTransfers();
+  }, []);
 
   const initiateTransfer = async () => {
     setErrorMessage('');
@@ -74,17 +72,14 @@ const Form = () => {
     setLoadingMessage('Processing transfer... Please wait.');
 
     try {
-      const response = await fetch(
-        `${transfer_service_url_by_pt_code[originPT]}/transfer-request`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            patient_id: patientNumber,
-            transfer_to: receivingPT,
-          }),
-        },
-      );
+      const response = await fetch(`${transfer_service_url}/transfer-request`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          patient_id: patientNumber,
+          transfer_to: receivingPT,
+        }),
+      });
 
       if (!response.ok) throw new Error('Failed to initiate transfer');
 
@@ -92,6 +87,7 @@ const Form = () => {
       setTransfers((prevTransfers) => [...prevTransfers, data]);
       setLoadingMessage('');
     } catch (error) {
+      console.log(error); // TODO delete console log, display relevant error information to user
       setErrorMessage('Transfer request failed. Please try again.');
       setLoadingMessage('');
     }
