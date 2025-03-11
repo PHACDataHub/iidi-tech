@@ -77,6 +77,8 @@ const make_config_for_react_spa_dir = (dir_path) => ({
   languageOptions: {
     globals: {
       ...globals.browser,
+      // `process.env` is used for build-time injected env vars, via the rsbuild `define` config
+      process: 'readonly',
     },
     ...reactPlugin.configs.flat.recommended.languageOptions,
   },
