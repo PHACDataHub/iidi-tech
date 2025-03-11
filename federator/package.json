@@ -20,7 +20,6 @@
     "jest:debug": "node --inspect-brk='localhost:9229' node_modules/.bin/jest --coverage false --no-cache --runInBand"
   },
   "dependencies": {
-    "@types/jsonwebtoken": "^9.0.9",
     "@whatwg-node/node-fetch": "^0.7.0",
     "dotenv": "^16.0.3",
     "envalid": "^8.0.0",
@@ -36,6 +35,7 @@
     "@types/cookie-parser": "^1.4.8",
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
+    "@types/jsonwebtoken": "^9.0.9",
     "@types/lodash": "^4.17.14",
     "@types/node": "^22.10.5",
     "@types/supertest": "^6.0.2",
