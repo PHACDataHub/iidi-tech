@@ -6,7 +6,7 @@ import {
   GcdsFooter,
   GcdsHeader,
 } from '@cdssnc/gcds-components-react';
-import Alert from './Components/Alert.jsx';
+import WorkInProgressAlert from './Components/WorkInProgressAlert.jsx';
 
 function App() {
   return (
@@ -16,7 +16,7 @@ function App() {
       </header>
 
       <main>
-        <Alert />
+        <WorkInProgressAlert />
 
         <GcdsHeading tag="h1">
           PT-to-PT MMR Immunization Record Transfer
