@@ -87,7 +87,7 @@
           </div>
           <div class="buttons">
             {% for service in services %}
-            <gcds-button onclick="window.open('{{ service.url }}', '_blank')">
+            <gcds-button type="link" href="{{ service.url }}" target="_blank">
               <img
                 src="{{ url_for('static', filename='svg/' + service.name + '.svg') }}"
                 alt="{{ service.name }} Icon"
