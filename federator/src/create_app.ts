@@ -1,13 +1,20 @@
+import { readFileSync } from 'node:fs';
+
 import express from 'express';
+import jwt from 'jsonwebtoken';
+import _ from 'lodash';
 
 import { is_valid_aggregated_data } from './aggregation_validation_utils.ts';
 import type { AggregationGroupedData } from './aggregation_validation_utils.ts';
 import { get_env } from './env.ts';
 import { expressErrorHandler } from './error_utils.ts';
 
-export const create_app = async () => {
-  const { AGGREGATOR_URLS } = get_env();
+const get_private_key = _.memoize((private_key_path) =>
+  // eslint-disable-next-line security/detect-non-literal-fs-filename
+  readFileSync(private_key_path, 'utf8'),
+);
 
+export const create_app = async () => {
   const app = express();
 
   // we'll need to be able to read `X-Forwarded-*` headers, both in prod and when using the dev docker setup
@@ -22,11 +29,22 @@ export const create_app = async () => {
   });
 
   app.get('/aggregated-data', async (_req, res) => {
+    const { AGGREGATOR_URLS, PRIVATE_KEY_PATH } = get_env();
+
     const aggregator_results = await Promise.allSettled(
       AGGREGATOR_URLS.map(async (url) => {
         const aggregator_endpoint = `${url}/aggregated-data`;
 
-        const response = await fetch(aggregator_endpoint);
+        const token =
+          PRIVATE_KEY_PATH !== undefined
+            ? jwt.sign({ foo: 'bar' }, get_private_key(PRIVATE_KEY_PATH), {
+                algorithm: 'RS256',
+              })
+            : undefined;
+
+        const response = await fetch(aggregator_endpoint, {
+          ...(token ? { headers: { Authorization: `Bearer ${token}` } } : {}),
+        });
 
         if (response.ok) {
           const aggregated_data = await response.json().catch(() => null);

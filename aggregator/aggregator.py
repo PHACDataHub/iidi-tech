@@ -108,10 +108,8 @@ last_aggregation_time = None
 # Patient cache with LRU eviction policy
 patient_cache = LRUCache(maxsize=1000)
 
-async def verify_jwt(token):
+def verify_jwt(token):
     """Verifies JWT using the public key."""
-    if IS_LOCAL_DEV:
-        return {}
     if not PUBLIC_KEY:
         logging.error("Public key is not loaded, cannot verify JWT!")
         return None
@@ -245,7 +243,7 @@ async def get_aggregated_data():
         if not auth_header.startswith("Bearer "):
             return jsonify({"error": "Unauthorized"}), 401
         token = auth_header.split(" ", 1)[-1]
-        if not await verify_jwt(token):
+        if not verify_jwt(token):
             return jsonify({"error": "Invalid token"}), 403
 
     current_time = datetime.now().timestamp()

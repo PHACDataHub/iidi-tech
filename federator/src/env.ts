@@ -76,7 +76,9 @@ export const get_env = () => {
 
     AGGREGATOR_URLS: urlList(),
 
-    PRIVATE_KEY_PATH: validPrivateKeyPathIfProd({ default: undefined }),
+    PRIVATE_KEY_PATH: validPrivateKeyPathIfProd<string | undefined>({
+      default: undefined,
+    }),
 
     DEV_IS_LOCAL_ENV: boolFalseIfProd({ default: false }),
     DEV_IS_TEST_ENV: boolFalseIfProd({ default: false }),
