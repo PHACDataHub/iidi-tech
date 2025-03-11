@@ -9,7 +9,11 @@ import {
 import TransferForm from './Components/TransferForm.jsx';
 import WorkInProgressAlert from './Components/WorkInProgressAlert.jsx';
 
+import { get_default_pt } from './pt_utils.js';
+
 function App() {
+  const default_pt = get_default_pt();
+
   return (
     <>
       <header>
@@ -22,7 +26,7 @@ function App() {
         <GcdsHeading tag="h1">
           PT-to-PT MMR Immunization Record Transfer
         </GcdsHeading>
-        <TransferForm />
+        <TransferForm defaultPT={default_pt} />
         <GcdsDateModified> {process.env.BUILD_DATE}</GcdsDateModified>
       </main>
 
