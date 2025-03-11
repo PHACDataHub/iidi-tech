@@ -6,3 +6,66 @@ resources:
   - transfer-outbound.yaml
   - transfer-inbound-service.yaml
   - transfer-outbound-service.yaml
+
+patches:
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: transfer-inbound
+        namespace: "on"
+      spec:
+        template:
+          spec:
+            containers:
+              - name: transfer-inbound
+                resources:
+                  requests:
+                    cpu: 250m
+                    memory: 256Mi
+                  limits:
+                    cpu: 1.5
+                    memory: 2Gi
+              - name: istio-proxy
+                image: auto
+                resources:
+                  requests:
+                    cpu: 50m
+                    memory: 56Mi
+                securityContext:
+                  allowPrivilegeEscalation: false
+    target:
+      kind: Deployment
+      name: transfer-inbound
+      namespace: "on"
+
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: transfer-outbound
+        namespace: "on"
+      spec:
+        template:
+          spec:
+            containers:
+              - name: transfer-outbound
+                resources:
+                  requests:
+                    cpu: 250m
+                    memory: 256Mi
+                  limits:
+                    cpu: 1.5
+                    memory: 2Gi
+              - name: istio-proxy
+                image: auto
+                resources:
+                  requests:
+                    cpu: 50m
+                    memory: 56Mi
+                securityContext:
+                  allowPrivilegeEscalation: false
+    target:
+      kind: Deployment
+      name: transfer-outbound
+      namespace: "on"

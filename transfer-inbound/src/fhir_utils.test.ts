@@ -40,20 +40,23 @@ describe('assert_bundle_follows_fhir_spec', () => {
   });
 
   it('should throw a validation error if the FHIR bundle is invalid', async () => {
-    const mockResponse = {
-      issue: [
-        {
-          severity: 'error',
-          location: ['bundle.entry'],
-          diagnostics: 'Invalid entry in bundle',
-          details: { text: 'Entry does not follow FHIR spec' },
-        },
-      ],
-    };
+    const mockResponse = new Response(
+      JSON.stringify({
+        issue: [
+          {
+            severity: 'error',
+            location: ['bundle.entry'],
+            diagnostics: 'Invalid entry in bundle',
+            details: { text: 'Entry does not follow FHIR spec' },
+          },
+        ],
+      }),
+      {
+        status: 200,
+      },
+    );
 
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      json: jest.fn().mockResolvedValueOnce(mockResponse),
-    });
+    (fetch as jest.Mock).mockResolvedValueOnce(mockResponse);
 
     // Expecting the function to throw an AppError with status 400
     await expect(assert_bundle_follows_fhir_spec(mockBundle)).rejects.toThrow(
@@ -68,16 +71,17 @@ describe('assert_bundle_follows_fhir_spec', () => {
   });
 
   it('should not throw an error if the FHIR bundle is valid', async () => {
-    const mockResponse = {
-      issue: [],
-    };
+    const mockResponse = new Response(
+      JSON.stringify({
+        issue: [],
+      }),
+      {
+        status: 200,
+      },
+    );
 
     // Mocking fetch to return a valid response
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      status: 200,
-      json: jest.fn().mockResolvedValueOnce(mockResponse),
-    });
+    (fetch as jest.Mock).mockResolvedValueOnce(mockResponse);
 
     // We expect no error to be thrown when the validation is successful
     await expect(
@@ -121,14 +125,18 @@ describe('assert_bundle_follows_fhir_spec', () => {
       ],
     };
 
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: false,
+    const mockResponse = new Response(JSON.stringify(serverErrors), {
       status: 500,
-      json: jest.fn().mockResolvedValueOnce(serverErrors),
     });
 
+    (fetch as jest.Mock).mockResolvedValueOnce(mockResponse);
+
     await expect(assert_bundle_follows_fhir_spec(mockBundle)).rejects.toThrow(
-      new AppError(500, 'FHIR spec validation failed', serverErrors.issue),
+      new AppError(
+        500,
+        'FHIR spec validation encountered a server error',
+        serverErrors.issue,
+      ),
     );
   });
 
@@ -147,20 +155,21 @@ describe('assert_bundle_follows_fhir_spec', () => {
   });
 
   it('should handle validation errors without location or diagnostics', async () => {
-    const mockResponse = {
-      issue: [
-        {
-          severity: 'error',
-          // Deliberately omitting location and diagnostics
-        },
-      ],
-    };
+    const mockResponse = new Response(
+      JSON.stringify({
+        issue: [
+          {
+            severity: 'error',
+            // Deliberately omitting location and diagnostics
+          },
+        ],
+      }),
+      {
+        status: 200,
+      },
+    );
 
-    (fetch as jest.Mock).mockResolvedValueOnce({
-      ok: true,
-      status: 200,
-      json: jest.fn().mockResolvedValueOnce(mockResponse),
-    });
+    (fetch as jest.Mock).mockResolvedValueOnce(mockResponse);
 
     await expect(assert_bundle_follows_fhir_spec(mockBundle)).rejects.toThrow(
       new AppError(400, 'FHIR spec validation failed', [
@@ -182,7 +191,7 @@ describe('handle_response', () => {
     });
 
     await expect(handle_response(mockResponse)).rejects.toThrow(
-      new AppError(500, 'FHIR server responded with status 404'),
+      new AppError(404, 'FHIR server responded with status 404'),
     );
   });
 

@@ -5,7 +5,27 @@ import { get_env } from './env.ts';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SerializableErrorData = Record<string, any>;
 
+const get_app_error_data = (errorData?: SerializableErrorData) => {
+  if (errorData !== undefined) {
+    try {
+      JSON.parse(JSON.stringify(errorData));
+      return errorData;
+    } catch {
+      console.error(
+        `Invalid error data provided, not JSON serializable. Received: "${errorData}"`,
+      );
+    }
+  }
+};
+const get_app_error_message = (
+  status: number,
+  message: string,
+  errorData?: SerializableErrorData,
+) => {
+  return `Status: "${status}". Message: "${message}". ${get_app_error_data(errorData) !== undefined ? `Error data: ${JSON.stringify(get_app_error_data(errorData))}.` : ''}`;
+};
 export class AppError extends Error {
+  message_raw: string;
   status: number;
   errorData?: SerializableErrorData;
 
@@ -14,11 +34,22 @@ export class AppError extends Error {
     message: string,
     errorData?: SerializableErrorData,
   ) {
-    super(message);
+    super(get_app_error_message(status, message, errorData));
+    this.message_raw = message;
     this.status = status;
-    this.errorData = errorData;
+    this.errorData = get_app_error_data(errorData);
+  }
+
+  toJSON() {
+    return {
+      error: this.message_raw,
+      details: this.errorData,
+    };
   }
 }
+
+const is_app_error = (err: Error | AppError): err is AppError =>
+  'status' in err;
 
 const handle_error_logging = (err: Error | AppError) => {
   const { DEV_IS_TEST_ENV } = get_env();
@@ -31,7 +62,7 @@ const handle_error_logging = (err: Error | AppError) => {
 };
 
 const get_status_code = (err: Error | AppError) =>
-  'status' in err ? err.status : 500;
+  is_app_error(err) ? err.status : 500;
 
 export const expressErrorHandler = (
   err: Error | AppError,
@@ -41,21 +72,7 @@ export const expressErrorHandler = (
 ) => {
   handle_error_logging(err);
 
-  const errorResponse: {
-    error: string;
-    details?: SerializableErrorData;
-  } = {
-    error: err.message,
-  };
-
-  if (err instanceof AppError && err.errorData) {
-    try {
-      JSON.parse(JSON.stringify(err.errorData));
-      errorResponse.details = err.errorData;
-    } catch (e) {
-      console.error('Invalid error data provided:', e);
-    }
-  }
-
-  res.status(get_status_code(err)).json(errorResponse);
+  res
+    .status(get_status_code(err))
+    .json(is_app_error(err) ? err.toJSON() : { error: err.message });
 };

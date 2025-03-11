@@ -56,7 +56,11 @@ export const assert_bundle_follows_fhir_spec = async (bundle: Bundle) => {
       }
     } else {
       const serverErrors = responseBody.issue;
-      throw new AppError(500, 'FHIR spec validation failed', serverErrors);
+      throw new AppError(
+        500,
+        'FHIR spec validation encountered a server error',
+        serverErrors,
+      );
     }
   } catch (error) {
     if (error instanceof AppError) {

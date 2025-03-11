@@ -4,3 +4,35 @@ kind: Kustomization
 resources:
   - deployment.yaml
   - service.yaml
+
+patches:
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: aggregator-deployment
+        namespace: "on"
+      spec:
+        template:
+          spec:
+            containers:
+              - name: aggregator
+                resources:
+                  requests:
+                    cpu: 250m
+                    memory: 256Mi
+                  limits:
+                    cpu: 1.5
+                    memory: 2Gi
+              - name: istio-proxy
+                image: auto
+                resources:
+                  requests:
+                    cpu: 50m
+                    memory: 56Mi
+                securityContext:
+                  allowPrivilegeEscalation: false
+    target:
+      kind: Deployment
+      name: aggregator-deployment
+      namespace: "on"
