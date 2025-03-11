@@ -5,7 +5,7 @@ import {
   GcdsErrorMessage,
   GcdsText,
 } from '@cdssnc/gcds-components-react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 import {
   pt_codes,
@@ -19,35 +19,11 @@ const TransferForm = ({ defaultPT }) => {
   const [patientNumber, setPatientNumber] = useState('');
   const [originPT, setOriginPT] = useState(defaultPT);
   const [receivingPT, setReceivingPT] = useState(default_receiving_pt);
-  const [transfers, setTransfers] = useState([]);
+  const [transferRequest, setTransferRequest] = useState([]);
   const [loadingMessage, setLoadingMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
   const transfer_service_url = transfer_service_url_by_pt_code[originPT];
-
-  useEffect(() => {
-    const fetchTransfers = async () => {
-      try {
-        setLoadingMessage('Loading transfer requests...');
-
-        const response = await fetch(
-          `${transfer_service_url}/transfer-request`,
-        );
-
-        if (!response.ok) throw new Error('Failed to load transfers');
-
-        const data = await response.json();
-        console.log(data);
-        setTransfers(data); // Set the data to state
-        setLoadingMessage('');
-      } catch (error) {
-        console.log(error); // TODO delete console log, display relevant error information to user
-        setErrorMessage('Failed to load transfer requests.');
-        setLoadingMessage('');
-      }
-    };
-    fetchTransfers();
-  }, [transfer_service_url]);
 
   const initiateTransfer = async () => {
     setErrorMessage('');
@@ -71,7 +47,8 @@ const TransferForm = ({ defaultPT }) => {
       if (!response.ok) throw new Error('Failed to initiate transfer');
 
       const data = await response.json();
-      setTransfers((prevTransfers) => [...prevTransfers, data]);
+
+      setTransferRequest(data);
       setLoadingMessage('');
     } catch (error) {
       console.log(error); // TODO delete console log, display relevant error information to user
@@ -161,43 +138,8 @@ const TransferForm = ({ defaultPT }) => {
           <GcdsText>{loadingMessage}</GcdsText>
         </p>
       )}
-
-      {transfers.length > 0 && (
-        <table style={{ marginTop: '50px' }}>
-          <thead>
-            <tr>
-              <th>
-                <GcdsText>Patient ID</GcdsText>
-              </th>
-
-              <th>
-                <GcdsText>Receiving PT</GcdsText>
-              </th>
-              <th>
-                <GcdsText>Transfer Status</GcdsText>
-              </th>
-              <th>
-                <GcdsText>Transfer Stage </GcdsText>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {transfers.map((transfer, index) => (
-              <tr key={index}>
-                <td>{transfer.patient_id}</td>
-                <td>{transfer.transfer_to}</td>
-                <td
-                  className={`status ${transfer.state === 'Completed' ? 'completed' : 'failed'}`}
-                >
-                  <GcdsText>{transfer.state}</GcdsText>
-                </td>
-                <td>
-                  <GcdsText>{transfer.stage}</GcdsText>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {transferRequest && (
+        <GcdsText>TODO display transferRequest response</GcdsText>
       )}
     </div>
   );
