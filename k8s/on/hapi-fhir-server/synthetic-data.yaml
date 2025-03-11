@@ -3,19 +3,29 @@ kind: Job
 metadata:
   name: synthetic-data-job
   namespace: "on"
+  annotations:
+    proxy.istio.io/config: '{ "terminationDrainDuration": "0s" }'
 spec:
   backoffLimit: 4
+  ttlSecondsAfterFinished: 600
   template:
     spec:
+      restartPolicy: Never
       containers:
       - name: synthetic-data
-        image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/synthetic-data:latest
+        image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/synthetic-data:main-01df63e5bec99369feefd606f28e4db267f7716c-1741382883 # {"$imagepolicy": "flux-system:synthetic-data-on"}
         imagePullPolicy: Always
         env:
         - name: NUM_RECORDS
-          value: "500"
+          value: "1"
         - name: PT
           value: "on"
         - name: FHIR_URL
           value: "http://hapi-fhir-svc.on.svc.cluster.local:8080/fhir"
-      restartPolicy: Never
+        resources:
+          requests:
+            cpu: "500m"
+            memory: "512Mi"
+          limits:
+            cpu: "1"
+            memory: "1Gi"
