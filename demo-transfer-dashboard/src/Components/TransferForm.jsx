@@ -27,7 +27,7 @@ const get_default_pt = () => {
     : pt_codes[0];
 };
 
-const Form = () => {
+const TransferForm = () => {
   const default_pt = get_default_pt();
   const default_receiving_pt = pt_codes.find((pt) => pt !== default_pt);
 
@@ -218,4 +218,4 @@ const Form = () => {
   );
 };
 
-export default Form;
+export default TransferForm;
