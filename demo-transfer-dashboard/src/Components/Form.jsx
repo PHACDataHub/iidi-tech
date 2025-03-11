@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import {
   GcdsInput,
   GcdsSelect,
@@ -6,6 +5,7 @@ import {
   GcdsErrorMessage,
   GcdsText,
 } from '@cdssnc/gcds-components-react';
+import { useState, useEffect } from 'react';
 
 const pt_codes = ['BC', 'ON'];
 const pt_name_by_code = {
