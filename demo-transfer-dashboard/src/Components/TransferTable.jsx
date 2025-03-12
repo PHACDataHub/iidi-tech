@@ -65,11 +65,13 @@ const get_transfer_status_text = (transfer) => {
 
 const get_transfer_result_display = (transfer) => {
   if (is_transfer_failed(transfer)) {
-    return (
-      transfer.failed_reason ??
-      transfer.rejected_reason ??
-      'Failure reason unknown'
-    );
+    if (transfer.rejected_reason) {
+      return `Rejected by receiving system, reason: ${transfer.rejected_reason}`;
+    } else if (transfer.failed_reason) {
+      return `Transfer system error: ${transfer.failed_reason}`;
+    } else {
+      return 'Failure reason unknown';
+    }
   } else if (is_transfer_succeeded(transfer)) {
     return `Patient ID in receiving system: ${transfer.new_patient_id ?? 'Unknown'}`;
   } else {
