@@ -36,6 +36,7 @@ const TransferTable = ({ outboundPT }) => {
   const [showLoading, setShowLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [transfers, setTransfers] = useState([]);
+  const [lastRefresh, setlastRefresh] = useState();
 
   useEffect(() => {
     const fetchTransfers = async () => {
@@ -63,6 +64,12 @@ const TransferTable = ({ outboundPT }) => {
         } catch (error) {
           setErrorMessage(error.toString());
         } finally {
+          setlastRefresh(
+            new Intl.DateTimeFormat('en-CA', {
+              dateStyle: 'short',
+              timeStyle: 'long',
+            }).format(),
+          );
           setLoading(false);
         }
       }
@@ -103,6 +110,16 @@ const TransferTable = ({ outboundPT }) => {
       )}
 
       <table className="transfer-table">
+        <caption align="bottom">
+          <GcdsText size="small">
+            Summary of {pt_name_by_code[outboundPT]}'s historical and ongoing
+            patient transfers.
+            <br></br>
+            {lastRefresh
+              ? `Last refreshed: ${lastRefresh}`
+              : 'Loading initial data...'}
+          </GcdsText>
+        </caption>
         <thead>
           <tr>
             <TransferTableHeader>Transfer Job ID</TransferTableHeader>
