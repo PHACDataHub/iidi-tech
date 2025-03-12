@@ -170,9 +170,9 @@ const TransferTable = ({ outboundPT }) => {
           </caption>
           <thead>
             <tr>
-              <TransferTableHeader>Transfer Job ID</TransferTableHeader>
               <TransferTableHeader>Patient ID</TransferTableHeader>
               <TransferTableHeader>Receiving PT</TransferTableHeader>
+              <TransferTableHeader>Transfer Job ID</TransferTableHeader>
               <TransferTableHeader>Transfer Status</TransferTableHeader>
               <TransferTableHeader>Result</TransferTableHeader>
             </tr>
@@ -183,11 +183,11 @@ const TransferTable = ({ outboundPT }) => {
                 key={transfer.job_id}
                 className={`transfer-table__row transfer-table__row--${get_transfer_row_class_modifier(transfer)}`}
               >
-                <TransferTableData>{transfer.job_id}</TransferTableData>
                 <TransferTableData>{transfer.patient_id}</TransferTableData>
                 <TransferTableData>
                   {pt_name_by_code[transfer.transfer_to]}
                 </TransferTableData>
+                <TransferTableData>{transfer.job_id}</TransferTableData>
                 <TransferTableData>
                   {get_transfer_status_text(transfer)}
                 </TransferTableData>
