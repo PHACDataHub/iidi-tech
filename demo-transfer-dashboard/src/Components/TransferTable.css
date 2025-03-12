@@ -1,0 +1,19 @@
+.transfer-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 50px;
+
+  th,
+  td {
+    border-bottom: 1px solid black;
+    padding: 8px;
+  }
+
+  th {
+    background-color: #f9fafb;
+  }
+}
+
+.transfer-table__table-header {
+  font-weight: 700;
+}
