@@ -2,6 +2,8 @@ import type { Request, Response, NextFunction } from 'express';
 
 import { get_env } from './env.ts';
 
+// TODO deduplicate against transfer-outbound error_utils.ts
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type SerializableErrorData = Record<string, any>;
 
