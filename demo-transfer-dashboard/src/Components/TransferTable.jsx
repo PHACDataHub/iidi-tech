@@ -108,45 +108,46 @@ const TransferTable = ({ outboundPT }) => {
           </GcdsNotice>
         </div>
       )}
-
-      <table className="transfer-table">
-        <caption align="bottom">
-          <GcdsText size="small">
-            Summary of {pt_name_by_code[outboundPT]}'s historical and ongoing
-            patient transfers.
-            <br></br>
-            {lastRefresh
-              ? `Last refreshed: ${lastRefresh}`
-              : 'Loading initial data...'}
-          </GcdsText>
-        </caption>
-        <thead>
-          <tr>
-            <TransferTableHeader>Transfer Job ID</TransferTableHeader>
-            <TransferTableHeader>Patient ID</TransferTableHeader>
-            <TransferTableHeader>Receiving PT</TransferTableHeader>
-            <TransferTableHeader>Transfer Status</TransferTableHeader>
-            <TransferTableHeader>Transfer Stage</TransferTableHeader>
-          </tr>
-        </thead>
-        <tbody>
-          {transfers.map((transfer) => (
-            <tr key={transfer.job_id}>
-              <TransferTableData>{transfer.job_id}</TransferTableData>
-              <TransferTableData>{transfer.patient_id}</TransferTableData>
-              <TransferTableData>
-                {pt_name_by_code[transfer.transfer_to]}
-              </TransferTableData>
-              <TransferTableData
-                className={`status ${transfer.state === 'Completed' ? 'completed' : 'failed'}`}
-              >
-                {transfer.state}
-              </TransferTableData>
-              <TransferTableData>{transfer.stage}</TransferTableData>
+      <div style={{ overflowX: 'auto' }}>
+        <table className="transfer-table">
+          <caption align="bottom">
+            <GcdsText size="small">
+              Summary of {pt_name_by_code[outboundPT]}'s historical and ongoing
+              patient transfers.
+              <br></br>
+              {lastRefresh
+                ? `Last refreshed: ${lastRefresh}`
+                : 'Loading initial data...'}
+            </GcdsText>
+          </caption>
+          <thead>
+            <tr>
+              <TransferTableHeader>Transfer Job ID</TransferTableHeader>
+              <TransferTableHeader>Patient ID</TransferTableHeader>
+              <TransferTableHeader>Receiving PT</TransferTableHeader>
+              <TransferTableHeader>Transfer Status</TransferTableHeader>
+              <TransferTableHeader>Transfer Stage</TransferTableHeader>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {transfers.map((transfer) => (
+              <tr key={transfer.job_id}>
+                <TransferTableData>{transfer.job_id}</TransferTableData>
+                <TransferTableData>{transfer.patient_id}</TransferTableData>
+                <TransferTableData>
+                  {pt_name_by_code[transfer.transfer_to]}
+                </TransferTableData>
+                <TransferTableData
+                  className={`status ${transfer.state === 'Completed' ? 'completed' : 'failed'}`}
+                >
+                  {transfer.state}
+                </TransferTableData>
+                <TransferTableData>{transfer.stage}</TransferTableData>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       {!loading && transfers.length === 0 && (
         <div
           style={{
