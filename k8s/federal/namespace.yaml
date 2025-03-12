@@ -7,5 +7,6 @@ metadata:
   labels:
     name: istio-system
     istio.io/rev: asm-managed
+    netpol: federal
 spec: {}
 status: {}

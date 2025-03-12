@@ -26,6 +26,8 @@ spec:
           value: "false"
         - name: AGGREGATOR_URLS
           value: "https://aggregator.on.iidi.alpha.phac.gc.ca,https://aggregator.bc.iidi.alpha.phac.gc.ca"
+        - name: PRIVATE_KEY_PATH
+          value: "/secrets/private_key.pem"
         resources:
           requests:
             memory: "256Mi"
@@ -49,3 +51,11 @@ spec:
           periodSeconds: 20
           timeoutSeconds: 3
           failureThreshold: 3
+        volumeMounts:
+        - name: private-key-volume
+          mountPath: "/secrets"
+          readOnly: true
+      volumes:
+      - name: private-key-volume
+        secret:
+          secretName: federator-private-key
