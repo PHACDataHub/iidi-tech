@@ -360,9 +360,22 @@ collapsible_sections = [
         """
     },
     {
-        "title": "Future Roadmap & Next Steps",
+        "title": "GitHub Repository & Architecture Links",
         "content": """
-        <p>Upcoming developments and the roadmap for the Interoperable Immunization Data Initiative.</p>
+        <p>Explore the codebase and architecture for the Interoperable Immunization Data Initiative (IIDI).</p>
+        
+        <ul>
+            <li><a href="https://github.com/PHACDataHub/iidi-tech" target="_blank">IIDI-Tech GitHub Repository</a></li>
+            <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/GCP-Architecture.png" target="_blank">GCP Architecture Overview</a></li>
+        </ul>
+
+        <h3>Architecture Review Board Documents</h3>
+        <ul>
+            <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/User-Journey-1.md" target="_blank">
+                Interoperable Immunization Data Initiative (IIDI) – User Journey 1: PT-to-PT Transfer</a></li>
+            <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/User-Journey-2.md" target="_blank">
+                Interoperable Immunization Data Initiative (IIDI) – User Journey 2: PT-to-PHAC</a></li>
+        </ul>
         """
     }
 ]
