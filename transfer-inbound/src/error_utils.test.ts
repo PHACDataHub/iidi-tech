@@ -81,7 +81,7 @@ describe('expressErrorHandler middleware', () => {
     expect(response.body.error).toBe(error_message);
   });
 
-  it('includes validation errors in the response when present', async () => {
+  it('includes additional error data in the response when present', async () => {
     const app = express();
     const status_code = 400;
     const errorDetails = {
@@ -107,7 +107,7 @@ describe('expressErrorHandler middleware', () => {
     expect(response.body.details).toEqual(errorDetails);
   });
 
-  it('handles non-serializable error details gracefully', async () => {
+  it('handles non-serializable error data gracefully', async () => {
     const app = express();
     const status_code = 400;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
