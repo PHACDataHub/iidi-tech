@@ -29,10 +29,8 @@ function App() {
           {pt_name_by_code[outbound_pt]}
         </GcdsHeading>
 
-        <GcdsHeading tag="h2">Transfer Request Form</GcdsHeading>
         <TransferForm outboundPT={outbound_pt} />
 
-        <GcdsHeading tag="h2">Transfer Requests</GcdsHeading>
         <TransferTable outboundPT={outbound_pt} />
 
         <GcdsDateModified> {process.env.BUILD_DATE}</GcdsDateModified>

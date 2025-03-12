@@ -4,6 +4,7 @@ import {
   GcdsText,
   GcdsNotice,
   GcdsButton,
+  GcdsHeading,
 } from '@cdssnc/gcds-components-react';
 import { useState, useEffect } from 'react';
 
@@ -70,6 +71,15 @@ const TransferTable = ({ outboundPT }) => {
 
   return (
     <>
+      <div className="transfer-table-header">
+        <GcdsHeading tag="h2">Transfer Requests</GcdsHeading>
+        <GcdsButton disabled={loading} onClick={() => setLoading(true)}>
+          <div style={{ width: '125px' }}>
+            {!loading ? 'Refresh' : 'Loading...'}
+          </div>
+        </GcdsButton>
+      </div>
+
       {errorMessage && (
         <div style={{ paddingTop: '20px' }}>
           <GcdsNotice type={'danger'} noticeTitleTag="h3" noticeTitle={'Error'}>
@@ -77,12 +87,6 @@ const TransferTable = ({ outboundPT }) => {
           </GcdsNotice>
         </div>
       )}
-
-      <div>
-        <GcdsButton disabled={loading} onClick={() => setLoading(true)}>
-          {!loading ? 'Refresh Data' : 'Refreshing...'}
-        </GcdsButton>
-      </div>
 
       <table className="transfer-table">
         <thead>
@@ -121,9 +125,7 @@ const TransferTable = ({ outboundPT }) => {
           }}
         >
           <GcdsNotice type={'info'} noticeTitleTag="h4" noticeTitle={'No Data'}>
-            <GcdsText>
-              No transfer requests were found by the transfer service.
-            </GcdsText>
+            <GcdsText>No transfer requests were found</GcdsText>
           </GcdsNotice>
         </div>
       )}
