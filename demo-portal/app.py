@@ -360,22 +360,42 @@ collapsible_sections = [
         """
     },
     {
-        "title": "GitHub Repository & Architecture Links",
+        "title": "GitHub Repository & Architecture",
         "content": """
-        <p>Explore the codebase and architecture for the Interoperable Immunization Data Initiative (IIDI).</p>
-        
-        <ul>
-            <li><a href="https://github.com/PHACDataHub/iidi-tech" target="_blank">IIDI-Tech GitHub Repository</a></li>
-            <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/GCP-Architecture.png" target="_blank">GCP Architecture Overview</a></li>
-        </ul>
+            <h5>Overview</h5>
+            <p>
+                The Interoperable Immunization Data Initiative (IIDI) is built using a secure, scalable, and federated model. 
+                The architecture enables seamless data exchange while ensuring that provincial and territorial jurisdictions 
+                maintain control over their immunization records.
+            </p>
 
-        <h3>Architecture Review Board Documents</h3>
-        <ul>
-            <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/User-Journey-1.md" target="_blank">
-                Interoperable Immunization Data Initiative (IIDI) – User Journey 1: PT-to-PT Transfer</a></li>
-            <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/User-Journey-2.md" target="_blank">
-                Interoperable Immunization Data Initiative (IIDI) – User Journey 2: PT-to-PHAC</a></li>
-        </ul>
+            <h6>GitHub Repository</h6>
+            <p>
+                The source code and related documentation for IIDI can be found in the official GitHub repository:
+            </p>
+            <ul>
+                <li><a href="https://github.com/PHACDataHub/iidi-tech" target="_blank"><strong>IIDI-Tech GitHub Repository</strong></a></li>
+            </ul>
+
+            <h6>Technical Architecture</h6>
+            <p>
+                The IIDI technical stack is designed for interoperability, security, and compliance with public health data 
+                governance frameworks. Key architecture components are documented below:
+            </p>
+            <ul>
+                <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/GCP-Architecture.png" target="_blank"><strong>GCP Architecture Overview</strong></a> - High-level infrastructure design for deployment.</li>
+            </ul>
+            <img src="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/GCP-Architecture.png?raw=true" 
+                alt="GCP Architecture Diagram" style="max-width:100%;">
+
+            <h6>Architecture Review Board Documentation</h6>
+            <p>
+                The architecture follows a federated data model to support two primary user journeys:
+            </p>
+            <ul>
+                <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/User-Journey-1.md" target="_blank"><strong>Interoperable Immunization Data Initiative (IIDI) – User Journey 1: PT-to-PT Transfer</strong></a></li>
+                <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/User-Journey-2.md" target="_blank"><strong>Interoperable Immunization Data Initiative (IIDI) – User Journey 2: PT-to-PHAC</strong></a></li>
+            </ul>
         """
     }
 ]
