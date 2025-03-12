@@ -37,3 +37,15 @@
 .transfer-table__table-header {
   font-weight: 700;
 }
+
+.transfer-table__row--ongoing {
+  border-left: 8px solid gray;
+}
+
+.transfer-table__row--succeeded {
+  border-left: 8px solid green;
+}
+
+.transfer-table__row--failed {
+  border-left: 8px solid red;
+}
