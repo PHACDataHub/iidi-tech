@@ -29,6 +29,54 @@ const TransferTableData = ({ children }) => (
   </td>
 );
 
+const is_transfer_failed = ({ state, stage }) =>
+  (state === 'completed' && stage === 'rejected') || state === 'failed';
+const is_transfer_succeeded = ({ state, stage }) =>
+  state === 'completed' && stage === 'done';
+const is_transfer_active = ({ state, stage }) => state === 'active';
+const is_transfer_pending = (transfer) =>
+  !is_transfer_active(transfer) &&
+  !is_transfer_failed(transfer) &&
+  !is_transfer_succeeded(transfer);
+
+const get_transfer_row_class_modifier = (transfer) => {
+  if (is_transfer_failed(transfer)) {
+    return 'failed';
+  } else if (is_transfer_succeeded(transfer)) {
+    return 'succeeded';
+  } else {
+    return 'ongoing';
+  }
+};
+
+const get_transfer_status_text = (transfer) => {
+  if (is_transfer_failed(transfer)) {
+    return 'Failed';
+  } else if (is_transfer_succeeded(transfer)) {
+    return `Success`;
+  } else if (is_transfer_active(transfer)) {
+    return 'Processing';
+  } else if (is_transfer_pending(transfer)) {
+    return 'Waiting in queue';
+  } else {
+    return 'Unknown';
+  }
+};
+
+const get_transfer_result_display = (transfer) => {
+  if (is_transfer_failed(transfer)) {
+    return (
+      transfer.failed_reason ??
+      transfer.rejected_reason ??
+      'Failure reason unknown'
+    );
+  } else if (is_transfer_succeeded(transfer)) {
+    return `Patient ID in receiving system: ${transfer.new_patient_id ?? 'Unknown'}`;
+  } else {
+    return 'Pending...';
+  }
+};
+
 const TransferTable = ({ outboundPT }) => {
   const transfer_service_url = transfer_service_url_by_pt_code[outboundPT];
 
@@ -90,18 +138,6 @@ const TransferTable = ({ outboundPT }) => {
     }
   }, [loading]);
 
-  const get_transfer_row_class_modifier = ({ state, stage }) => {
-    if ((state === 'completed' && stage === 'rejected') || state === 'failed') {
-      return 'failed';
-    } else if (state === 'completed' && stage === 'done') {
-      return 'succeeded';
-    } else {
-      return 'ongoing';
-    }
-  };
-
-  const get_transfer_status_text = (transfer) => 'TODO';
-
   return (
     <>
       <div className="transfer-table-header">
@@ -138,6 +174,7 @@ const TransferTable = ({ outboundPT }) => {
               <TransferTableHeader>Patient ID</TransferTableHeader>
               <TransferTableHeader>Receiving PT</TransferTableHeader>
               <TransferTableHeader>Transfer Status</TransferTableHeader>
+              <TransferTableHeader>Result</TransferTableHeader>
             </tr>
           </thead>
           <tbody>
@@ -153,6 +190,9 @@ const TransferTable = ({ outboundPT }) => {
                 </TransferTableData>
                 <TransferTableData>
                   {get_transfer_status_text(transfer)}
+                </TransferTableData>
+                <TransferTableData>
+                  {get_transfer_result_display(transfer)}
                 </TransferTableData>
               </tr>
             ))}
