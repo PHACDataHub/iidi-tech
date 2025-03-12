@@ -1,89 +1,132 @@
-import { GcdsText, GcdsErrorMessage } from '@cdssnc/gcds-components-react';
+import './TransferTable.css';
+
+import {
+  GcdsText,
+  GcdsNotice,
+  GcdsButton,
+} from '@cdssnc/gcds-components-react';
 import { useState, useEffect } from 'react';
 
-import { transfer_service_url_by_pt_code } from 'src/pt_utils.js';
+import {
+  transfer_service_url_by_pt_code,
+  pt_name_by_code,
+} from 'src/pt_utils.js';
+
+const TransferTableHeader = ({ children }) => (
+  <th>
+    <GcdsText>
+      <div className="transfer-table__table-header">{children}</div>
+    </GcdsText>
+  </th>
+);
+
+const TransferTableData = ({ children }) => (
+  <td>
+    <GcdsText>
+      <div className="transfer-table__table-data">{children}</div>
+    </GcdsText>
+  </td>
+);
 
 const TransferTable = ({ outboundPT }) => {
-  const [transfers, setTransfers] = useState([]);
-  const [loadingMessage, setLoadingMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-
   const transfer_service_url = transfer_service_url_by_pt_code[outboundPT];
+
+  const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [transfers, setTransfers] = useState([]);
 
   useEffect(() => {
     const fetchTransfers = async () => {
-      try {
-        setLoadingMessage('Loading transfer requests...');
+      if (loading) {
+        try {
+          const response = await fetch(
+            `${transfer_service_url}/transfer-request`,
+          );
 
-        const response = await fetch(
-          `${transfer_service_url}/transfer-request`,
-        );
+          const data = await response.json().catch(() => null);
 
-        if (!response.ok) throw new Error('Failed to load transfers');
-
-        const data = await response.json();
-
-        setTransfers(data);
-
-        setLoadingMessage('');
-      } catch (error) {
-        console.log(error); // TODO delete console log, display relevant error information to user
-        setErrorMessage('Failed to load transfer requests.');
-        setLoadingMessage('');
+          if (!response.ok) {
+            throw new Error(
+              `Failed to get info on transfers: ${'error' in data ? data.error : response.statusText}`,
+            );
+          } else {
+            if (data) {
+              setTransfers(data);
+            } else {
+              throw new Error(
+                'Transfer service did not respond with expected data, please contact a developer.',
+              );
+            }
+          }
+        } catch (error) {
+          setErrorMessage(error.toString());
+        } finally {
+          setLoading(false);
+        }
       }
     };
     fetchTransfers();
-  }, [transfer_service_url]);
+  }, [transfer_service_url, loading]);
 
   return (
     <>
       {errorMessage && (
-        <p id="errorMessage" className="error">
-          <GcdsErrorMessage messageId="message-props">
-            {errorMessage}
-          </GcdsErrorMessage>
-        </p>
+        <div style={{ paddingTop: '20px' }}>
+          <GcdsNotice type={'danger'} noticeTitleTag="h3" noticeTitle={'Error'}>
+            <GcdsText>{errorMessage}</GcdsText>
+          </GcdsNotice>
+        </div>
       )}
-      {loadingMessage && (
-        <p id="loadingMessage" className="loading">
-          <GcdsText>{loadingMessage}</GcdsText>
-        </p>
-      )}
-      <table style={{ marginTop: '50px' }}>
+
+      <div>
+        <GcdsButton disabled={loading} onClick={() => setLoading(true)}>
+          {!loading ? 'Refresh Data' : 'Refreshing...'}
+        </GcdsButton>
+      </div>
+
+      <table className="transfer-table">
         <thead>
           <tr>
-            <th>
-              <GcdsText>Patient ID</GcdsText>
-            </th>
-
-            <th>
-              <GcdsText>Receiving PT</GcdsText>
-            </th>
-            <th>
-              <GcdsText>Transfer Status</GcdsText>
-            </th>
-            <th>
-              <GcdsText>Transfer Stage </GcdsText>
-            </th>
+            <TransferTableHeader>Transfer Job ID</TransferTableHeader>
+            <TransferTableHeader>Patient ID</TransferTableHeader>
+            <TransferTableHeader>Receiving PT</TransferTableHeader>
+            <TransferTableHeader>Transfer Status</TransferTableHeader>
+            <TransferTableHeader>Transfer Stage</TransferTableHeader>
           </tr>
         </thead>
         <tbody>
-          {transfers.map((transfer, index) => (
-            <tr key={index}>
-              <td>{transfer.patient_id}</td>
-              <td>{transfer.transfer_to}</td>
-              <td
+          {transfers.map((transfer) => (
+            <tr key={transfer.job_id}>
+              <TransferTableData>{transfer.job_id}</TransferTableData>
+              <TransferTableData>{transfer.patient_id}</TransferTableData>
+              <TransferTableData>
+                {pt_name_by_code[transfer.transfer_to]}
+              </TransferTableData>
+              <TransferTableData
                 className={`status ${transfer.state === 'Completed' ? 'completed' : 'failed'}`}
               >
-                <GcdsText>{transfer.state}</GcdsText>
-              </td>
-              <td>
-                <GcdsText>{transfer.stage}</GcdsText>
-              </td>
+                {transfer.state}
+              </TransferTableData>
+              <TransferTableData>{transfer.stage}</TransferTableData>
             </tr>
           ))}
         </tbody>
       </table>
+      {!loading && transfers.length === 0 && (
+        <div
+          style={{
+            paddingTop: '20px',
+            display: 'flex',
+            justifyContent: 'center',
+          }}
+        >
+          <GcdsNotice type={'info'} noticeTitleTag="h4" noticeTitle={'No Data'}>
+            <GcdsText>
+              No transfer requests were found by the transfer service.
+            </GcdsText>
+          </GcdsNotice>
+        </div>
+      )}
     </>
   );
 };
