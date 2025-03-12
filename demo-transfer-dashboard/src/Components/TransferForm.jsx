@@ -6,6 +6,7 @@ import {
   GcdsButton,
   GcdsNotice,
   GcdsText,
+  GcdsHeading,
 } from '@cdssnc/gcds-components-react';
 import { useState } from 'react';
 
@@ -28,7 +29,29 @@ const TransferForm = ({ outboundPT }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [transferRequest, setTransferRequest] = useState();
 
+  const should_disable_submit_buttom =
+    !patientId || patientIdErrorMessage || loading;
+
+  const handlePatientIdInput = (e) => {
+    e.stopPropagation();
+
+    const new_patient_id = e.target.value;
+
+    if (!/^[1-9][0-9]*$/.test(new_patient_id)) {
+      setPatientIdErrorMessage(
+        'Patient ID should be a positive integer value.',
+      );
+    } else {
+      setPatientIdErrorMessage('');
+    }
+    setPatientId(new_patient_id);
+  };
+
   const submitTransferRequest = async () => {
+    if (should_disable_submit_buttom) {
+      return;
+    }
+
     setErrorMessage('');
     setTransferRequest(undefined);
     setLoading(true);
@@ -66,78 +89,69 @@ const TransferForm = ({ outboundPT }) => {
   };
 
   return (
-    <form
-      className="transfer-request-form"
-      onSubmit={(e) => e.preventDefault()}
-    >
-      <div className="transfer-request-form__field-row">
-        <GcdsInput
-          inputId="patientId"
-          label="Patient ID"
-          name="patientId"
-          hint={`ID of a patient in ${pt_name_by_code[outboundPT]}'s system`}
-          errorMessage={patientIdErrorMessage}
-          value={patientId}
-          onKeyUp={(e) => {
-            e.stopPropagation();
-
-            const new_patient_id = e.target.value;
-
-            if (!/^[1-9][0-9]*$/.test(new_patient_id)) {
-              setPatientIdErrorMessage(
-                'Patient ID should be a positive integer value.',
-              );
-            } else {
-              setPatientIdErrorMessage('');
-            }
-            setPatientId(new_patient_id);
-          }}
-        />
-
-        <GcdsSelect
-          selectId="inboundPT"
-          label="Receiving PT"
-          name="inboundPT"
-          hint="Province or Teritory to transfer records to"
-          value={inboundPT}
-          onChange={(e) => {
-            const new_receiving_pt = e.target.value;
-            setInboundPT(new_receiving_pt);
-          }}
-        >
-          {pt_codes
-            .filter((code) => code !== outboundPT)
-            .map((pt) => (
-              <option value={pt} index={pt}>
-                {pt_name_by_code[pt]}
-              </option>
-            ))}
-        </GcdsSelect>
-      </div>
-
-      <GcdsButton
-        disabled={!patientId || patientIdErrorMessage || loading}
-        onClick={submitTransferRequest}
+    <>
+      <GcdsHeading tag="h2">Initiate New Transfer</GcdsHeading>
+      <form
+        className="transfer-request-form"
+        onSubmit={(e) => e.preventDefault()}
       >
-        {!loading ? 'Submit transfer request' : 'Awaiting response...'}
-      </GcdsButton>
+        <div className="transfer-request-form__field-row">
+          <GcdsInput
+            inputId="patientId"
+            label="Patient ID"
+            name="patientId"
+            hint={`ID of a patient in ${pt_name_by_code[outboundPT]}'s system`}
+            errorMessage={patientIdErrorMessage}
+            value={patientId}
+            onChange={handlePatientIdInput}
+            onKeyUp={handlePatientIdInput}
+          />
 
-      {(errorMessage || transferRequest) && (
-        <div style={{ paddingTop: '20px' }}>
-          <GcdsNotice
-            type={errorMessage ? 'danger' : 'success'}
-            noticeTitleTag="h3"
-            noticeTitle={errorMessage ? 'Error' : 'Success'}
+          <GcdsSelect
+            selectId="inboundPT"
+            label="Receiving PT"
+            name="inboundPT"
+            hint="Province or Teritory to transfer records to"
+            value={inboundPT}
+            onChange={(e) => {
+              const new_receiving_pt = e.target.value;
+              setInboundPT(new_receiving_pt);
+            }}
           >
-            <GcdsText>
-              {errorMessage ||
-                `Transfer Request created (transfer job ID ${transferRequest.job_id}), transfering the patient with ID ${transferRequest.patient_id} ` +
-                  `from ${pt_name_by_code[outboundPT]} to ${pt_name_by_code[transferRequest.transfer_to]}.`}
-            </GcdsText>
-          </GcdsNotice>
+            {pt_codes
+              .filter((code) => code !== outboundPT)
+              .map((pt) => (
+                <option value={pt} index={pt}>
+                  {pt_name_by_code[pt]}
+                </option>
+              ))}
+          </GcdsSelect>
         </div>
-      )}
-    </form>
+
+        <GcdsButton
+          disabled={should_disable_submit_buttom}
+          onClick={submitTransferRequest}
+        >
+          {!loading ? 'Initiate transfer' : 'Awaiting response...'}
+        </GcdsButton>
+
+        {(errorMessage || transferRequest) && (
+          <div style={{ paddingTop: '20px' }}>
+            <GcdsNotice
+              type={errorMessage ? 'danger' : 'success'}
+              noticeTitleTag="h3"
+              noticeTitle={errorMessage ? 'Error' : 'Success'}
+            >
+              <GcdsText>
+                {errorMessage ||
+                  `Transfer Request created (transfer job ID ${transferRequest.job_id}), transfering the patient with ID ${transferRequest.patient_id} ` +
+                    `from ${pt_name_by_code[outboundPT]} to ${pt_name_by_code[transferRequest.transfer_to]}.`}
+              </GcdsText>
+            </GcdsNotice>
+          </div>
+        )}
+      </form>
+    </>
   );
 };
 
