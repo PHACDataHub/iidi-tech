@@ -1,0 +1,26 @@
+{
+  "name": "uj1-pt-pt",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "node": "^22.0.0"
+  },
+  "type": "module",
+  "scripts": {
+    "test:integration": "tsx tests/transfer_flow.test.ts"
+  },
+  "dependencies": {
+    "axios": "^1.6.7",
+    "dotenv": "^16.4.1",
+    "envalid": "^8.0.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3",
+    "validator": "^13.11.0",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.16",
+    "@types/validator": "^13.11.8"
+  }
+}
