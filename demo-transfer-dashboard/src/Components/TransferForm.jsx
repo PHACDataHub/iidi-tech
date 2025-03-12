@@ -8,7 +8,7 @@ import {
   GcdsText,
   GcdsHeading,
 } from '@cdssnc/gcds-components-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import {
   pt_codes,
@@ -26,11 +26,12 @@ const TransferForm = ({ outboundPT }) => {
   const [inboundPT, setInboundPT] = useState(default_inbound_pt);
 
   const [loading, setLoading] = useState(false);
+  const [showLoading, setShowLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [transferRequest, setTransferRequest] = useState();
 
   const should_disable_submit_buttom =
-    !patientId || patientIdErrorMessage || loading;
+    !patientId || patientIdErrorMessage || showLoading;
 
   const handlePatientIdInput = (e) => {
     e.stopPropagation();
@@ -88,6 +89,19 @@ const TransferForm = ({ outboundPT }) => {
     }
   };
 
+  useEffect(() => {
+    if (!loading) {
+      setShowLoading(false);
+    } else {
+      const handler = setTimeout(() => {
+        setShowLoading(true);
+      }, 200);
+      return () => {
+        clearTimeout(handler);
+      };
+    }
+  }, [loading]);
+
   return (
     <>
       <GcdsHeading tag="h2">Initiate New Transfer</GcdsHeading>
@@ -132,7 +146,7 @@ const TransferForm = ({ outboundPT }) => {
           disabled={should_disable_submit_buttom}
           onClick={submitTransferRequest}
         >
-          {!loading ? 'Initiate transfer' : 'Awaiting response...'}
+          {!showLoading ? 'Initiate transfer' : 'Awaiting response...'}
         </GcdsButton>
 
         {(errorMessage || transferRequest) && (

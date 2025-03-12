@@ -33,6 +33,7 @@ const TransferTable = ({ outboundPT }) => {
   const transfer_service_url = transfer_service_url_by_pt_code[outboundPT];
 
   const [loading, setLoading] = useState(true);
+  const [showLoading, setShowLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [transfers, setTransfers] = useState([]);
 
@@ -69,13 +70,26 @@ const TransferTable = ({ outboundPT }) => {
     fetchTransfers();
   }, [transfer_service_url, loading]);
 
+  useEffect(() => {
+    if (!loading) {
+      setShowLoading(false);
+    } else {
+      const handler = setTimeout(() => {
+        setShowLoading(true);
+      }, 200);
+      return () => {
+        clearTimeout(handler);
+      };
+    }
+  }, [loading]);
+
   return (
     <>
       <div className="transfer-table-header">
         <GcdsHeading tag="h2">Transfer Requests</GcdsHeading>
-        <GcdsButton disabled={loading} onClick={() => setLoading(true)}>
+        <GcdsButton disabled={showLoading} onClick={() => setLoading(true)}>
           <div style={{ width: '125px' }}>
-            {!loading ? 'Refresh' : 'Loading...'}
+            {!showLoading ? 'Refresh' : 'Loading...'}
           </div>
         </GcdsButton>
       </div>
