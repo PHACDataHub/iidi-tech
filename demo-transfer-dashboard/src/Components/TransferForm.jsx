@@ -83,7 +83,7 @@ const TransferForm = ({ outboundPT }) => {
         }
       }
     } catch (error) {
-      setErrorMessage(error.toString());
+      setErrorMessage(error.message);
     } finally {
       setLoading(false);
     }
