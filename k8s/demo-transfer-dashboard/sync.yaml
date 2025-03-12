@@ -1,3 +1,8 @@
+# ======================================================
+# 🛠️ FLUX KUSTOMIZATIONS
+# ======================================================
+
+---
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
@@ -10,6 +15,11 @@ spec:
   sourceRef:
     kind: GitRepository
     name: flux-system
+
+# ======================================================
+# 📦 IMAGE REPOSITORIES
+# ======================================================
+
 ---
 apiVersion: image.toolkit.fluxcd.io/v1beta2
 kind: ImageRepository
@@ -20,6 +30,10 @@ spec:
   image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-demo-transfer-dashboard
   interval: 1m0s
   provider: gcp
+
+# ======================================================
+# 📋 IMAGE POLICIES
+# ======================================================
 
 ---
 apiVersion: image.toolkit.fluxcd.io/v1beta1
@@ -36,6 +50,10 @@ spec:
   policy:
     numerical:
       order: asc
+
+# ======================================================
+# 🔄 IMAGE UPDATE AUTOMATIONS
+# ======================================================
 
 ---
 apiVersion: image.toolkit.fluxcd.io/v1beta1
