@@ -84,7 +84,7 @@ const work_on_transfer_job = async (job: transferRequestJob) => {
         }
       } else {
         const base_error_message =
-          `Job ID ${job.id}: inbound-transfer service for "${job.data.transfer_to}" responded to` +
+          `Job ID ${job.id}: inbound-transfer service for "${job.data.transfer_to}" responded to ` +
           `patient ID "${job.data.patient_id}" transfer with a "${transfer_response.status}" status.`;
 
         const is_non_timing_client_error_status =
