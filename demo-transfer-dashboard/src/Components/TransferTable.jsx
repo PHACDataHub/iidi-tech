@@ -77,6 +77,12 @@ const get_transfer_result_display = (transfer) => {
   }
 };
 
+const format_time = (time) =>
+  new Intl.DateTimeFormat('en-CA', {
+    dateStyle: 'short',
+    timeStyle: 'long',
+  }).format(time);
+
 const TransferTable = ({ outboundPT }) => {
   const transfer_service_url = transfer_service_url_by_pt_code[outboundPT];
 
@@ -112,12 +118,7 @@ const TransferTable = ({ outboundPT }) => {
         } catch (error) {
           setErrorMessage(error.toString());
         } finally {
-          setlastRefresh(
-            new Intl.DateTimeFormat('en-CA', {
-              dateStyle: 'short',
-              timeStyle: 'long',
-            }).format(),
-          );
+          setlastRefresh(format_time(Date.now()));
           setLoading(false);
         }
       }
@@ -173,7 +174,9 @@ const TransferTable = ({ outboundPT }) => {
               <TransferTableHeader>Patient ID</TransferTableHeader>
               <TransferTableHeader>Receiving PT</TransferTableHeader>
               <TransferTableHeader>Transfer Job ID</TransferTableHeader>
+              <TransferTableHeader>Initialized At</TransferTableHeader>
               <TransferTableHeader>Transfer Status</TransferTableHeader>
+              <TransferTableHeader>Completed At</TransferTableHeader>
               <TransferTableHeader>Result</TransferTableHeader>
             </tr>
           </thead>
@@ -189,7 +192,15 @@ const TransferTable = ({ outboundPT }) => {
                 </TransferTableData>
                 <TransferTableData>{transfer.job_id}</TransferTableData>
                 <TransferTableData>
+                  {format_time(transfer.initialized_on)}
+                </TransferTableData>
+                <TransferTableData>
                   {get_transfer_status_text(transfer)}
+                </TransferTableData>
+                <TransferTableData>
+                  {transfer.finished_on
+                    ? format_time(transfer.finished_on)
+                    : '—'}
                 </TransferTableData>
                 <TransferTableData>
                   {get_transfer_result_display(transfer)}

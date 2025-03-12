@@ -22,6 +22,7 @@ export const initialize_transfer_request = async (
   get_transfer_queue().add(
     transfer_job_name,
     {
+      initialized_on: Date.now(),
       patient_id,
       transfer_to,
       stage: initial_stage,
@@ -62,10 +63,14 @@ export const get_transfer_request_job_info = async (
 ) => {
   const state = await transfer_request_job.getState();
 
-  const { failedReason: failed_reason, finishedOn: finished_on } =
-    transfer_request_job;
+  const {
+    id: job_id,
+    failedReason: failed_reason,
+    finishedOn: finished_on,
+  } = transfer_request_job;
 
   const {
+    initialized_on,
     patient_id,
     new_patient_id,
     transfer_to,
@@ -75,7 +80,8 @@ export const get_transfer_request_job_info = async (
   } = transfer_request_job.data;
 
   return {
-    job_id: transfer_request_job.id,
+    job_id,
+    initialized_on,
     state,
     finished_on,
     failed_reason,
