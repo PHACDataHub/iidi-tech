@@ -90,6 +90,18 @@ const TransferTable = ({ outboundPT }) => {
     }
   }, [loading]);
 
+  const get_transfer_row_class_modifier = ({ state, stage }) => {
+    if ((state === 'completed' && stage === 'rejected') || state === 'failed') {
+      return 'failed';
+    } else if (state === 'completed' && stage === 'done') {
+      return 'succeeded';
+    } else {
+      return 'ongoing';
+    }
+  };
+
+  const get_transfer_status_text = (transfer) => 'TODO';
+
   return (
     <>
       <div className="transfer-table-header">
@@ -126,23 +138,22 @@ const TransferTable = ({ outboundPT }) => {
               <TransferTableHeader>Patient ID</TransferTableHeader>
               <TransferTableHeader>Receiving PT</TransferTableHeader>
               <TransferTableHeader>Transfer Status</TransferTableHeader>
-              <TransferTableHeader>Transfer Stage</TransferTableHeader>
             </tr>
           </thead>
           <tbody>
             {transfers.map((transfer) => (
-              <tr key={transfer.job_id}>
+              <tr
+                key={transfer.job_id}
+                className={`transfer-table__row transfer-table__row--${get_transfer_row_class_modifier(transfer)}`}
+              >
                 <TransferTableData>{transfer.job_id}</TransferTableData>
                 <TransferTableData>{transfer.patient_id}</TransferTableData>
                 <TransferTableData>
                   {pt_name_by_code[transfer.transfer_to]}
                 </TransferTableData>
-                <TransferTableData
-                  className={`status ${transfer.state === 'Completed' ? 'completed' : 'failed'}`}
-                >
-                  {transfer.state}
+                <TransferTableData>
+                  {get_transfer_status_text(transfer)}
                 </TransferTableData>
-                <TransferTableData>{transfer.stage}</TransferTableData>
               </tr>
             ))}
           </tbody>
