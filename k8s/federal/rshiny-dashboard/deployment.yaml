@@ -24,10 +24,15 @@ spec:
         env:
         - name: AGGREGATOR_URL
           value: "http://federator-svc.federal.svc.cluster.local:80/aggregated-data"
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "200m"
-          limits:
-            memory: "1Gi"
-            cpu: "1"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3838
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3838
+          initialDelaySeconds: 5
+          periodSeconds: 10

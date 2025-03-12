@@ -69,6 +69,16 @@ spec:
   interval: 1m0s
   provider: gcp
 
+apiVersion: image.toolkit.fluxcd.io/v1beta2
+kind: ImageRepository
+metadata:
+  name: synthetic-data-on
+  namespace: flux-system
+spec:
+  image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/synthetic-data
+  interval: 1m0s
+  provider: gcp
+
 # ======================================================
 # 📋 IMAGE POLICIES
 # ======================================================
@@ -134,6 +144,23 @@ metadata:
 spec:
   imageRepositoryRef:
     name: transfer-outbound-on
+  filterTags:
+    extract: $ts
+    pattern: ^main-[a-fA-F0-9]+-(?P<ts>.*)
+  policy:
+    numerical:
+      order: asc
+
+# Synthetic Data Policy
+---
+apiVersion: image.toolkit.fluxcd.io/v1beta1
+kind: ImagePolicy
+metadata:
+  name: synthetic-data-on
+  namespace: flux-system
+spec:
+  imageRepositoryRef:
+    name: synthetic-data-on
   filterTags:
     extract: $ts
     pattern: ^main-[a-fA-F0-9]+-(?P<ts>.*)
