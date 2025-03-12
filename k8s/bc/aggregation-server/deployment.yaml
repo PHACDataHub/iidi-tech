@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: aggregator
-        image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-aggregator:main-969ef8a4b7a1893534c0adb881663a9a4b80beb8-1741381829 # {"$imagepolicy": "flux-system:aggregation-server-bc"}
+        image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-aggregator:main-13d5000112355bc91a9d121863bab403c5166859-1741799214 # {"$imagepolicy": "flux-system:aggregation-server-bc"}
         imagePullPolicy: Always
         ports:
         - containerPort: 5000
