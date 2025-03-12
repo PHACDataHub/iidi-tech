@@ -4,7 +4,7 @@ import {
   GcdsInput,
   GcdsSelect,
   GcdsButton,
-  GcdsErrorMessage,
+  GcdsNotice,
   GcdsText,
 } from '@cdssnc/gcds-components-react';
 import { useState } from 'react';
@@ -116,22 +116,26 @@ const TransferForm = ({ outboundPT }) => {
       </div>
 
       <GcdsButton
-        disabled={patientIdErrorMessage || loading}
+        disabled={!patientId || patientIdErrorMessage || loading}
         onClick={submitTransferRequest}
       >
         {!loading ? 'Submit transfer request' : 'Awaiting response...'}
       </GcdsButton>
 
-      {errorMessage && (
-        <p>
-          <GcdsErrorMessage>{errorMessage}</GcdsErrorMessage>
-        </p>
-      )}
-
-      {transferRequest && (
-        <p>
-          <GcdsText>TODO display transferRequest response</GcdsText>
-        </p>
+      {(errorMessage || transferRequest) && (
+        <div style={{ paddingTop: '20px' }}>
+          <GcdsNotice
+            type={errorMessage ? 'danger' : 'success'}
+            noticeTitleTag="h3"
+            noticeTitle={errorMessage ? 'Error' : 'Success'}
+          >
+            <GcdsText>
+              {errorMessage ||
+                `Transfer Request created (transfer job ID ${transferRequest.job_id}), transfering the patient with ID ${transferRequest.patient_id} ` +
+                  `from ${pt_name_by_code[outboundPT]} to ${pt_name_by_code[transferRequest.transfer_to]}.`}
+            </GcdsText>
+          </GcdsNotice>
+        </div>
       )}
     </form>
   );
