@@ -113,7 +113,7 @@ def load_public_key():
             raise e
 
 PUBLIC_KEY = load_public_key()
-is_auth_required = not IS_LOCAL_DEV
+is_auth_required = not IS_LOCAL_DEV or (IS_LOCAL_DEV and PUBLIC_KEY is not None)
 
 # Cache variables for aggregation
 cached_data = None
@@ -156,6 +156,7 @@ def fetch_fhir_resources(resource_type):
             logging.error(f"Error fetching {resource_type} data from FHIR server: {e}")
             break
 
+    logging.info(f"Fetched {len(results)} {resource_type} records.")
     return results
 
 def fetch_patient_data(patient_reference):
@@ -212,9 +213,9 @@ def process_immunization_record(immunization):
 
     return {
         "Jurisdiction": "BC" if "bc" in FHIR_URL.lower() else "ON",
-        "OccurrenceYear": occurrence_year,
+        "OccurrenceYear": occurrence_year.strip(),
         "Sex": patient.get("gender", "Unknown").capitalize(),
-        "Age": calculate_age_group(birth_date),
+        "Age": calculate_age_group(birth_date).strip(),
         "Dose": int(dose_number) if dose_number.isdigit() else 1,
     }
 
@@ -239,7 +240,21 @@ def aggregate_data():
         logging.warning("Empty DataFrame after processing immunization records.")
         return []
 
-    return df.to_dict(orient="records")
+    df["OccurrenceYear"] = df["OccurrenceYear"].astype(str).str.strip()
+    df["Sex"] = df["Sex"].str.capitalize()
+    df["Age"] = df["Age"].str.strip()
+
+    aggregated = df.groupby([
+        "OccurrenceYear", "Jurisdiction", "Sex", "Age", "Dose"
+    ], as_index=False).agg(
+        Count=("Dose", "count")
+    )
+
+    aggregated["ReferenceDate"] = aggregated["OccurrenceYear"].apply(
+        lambda year: f"{year}-12-31" if year.isnumeric() and year != "Unknown" else "Unknown"
+    )
+
+    return aggregated.to_dict(orient="records")
 
 @app.route("/aggregated-data", methods=["GET"])
 def get_aggregated_data():
@@ -257,7 +272,8 @@ def get_aggregated_data():
     current_time = datetime.now().timestamp()
 
     if cached_data and last_aggregation_time and (current_time - last_aggregation_time < AGGREGATION_INTERVAL):
-        logging.info("Returning cached aggregated data...")
+        remaining_time = AGGREGATION_INTERVAL - (current_time - last_aggregation_time)
+        logging.info(f"Returning cached data. Next aggregation in {remaining_time:.2f} seconds.")
         return jsonify(cached_data)
     
     logging.info("Calculating new aggregated data...")
