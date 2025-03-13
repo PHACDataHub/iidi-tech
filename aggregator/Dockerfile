@@ -41,5 +41,5 @@ RUN mkdir -p /secrets
 # Expose the Flask port
 EXPOSE 5000
 
-# Use Gunicorn to run the Flask app
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "4", "aggregator:app"]
+# Use Uvicorn to run the Flask app (Fix async issues)
+CMD ["uvicorn", "aggregator:app", "--host", "0.0.0.0", "--port", "5000", "--workers", "2"]

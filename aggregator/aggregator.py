@@ -257,5 +257,11 @@ async def get_aggregated_data():
     last_aggregation_time = current_time
     return jsonify(cached_data)
 
+@app.route("/health", methods=["GET"])
+def health_check():
+    """Health check endpoint to verify API is running."""
+    return jsonify({"status": "ok"}), 200
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, threaded=True)
