@@ -11,7 +11,7 @@ metadata:
 spec:
   path: ./k8s/on
   interval: 2m0s
-  prune: false
+  prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
