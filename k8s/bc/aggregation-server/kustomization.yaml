@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - deployment.yaml
   - service.yaml
+  - aggregator-public-key.enc.yaml
 
 patches:
   - patch: |-
