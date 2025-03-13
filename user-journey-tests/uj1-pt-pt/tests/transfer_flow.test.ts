@@ -22,43 +22,66 @@ async function testProvinceTransfer(
   targetProvince: string,
 ) {
   const patientId = getRandomPatientId();
-  logger.info(`Testing ${targetProvince} transfer for patient ${patientId}`);
 
-  // Initial transfer
-  const transferResponse = await axios.post(
-    `${sourceOutboundUrl}/transfer-request`,
-    {
-      patient_id: patientId,
-      transfer_to: targetProvince,
-    },
-  );
+  try {
+    logger.info(
+      `Testing transfer to ${targetProvince} for patient ${patientId}`,
+    );
 
-  if (transferResponse.status !== 202) {
-    throw new Error(`Expected 202 Accepted, got ${transferResponse.status}`);
-  }
+    // Initial transfer
+    const transferResponse = await axios.post(
+      `${sourceOutboundUrl}/transfer-request`,
+      { patient_id: patientId, transfer_to: targetProvince },
+    );
 
-  const jobInfo = await waitForTransferCompletion(
-    transferResponse.data.job_id,
-    sourceOutboundUrl,
-  );
+    if (transferResponse.status !== 202) {
+      throw new Error(`Expected 202 Accepted, got ${transferResponse.status}`);
+    }
 
-  // Verify destination existence
-  if (jobInfo.new_patient_id) {
+    const jobInfo = await waitForTransferCompletion(
+      transferResponse.data.job_id,
+      sourceOutboundUrl,
+    );
+
+    if (!jobInfo.new_patient_id) {
+      throw new Error('Transfer completed but missing new_patient_id');
+    }
+
     const existsInTarget = await checkPatientExists(
       jobInfo.new_patient_id,
       targetFhirUrl,
     );
     if (!existsInTarget) {
       throw new Error(
-        `Patient ${jobInfo.new_patient_id} not found in ${targetProvince}`,
+        `Patient ${jobInfo.new_patient_id} not found in target FHIR`,
       );
     }
-  } else {
-    throw new Error('New patient ID is missing from job info');
-  }
 
-  // Verify failure for same patient
-  await verifyTransferFailure(patientId, sourceOutboundUrl, targetProvince);
+    logger.info(`Transfer to ${targetProvince} succeeded for ${patientId}`);
+
+    logger.info(
+      `Retrying transfer to ${targetProvince} for ${patientId} to confirm failure`,
+    );
+
+    await verifyTransferFailure(patientId, sourceOutboundUrl, targetProvince);
+  } catch (error: unknown) {
+    let errorMessage: string;
+
+    if (isAxiosError(error)) {
+      const status = error.response?.status ?? 'no status';
+      const responseData = error.response?.data
+        ? JSON.stringify(error.response.data)
+        : 'no response';
+      errorMessage = `Server responded with ${status} - ${responseData}`;
+    } else {
+      errorMessage =
+        error instanceof Error ? error.message : 'Unknown error occurred';
+    }
+
+    throw Error(
+      `Failure during transfer of ${patientId} to ${targetProvince}: ${errorMessage}`,
+    );
+  }
 }
 
 async function testRandomPatientTransfers() {

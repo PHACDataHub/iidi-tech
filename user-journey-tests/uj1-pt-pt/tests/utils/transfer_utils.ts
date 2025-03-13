@@ -110,16 +110,18 @@ export async function verifyTransferFailure(
     );
   } catch (error) {
     if (!isAxiosError(error)) {
-      throw new Error('Non-Axios error during failure verification');
+      throw new Error(`Error occured during failure verification: ${error}`);
     }
 
     if (error.response?.status !== 400) {
       throw new Error(`Expected 400, got ${error.response?.status}`);
     }
 
-    const errorMessage = error.response.data?.message?.toLowerCase();
-    if (!errorMessage?.includes('already moved')) {
-      throw new Error('Missing expected error message in response');
+    const errorMessage = error.response.data?.error?.toLowerCase();
+    if (!errorMessage?.includes('replaced by a newer patient record')) {
+      throw new Error(
+        'Missing expected error message in response for duplicate patient transfer',
+      );
     }
 
     logger.info(`Validated transfer block for patient ${patientId}`);
