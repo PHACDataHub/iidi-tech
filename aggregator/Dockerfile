@@ -42,4 +42,4 @@ RUN mkdir -p /secrets
 EXPOSE 5000
 
 # Use Uvicorn to run the Flask app (Fix async issues)
-CMD ["uvicorn", "aggregator:app", "--host", "0.0.0.0", "--port", "5000", "--workers", "2"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "aggregator:app"]
