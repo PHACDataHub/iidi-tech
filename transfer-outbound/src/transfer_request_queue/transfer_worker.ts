@@ -4,7 +4,7 @@ import { Worker, QueueEvents, Job } from 'bullmq';
 
 import {
   get_patient_bundle_for_transfer,
-  add_replaced_by_link_to_transfered_patient,
+  add_replaced_by_link_to_transferred_patient,
 } from 'src/fhir_utils.ts';
 
 import { post_bundle_to_inbound_transfer_service } from 'src/transfer_inbound_utils.ts';
@@ -115,7 +115,7 @@ const work_on_transfer_job = async (job: transferRequestJob) => {
     } else if (job.data.stage === 'setting_patient_post_transfer_metadata') {
       // NOTE: vital assumption: this end point returns 200 IF AND ONLY IF the bundle was accepted and fully written to the receiving
       // FHIR server. Not a big ask, just have to hold to that or else the rollback handling won't work and data integrity is lost
-      await add_replaced_by_link_to_transfered_patient(
+      await add_replaced_by_link_to_transferred_patient(
         job.data.patient_id,
         get_job_id(job),
         job.data.transfer_to,

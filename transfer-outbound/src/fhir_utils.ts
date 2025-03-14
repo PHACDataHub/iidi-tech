@@ -62,14 +62,14 @@ const get_patient = async (patient_id: string) => {
   }
 };
 
-export const assert_patient_exists_and_can_be_transfered = async (
+export const assert_patient_exists_and_can_be_transferred = async (
   patient_id: string,
 ) => {
   const patient = await get_patient(patient_id);
 
-  // IMPORTANT: the logic for "can_be_transfered" must return false for a patient that has been transfered
+  // IMPORTANT: the logic for "can_be_transferred" must return false for a patient that has been transferred
   // (in addition to any other reasons why a patient might be un-transferable).
-  // See `add_replaced_by_link_to_transfered_patient`, which is assumed to be called following a patient transfer.
+  // See `add_replaced_by_link_to_transferred_patient`, which is assumed to be called following a patient transfer.
   // There is a coupling between that method and this assertion check, via the underlying buisness logic
 
   const replaced_by = patient.link?.find(({ type }) => type === 'replaced-by');
@@ -111,7 +111,7 @@ export const get_patient_bundle_for_transfer = async (patient_id: string) => {
   }
 };
 
-export const add_replaced_by_link_to_transfered_patient = async (
+export const add_replaced_by_link_to_transferred_patient = async (
   patient_id: string,
   transfer_request_id: string,
   transfer_code: transferCode,
@@ -127,8 +127,8 @@ export const add_replaced_by_link_to_transfered_patient = async (
 
   const patient = await get_patient(patient_id);
 
-  // IMPORTANT: the behaviour here is coupled to the logic of assert_patient_exists_and_can_be_transfered
-  // namely, a patient "can_be_transfered" iff it has NOT been "replaced-by" another patient instance
+  // IMPORTANT: the behaviour here is coupled to the logic of assert_patient_exists_and_can_be_transferred
+  // namely, a patient "can_be_transferred" iff it has NOT been "replaced-by" another patient instance
 
   // References:
   //    https://www.hl7.org/fhir/patient-definitions.html#Patient.link
@@ -144,10 +144,10 @@ export const add_replaced_by_link_to_transfered_patient = async (
       // but the spec technically calls for a plain text description, so using stringified JSON maaaay be an abuse, haha. Good enough for PoC,
       // would require further refinement in future stages
       display: JSON.stringify({
-        explanation: `This patient and their immunization records have been transfered from "${OWN_TRANSFER_CODE}" to "${transfer_code}".`,
+        explanation: `This patient and their immunization records have been transferred from "${OWN_TRANSFER_CODE}" to "${transfer_code}".`,
         transfer_request_id, // TODO may not be unique across time; if a job is done and flushed from the queue, its ID can be reused. Maybe useful if paired with time
-        transfered_from: OWN_TRANSFER_CODE,
-        transfered_to: transfer_code,
+        transferred_from: OWN_TRANSFER_CODE,
+        transferred_to: transfer_code,
         patient_id_in_recipient_system: new_patient_id ?? 'unknown',
         // TODO request timestamp? Other metadata? We don't currently require a "requestor id" or a "transfer reason" etc, and those are out of scope,
         // but those values may be useful here

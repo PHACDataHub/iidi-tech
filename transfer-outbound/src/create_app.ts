@@ -5,7 +5,7 @@ import { get_env } from './env.ts';
 
 import { expressErrorHandler } from './error_utils.ts';
 import {
-  assert_patient_exists_and_can_be_transfered,
+  assert_patient_exists_and_can_be_transferred,
   get_patient_bundle_for_transfer,
 } from './fhir_utils.ts';
 import {
@@ -60,7 +60,7 @@ export const create_app = async () => {
     assert_patient_id_parameter_is_valid(patient_id);
     assert_transfer_code_parameter_is_valid(transfer_to);
 
-    await assert_patient_exists_and_can_be_transfered(patient_id);
+    await assert_patient_exists_and_can_be_transferred(patient_id);
 
     const transfer_request_job = await initialize_transfer_request(
       patient_id,
@@ -76,7 +76,7 @@ export const create_app = async () => {
     const { patient_id } = req.body;
     assert_patient_id_parameter_is_valid(patient_id);
 
-    await assert_patient_exists_and_can_be_transfered(patient_id);
+    await assert_patient_exists_and_can_be_transferred(patient_id);
 
     const bundle = await get_patient_bundle_for_transfer(patient_id);
 

@@ -71,7 +71,7 @@ pt-a-boundary: Notional PT A Boundary {
         - Collects FHIR records to send (patient, immunization records, adverse reactions, etc. Specifics TBD)
           - assuming minimal set of records/fields in scope, strip anything out of scope
         - Sends bundle to inbound API, waits for response from inbound API
-          - on success, flags records in outbound FHIR server as transfered
+          - on success, flags records in outbound FHIR server as transferred
         - Uses a message queue for job management/persistance
       |
 

@@ -866,7 +866,7 @@ intiating and monitoring outbound transfers</p>
 </li>
 <li>Sends bundle to inbound API, waits for response from inbound API
 <ul>
-<li>on success, flags records in outbound FHIR server as transfered</li>
+<li>on success, flags records in outbound FHIR server as transferred</li>
 </ul>
 </li>
 <li>Uses a message queue for job management/persistance</li>
