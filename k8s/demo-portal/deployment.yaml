@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: demo-portal
-          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/demo-portal:main-a50ee9c929ba2d7e72088bbf3ad0abbe1d51e4d4-1741614861 # {"$imagepolicy": "flux-system:demo-portal"}
+          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/demo-portal:main-846cac6aa11f6308172a648720eafe252c6f294b-1741877253 # {"$imagepolicy": "flux-system:demo-portal"}
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -35,7 +35,7 @@ spec:
             - name: BC_AGGREGATOR_URL
               value: https://aggregator.bc.iidi.alpha.phac.gc.ca/aggregated-data
             - name: BC_DEMO_TRANSFER_DASHBOARD_URL
-              value: 'https://demo-transfer-dashboard.iidi.alpha.phac.gc.ca?default_pt=BC'
+              value: 'https://demo-transfer-dashboard.iidi.alpha.phac.gc.ca?pt=BC'
             - name: ON_BROWSER_URL
               value: https://patient-browser.on.iidi.alpha.phac.gc.ca
             - name: ON_FHIR_URL
@@ -43,14 +43,7 @@ spec:
             - name: ON_AGGREGATOR_URL
               value: https://aggregator.on.iidi.alpha.phac.gc.ca/aggregated-data
             - name: ON_DEMO_TRANSFER_DASHBOARD_URL
-              value: 'https://demo-transfer-dashboard.iidi.alpha.phac.gc.ca?default_pt=ON'
-          resources:
-            requests:
-              memory: "256Mi"
-              cpu: "100m"
-            limits:
-              memory: "512Mi"
-              cpu: "500m"
+              value: 'https://demo-transfer-dashboard.iidi.alpha.phac.gc.ca?pt=ON'
           livenessProbe:
             httpGet:
               path: /health

@@ -20,8 +20,10 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m0s
-  path: ./k8s
+  path: ./k8s/flux-system
   prune: true
   sourceRef:
     kind: GitRepository
     name: flux-system
+  decryption:
+    provider: sops

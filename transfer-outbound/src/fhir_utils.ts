@@ -77,8 +77,8 @@ export const assert_patient_exists_and_can_be_transfered = async (
     // See https://www.hl7.org/fhir/references.html#reference
     throw new AppError(
       400,
-      `Patient "${patient_id}" exists, but is non-authoratative, having been replaced by a newer patient record. See reference:\n` +
-        JSON.stringify(replaced_by, null, 2),
+      `Patient "${patient_id}" exists, but is non-authoratative, having been replaced by a newer patient record. See \`Patient.link\`.`,
+      replaced_by,
     );
   }
 };

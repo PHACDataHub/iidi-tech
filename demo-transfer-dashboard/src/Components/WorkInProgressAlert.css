@@ -1,0 +1,7 @@
+.work-in-progress-alert {
+  margin-bottom: 23px;
+  background: #d7faff;
+  padding: 10px 15px;
+
+  --gcds-details-default-text: var(--gcds-notice-text);
+}

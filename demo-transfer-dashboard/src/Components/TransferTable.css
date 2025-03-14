@@ -1,0 +1,51 @@
+@media (min-width: 600px) {
+  .transfer-table-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: left;
+
+    > gcds-heading {
+      flex-shrink: 1;
+    }
+    > gcds-button {
+      flex-grow: 1;
+
+      margin-top: var(--gcds-heading-spacing-600);
+      margin-bottom: var(--gcds-heading-spacing-300);
+
+      display: flex;
+      justify-content: center;
+    }
+  }
+}
+
+.transfer-table {
+  width: 100%;
+  border-collapse: collapse;
+
+  th,
+  td {
+    border-bottom: 1px solid black;
+    padding: 8px;
+  }
+
+  th {
+    background-color: #f9fafb;
+  }
+}
+
+.transfer-table__table-header {
+  font-weight: 700;
+}
+
+.transfer-table__row--ongoing {
+  border-left: 8px solid gray;
+}
+
+.transfer-table__row--succeeded {
+  border-left: 8px solid green;
+}
+
+.transfer-table__row--failed {
+  border-left: 8px solid red;
+}

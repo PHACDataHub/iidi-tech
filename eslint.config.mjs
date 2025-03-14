@@ -64,7 +64,7 @@ const make_config_for_node_typescript_dir = (dir_path) => ({
 
 const make_config_for_react_spa_dir = (dir_path) => ({
   // React SPA environment
-  files: [`${dir_path}/src/**/*.ts`, `${dir_path}/src/**/*.tsx`],
+  files: [`${dir_path}/src/**/*.js`, `${dir_path}/src/**/*.jsx`],
 
   ...reactPlugin.configs.flat.recommended,
   ...reactPlugin.configs.flat['jsx-runtime'],
@@ -77,6 +77,8 @@ const make_config_for_react_spa_dir = (dir_path) => ({
   languageOptions: {
     globals: {
       ...globals.browser,
+      // `process.env` is used for build-time injected env vars, via the rsbuild `define` config
+      process: 'readonly',
     },
     ...reactPlugin.configs.flat.recommended.languageOptions,
   },
@@ -97,30 +99,7 @@ const make_config_for_react_spa_dir = (dir_path) => ({
     ...reactHooksPlugin.configs.recommended.rules,
 
     'react/prop-types': 'off',
-
-    'n/no-extraneous-import': [
-      'error',
-      {
-        allowModules: ['src'],
-      },
-    ],
-
-    '@typescript-eslint/no-restricted-types': [
-      'error',
-      {
-        types: {
-          'React.FunctionalComponent': {
-            message:
-              'FunctionalComponent is discouraged, prefer a plain function. See https://github.com/facebook/create-react-app/pull/8177',
-          },
-
-          'React.FC': {
-            message:
-              'FC is discouraged, prefer a plain function. See https://github.com/facebook/create-react-app/pull/8177',
-          },
-        },
-      },
-    ],
+    'security/detect-object-injection': 'off',
   },
 });
 
@@ -258,5 +237,5 @@ export default [
     make_config_for_node_typescript_dir,
   ),
 
-  ...['/demo-transfer-dashboard'].map(make_config_for_react_spa_dir),
+  ...['demo-transfer-dashboard'].map(make_config_for_react_spa_dir),
 ];

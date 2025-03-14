@@ -24,6 +24,6 @@ spec:
               exact: "rshiny-dashboard.federal.iidi.alpha.phac.gc.ca"
       route:
         - destination:
-            host: rshiny-dashboard.federal.svc.cluster.local
+            host: rshiny-dashboard-svc.federal.svc.cluster.local
             port:
               number: 80

@@ -3,9 +3,9 @@ kind: Kustomization
 
 resources:
   - namespace.yaml
+  - ./redis-server
   - virtual-service.yaml
   - ./hapi-fhir-server
   - ./patient-browser
   - ./aggregation-server
   - ./on-transfer
-  - ./redis-server

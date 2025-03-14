@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: federator
-        image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-federator:main-969ef8a4b7a1893534c0adb881663a9a4b80beb8-1741381861 # {"$imagepolicy": "flux-system:federator-image-policy"}
+        image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-federator:main-13d5000112355bc91a9d121863bab403c5166859-1741799249 # {"$imagepolicy": "flux-system:federator-image-policy"}
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
@@ -26,6 +26,8 @@ spec:
           value: "false"
         - name: AGGREGATOR_URLS
           value: "https://aggregator.on.iidi.alpha.phac.gc.ca,https://aggregator.bc.iidi.alpha.phac.gc.ca"
+        - name: PRIVATE_KEY_PATH
+          value: "/secrets/private_key.pem"
         resources:
           requests:
             memory: "256Mi"
@@ -49,3 +51,11 @@ spec:
           periodSeconds: 20
           timeoutSeconds: 3
           failureThreshold: 3
+        volumeMounts:
+        - name: private-key-volume
+          mountPath: "/secrets"
+          readOnly: true
+      volumes:
+      - name: private-key-volume
+        secret:
+          secretName: federator-private-key

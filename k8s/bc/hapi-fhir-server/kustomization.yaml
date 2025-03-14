@@ -6,7 +6,7 @@ resources:
   - database.yaml
   - deployment.yaml
   - service.yaml
-  # - synthetic-data.yaml
+  - synthetic-data.yaml
 
 patches:
   - patch: |-

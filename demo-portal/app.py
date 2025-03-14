@@ -13,13 +13,13 @@ entities = {
     "British Columbia (BC)": [
         {"name": "Patient Browser", "url": os.getenv("BC_BROWSER_URL")},
         {"name": "HAPI FHIR Server", "url": os.getenv("BC_FHIR_URL")},
-        {"name": "Aggregator", "url": os.getenv("BC_AGGREGATOR_URL")},
+        # {"name": "Aggregator", "url": os.getenv("BC_AGGREGATOR_URL")}, #Disabling the Aggregator as it requires key-based authentication to retrieve data.
         {"name": "Patient Transfer Dashboard", "url": os.getenv("BC_DEMO_TRANSFER_DASHBOARD_URL")}
     ],
     "Ontario (ON)": [
         {"name": "Patient Browser", "url": os.getenv("ON_BROWSER_URL")},
         {"name": "HAPI FHIR Server", "url": os.getenv("ON_FHIR_URL")},
-        {"name": "Aggregator", "url": os.getenv("ON_AGGREGATOR_URL")},
+        # {"name": "Aggregator", "url": os.getenv("ON_AGGREGATOR_URL")}, #Disabling the Aggregator as it requires key-based authentication to retrieve data.
         {"name": "Patient Transfer Dashboard", "url": os.getenv("ON_DEMO_TRANSFER_DASHBOARD_URL")}
     ]
 }
@@ -360,9 +360,42 @@ collapsible_sections = [
         """
     },
     {
-        "title": "Future Roadmap & Next Steps",
+        "title": "GitHub Repository & Architecture",
         "content": """
-        <p>Upcoming developments and the roadmap for the Interoperable Immunization Data Initiative.</p>
+            <h5>Overview</h5>
+            <p>
+                The Interoperable Immunization Data Initiative (IIDI) is built using a secure, scalable, and federated model. 
+                The architecture enables seamless data exchange while ensuring that provincial and territorial jurisdictions 
+                maintain control over their immunization records.
+            </p>
+
+            <h6>GitHub Repository</h6>
+            <p>
+                The source code and related documentation for IIDI can be found in the official GitHub repository:
+            </p>
+            <ul>
+                <li><a href="https://github.com/PHACDataHub/iidi-tech" target="_blank"><strong>IIDI-Tech GitHub Repository</strong></a></li>
+            </ul>
+
+            <h6>Technical Architecture</h6>
+            <p>
+                The IIDI technical stack is designed for interoperability, security, and compliance with public health data 
+                governance frameworks. Key architecture components are documented below:
+            </p>
+            <ul>
+                <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/GCP-Architecture.png" target="_blank"><strong>GCP Architecture Overview</strong></a> - High-level infrastructure design for deployment.</li>
+            </ul>
+            <img src="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/GCP-Architecture.png?raw=true" 
+                alt="GCP Architecture Diagram" style="max-width:100%;">
+
+            <h6>Architecture Review Board Documentation</h6>
+            <p>
+                The architecture follows a federated data model to support two primary user journeys:
+            </p>
+            <ul>
+                <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/User-Journey-1.md" target="_blank"><strong>Interoperable Immunization Data Initiative (IIDI) – User Journey 1: PT-to-PT Transfer</strong></a></li>
+                <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/User-Journey-2.md" target="_blank"><strong>Interoperable Immunization Data Initiative (IIDI) – User Journey 2: PT-to-PHAC</strong></a></li>
+            </ul>
         """
     }
 ]

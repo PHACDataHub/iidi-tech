@@ -1,0 +1,11 @@
+@media (min-width: 800px) {
+  .transfer-request-form__field-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    :first-child {
+      flex-grow: 1;
+      padding-right: 20px;
+    }
+  }
+}
