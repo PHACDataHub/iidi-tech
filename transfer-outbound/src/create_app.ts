@@ -7,6 +7,7 @@ import { expressErrorHandler } from './error_utils.ts';
 import {
   assert_patient_exists_and_can_be_transfered,
   get_patient_bundle_for_transfer,
+  is_fhir_status_active,
 } from './fhir_utils.ts';
 import {
   assert_patient_id_parameter_is_valid,
@@ -18,6 +19,7 @@ import {
   get_transfer_request_by_id,
   get_transfer_requests,
   get_transfer_request_job_info,
+  get_transfer_queue,
 } from './transfer_request_queue/transfer_request_utils.ts';
 
 export const create_app = async () => {
@@ -35,9 +37,34 @@ export const create_app = async () => {
   app.use(express.json()); // parses JSON body payloads, converts req.body from a string to object
   app.use(express.urlencoded({ extended: false })); // parses URL-encoded payload parameters on POST/PUT in to req.body fields
 
-  app.get('/healthcheck', (_req, res) => {
-    // TODO consider if a non-trivial healthcheck is appropriate/useful.
-    res.status(200).send();
+  app.get('/healthcheck', async (_req, res) => {
+    //The client getter and ping hang in infinite loops when redis connection is down.
+    try {
+      const [is_fhir_active, redisStatus] = await Promise.all([
+        is_fhir_status_active(),
+        (async () => {
+          try {
+            await Promise.race([
+              (async () => {
+                const client = await get_transfer_queue().client;
+                await client.ping();
+              })(),
+              new Promise((_resolve, reject) =>
+                setTimeout(() => reject('TIMEOUT'), 5000),
+              ),
+            ]);
+            return 'CONNECTED';
+          } catch {
+            return 'DOWN';
+          }
+        })(),
+      ]);
+
+      const status = is_fhir_active && redisStatus === 'CONNECTED' ? 200 : 503;
+      res.status(status).send({ is_fhir_active, redisStatus });
+    } catch {
+      res.status(503).send({ is_fhir_active: false, redisStatus: 'DOWN' });
+    }
   });
 
   app.get('/transfer-request', async (req, res) => {

@@ -1,4 +1,4 @@
-import type { Patient, Bundle } from 'fhir/r4.d.ts';
+import type { Patient, Bundle, CapabilityStatement } from 'fhir/r4.d.ts';
 
 import { get_env } from './env.ts';
 import { AppError } from './error_utils.ts';
@@ -192,5 +192,28 @@ export const add_replaced_by_link_to_transfered_patient = async (
 
   if (!response.ok) {
     throw await get_error_from_fhir_response(response);
+  }
+};
+
+export const is_fhir_status_active = async (): Promise<boolean> => {
+  const { FHIR_URL } = get_env();
+
+  try {
+    const response = await fetch(`${FHIR_URL}/metadata`);
+
+    if (!response.ok) {
+      console.error(`FHIR metadata request failed: ${response.status}`);
+      return false;
+    }
+
+    const json = (await response.json()) as CapabilityStatement;
+
+    return json.status === 'active';
+  } catch (error) {
+    console.error(
+      'FHIR health check failed:',
+      error instanceof Error ? error.message : error,
+    );
+    return false;
   }
 };
