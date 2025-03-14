@@ -43,19 +43,23 @@ export const create_app = async () => {
       const [is_fhir_active, redisStatus] = await Promise.all([
         is_fhir_status_active(),
         (async () => {
+          let timeout: NodeJS.Timeout | undefined;
           try {
             await Promise.race([
               (async () => {
                 const client = await get_transfer_queue().client;
                 await client.ping();
               })(),
-              new Promise((_resolve, reject) =>
-                setTimeout(() => reject('TIMEOUT'), 5000),
+              new Promise(
+                (_resolve, reject) =>
+                  (timeout = setTimeout(() => reject('TIMEOUT'), 5000)),
               ),
             ]);
             return 'CONNECTED';
           } catch {
             return 'DOWN';
+          } finally {
+            if (timeout) clearTimeout(timeout);
           }
         })(),
       ]);
