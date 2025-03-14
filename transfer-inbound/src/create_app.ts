@@ -3,6 +3,7 @@ import express from 'express';
 import { expressErrorHandler } from './error_utils.ts';
 import {
   assert_bundle_follows_fhir_spec,
+  is_fhir_status_active,
   set_bundle_type_to_transaction,
   write_bundle_to_fhir_api,
 } from './fhir_utils.ts';
@@ -20,9 +21,12 @@ export const create_app = async () => {
   app.use(express.json()); // parses JSON body payloads, converts req.body from a string to object
   app.use(express.urlencoded({ extended: false })); // parses URL-encoded payload parameters on POST/PUT in to req.body fields
 
-  app.get('/healthcheck', (_req, res) => {
-    // TODO consider if a non-trivial healthcheck is appropriate/useful
-    res.status(200).send();
+  app.get('/healthcheck', async (_req, res) => {
+    if (await is_fhir_status_active()) {
+      res.status(200).send();
+    } else {
+      res.status(503).send();
+    }
   });
 
   app.post('/inbound-transfer', async (req, res) => {
