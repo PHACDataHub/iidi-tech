@@ -1,4 +1,8 @@
-import type { Bundle, OperationOutcome } from 'fhir/r4.d.ts';
+import type {
+  Bundle,
+  CapabilityStatement,
+  OperationOutcome,
+} from 'fhir/r4.d.ts';
 
 import { get_env } from './env.ts';
 import { AppError } from './error_utils.ts';
@@ -139,4 +143,27 @@ export const write_bundle_to_fhir_api = async (
   }
 
   return patientId;
+};
+
+export const is_fhir_status_active = async (): Promise<boolean> => {
+  const { FHIR_URL } = get_env();
+
+  try {
+    const response = await fetch(`${FHIR_URL}/metadata`);
+
+    if (!response.ok) {
+      console.error(`FHIR metadata request failed: ${response.status}`);
+      return false;
+    }
+
+    const json = (await response.json()) as CapabilityStatement;
+
+    return json.status === 'active';
+  } catch (error) {
+    console.error(
+      'FHIR health check failed:',
+      error instanceof Error ? error.message : error,
+    );
+    return false;
+  }
 };
