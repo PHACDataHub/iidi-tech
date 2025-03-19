@@ -26,7 +26,7 @@ To further protect against cyber threats, the request is passed through **Cloud 
 
 ## Routing Traffic Within Google Cloud
 
-Once the request has been validated and secured, it enters **Google Cloud’s Virtual Private Cloud (VPC)** within the **northamerica-northeast1 (Montreal) region**. Here, **VPC firewall rules** are enforced to control access, ensuring that only authorized traffic is allowed to pass through. 
+Once the request has been validated and secured, it enters **Google Cloud’s Virtual Private Cloud (VPC)** within the **northamerica-northeast1 (Montreal) region**. Here, **VPC firewall rules** are enforced to control access, ensuring that only authorized traffic is allowed to pass through.
 
 The request is then forwarded to a **Google Kubernetes Engine (GKE) Autopilot cluster**, which is running **Anthos Service Mesh**. This cluster hosts the application and ensures seamless scaling, allowing the system to handle varying traffic loads efficiently.
 
@@ -34,7 +34,7 @@ The request is then forwarded to a **Google Kubernetes Engine (GKE) Autopilot cl
 
 ## Automated SSL/TLS Certificate Management
 
-A key part of this architecture is **automated certificate management**, which ensures that all communication remains secure. This is achieved using **cert-manager**, an open-source tool that handles the **provisioning, renewal, and application of SSL/TLS certificates**. 
+A key part of this architecture is **automated certificate management**, which ensures that all communication remains secure. This is achieved using **cert-manager**, an open-source tool that handles the **provisioning, renewal, and application of SSL/TLS certificates**.
 
 These certificates are issued by **Let’s Encrypt**, a widely trusted **Certificate Authority (CA)**.
 
@@ -52,7 +52,7 @@ To further enhance security, the architecture enforces **mutual TLS (mTLS)** for
 
 ## Processing the Request in the Application
 
-At this stage, the request finally reaches the **Application Codebase**, where it is processed. Whether it’s retrieving data, performing an action, or responding to a user request, the application ensures that **all operations follow strict security policies**. 
+At this stage, the request finally reaches the **Application Codebase**, where it is processed. Whether it’s retrieving data, performing an action, or responding to a user request, the application ensures that **all operations follow strict security policies**.
 
 Once the application has processed the request, the response is securely sent back through the same **protected path**—first through the **Istio Ingress Gateway**, then back to the **Load Balancer**, and finally to the **user’s browser over an encrypted HTTPS connection**.
 
@@ -61,6 +61,7 @@ Once the application has processed the request, the response is securely sent ba
 ## Why This Architecture Matters
 
 This system is built with **security, automation, and scalability** in mind. **Every step ensures that:**
+
 - **All data is protected** using encryption.
 - **Malicious traffic is blocked** before it reaches the application.
 - **Services communicate securely** using **mTLS authentication**.
