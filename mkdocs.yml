@@ -8,7 +8,7 @@ nav:
   - Architecture:
       - Overview: architecture/GCP-Architecture.md
       - User Journeys:
-          - Journey 1: architecture/User-Journey-1.md 
+          - Journey 1: architecture/User-Journey-1.md
           - Journey 2: architecture/User-Journey-2.md
   - API Reference:
       - Data Aggregation API: api/aggregation.md
