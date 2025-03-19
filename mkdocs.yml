@@ -13,5 +13,5 @@ nav:
   - API Reference:
       - Data Aggregation API: api/aggregation.md
   - UI:
-      -UI: ui/ui.md
+      - UI: ui/ui.md
   - Contributing: contributing.md

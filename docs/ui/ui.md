@@ -27,16 +27,36 @@ The **Demo Transfer Dashboard** utilizes React to create a dynamic, modular inte
 3. **Resource Access**: A section dedicated to relevant links provides users with direct access to additional information, related tools, and documentation.
 4. **Responsive Design**: The UI is fully responsive, leveraging the flexibility of React and CDS to ensure consistent behavior across devices.
 
+# Local Setup
+
 ## Demo Portal
 
-To run the Demo portal locally:
+To run the **Demo Portal** locally:
 
-1. cd into demo-portal
-2. run in termial "py app.py"
+Navigate to the `demo-portal` directory:
+
+```
+cd .\demo-portal
+```
+
+Run the application with the following command:
+
+```
+py app.py
+```
 
 ## Demo Transfer Dashboard
 
-To access the demo transfer portal locally:
+To access the **Demo Transfer Dashboard** locally:
 
-1. cd into demo-transfer-dashboard
-2. run in terminal "npm run dev"
+Navigate to the demo-transfer-dashboard directory:
+
+```
+cd .\demo-transfer-dashboard
+```
+
+Start the development server by running:
+
+```
+npm run dev
+```
