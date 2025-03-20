@@ -2,76 +2,127 @@ version: '3.8'
 name: iidi-test
 
 services:
+  # ========================
+  # Gateway Service
+  # ========================
   gateway:
-    extends:
-      file: docker-compose.dev.yaml
-      service: gateway
+    image: nginx:1.27.3
+    networks:
+      - gateway
+      - host-loopback
+    ports:
+      - "127.0.0.1:8080:80"
     configs:
       - source: gateway.test.conf
         target: /etc/nginx/conf.d/default.conf
 
+  # ========================
+  # Ontario (ON) Services
+  # ========================
   on-fhir-db:
-    extends:
-      file: docker-compose.dev.yaml
-      service: on-fhir-db
+    image: postgres:14.11-alpine
+    networks:
+      - on-fhir-db
+    environment:
+      POSTGRES_DB: hapi-fhir-db
+      POSTGRES_USER: hapi-fhir-db
+      POSTGRES_PASSWORD: local-dev-value
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U hapi-fhir-db -d hapi-fhir-db']
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
 
   on-fhir:
-    extends:
-      file: docker-compose.dev.yaml
-      service: on-fhir
+    image: hapiproject/hapi:latest
+    networks:
+      - gateway
+      - on-fhir-db
     environment:
-      FHIR_SERVER_ADDRESS: 'http://gateway:80/on/fhir'
+      POSTGRES_DB: hapi-fhir-db
+      POSTGRES_USER: hapi-fhir-db
+      POSTGRES_PASSWORD: local-dev-value
+      DB_PORT: 5432
+      DB_HOST: on-fhir-db
+      FHIR_SERVER_ADDRESS: http://gateway:80/on/fhir
+    depends_on:
+      on-fhir-db:
+        condition: service_healthy
 
   on-bullmq-redis:
-    extends:
-      file: docker-compose.dev.yaml
-      service: on-bullmq-redis
+    image: redis:7.4.1-alpine
+    networks:
+      - on-bullmq-redis
+    command: redis-server --requirepass local-dev-value
 
   on-transfer-outbound:
-    extends:
-      file: docker-compose.dev.yaml
-      service: on-transfer-outbound
+    image: node-dev:1.0
+    networks:
+      - gateway
+      - on-bullmq-redis
     ports:
-      - '3002:3000'
+      - "3002:3000"
+    environment:
+      REDIS_HOST: on-bullmq-redis
+      REDIS_PASSWORD: local-dev-value
+      FHIR_URL: http://on-fhir:8080/fhir
 
-  on-transfer-inbound:
-    extends:
-      file: docker-compose.dev.yaml
-      service: on-transfer-inbound
-    ports:
-      - '3001:3000'
-
+  # ========================
+  # British Columbia (BC) Services
+  # ========================
   bc-fhir-db:
-    extends:
-      file: docker-compose.dev.yaml
-      service: bc-fhir-db
+    image: postgres:14.11-alpine
+    networks:
+      - bc-fhir-db
+    environment:
+      POSTGRES_DB: hapi-fhir-db
+      POSTGRES_USER: hapi-fhir-db
+      POSTGRES_PASSWORD: local-dev-value
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U hapi-fhir-db -d hapi-fhir-db']
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
 
   bc-fhir:
-    extends:
-      file: docker-compose.dev.yaml
-      service: bc-fhir
+    image: hapiproject/hapi:latest
+    networks:
+      - gateway
+      - bc-fhir-db
     environment:
-      FHIR_SERVER_ADDRESS: 'http://gateway:80/bc/fhir'
+      POSTGRES_DB: hapi-fhir-db
+      POSTGRES_USER: hapi-fhir-db
+      POSTGRES_PASSWORD: local-dev-value
+      DB_PORT: 5432
+      DB_HOST: bc-fhir-db
+      FHIR_SERVER_ADDRESS: http://gateway:80/bc/fhir
+    depends_on:
+      bc-fhir-db:
+        condition: service_healthy
 
   bc-bullmq-redis:
-    extends:
-      file: docker-compose.dev.yaml
-      service: bc-bullmq-redis
+    image: redis:7.4.1-alpine
+    networks:
+      - bc-bullmq-redis
+    command: redis-server --requirepass local-dev-value
 
   bc-transfer-outbound:
-    extends:
-      file: docker-compose.dev.yaml
-      service: bc-transfer-outbound
+    image: node-dev:1.0
+    networks:
+      - gateway
+      - bc-bullmq-redis
     ports:
-      - '3004:3000'
+      - "3004:3000"
+    environment:
+      REDIS_HOST: bc-bullmq-redis
+      REDIS_PASSWORD: local-dev-value
+      FHIR_URL: http://bc-fhir:8080/fhir
 
-  bc-transfer-inbound:
-    extends:
-      file: docker-compose.dev.yaml
-      service: bc-transfer-inbound
-    ports:
-      - '3003:3000'
-
+  # ========================
+  # Test Container
+  # ========================
   uj1-pt-pt:
     image: user-journey-1:0.0.2
     build:
@@ -84,6 +135,9 @@ services:
       BC_FHIR_URL: http://gateway:80/bc/fhir
       ON_FHIR_URL: http://gateway:80/on/fhir
 
+# ========================
+# Configurations
+# ========================
 configs:
   gateway.test.conf:
     content: |
@@ -101,9 +155,10 @@ configs:
               proxy_pass http://bc-transfer-outbound:3000/;
           }
       }
-  hapi:
-    file: ./hapi-dev.application.yaml
 
+# ========================
+# Networks
+# ========================
 networks:
   host-loopback:
     driver: bridge
@@ -113,15 +168,13 @@ networks:
     driver: bridge
   on-fhir-db:
     driver: bridge
+    internal: true
   on-bullmq-redis:
     driver: bridge
+    internal: true
   bc-fhir-db:
     driver: bridge
-  bc-bullmq-redis:
-    driver: bridge
-  on-internal:
-    driver: bridge
     internal: true
-  bc-internal:
+  bc-bullmq-redis:
     driver: bridge
     internal: true
