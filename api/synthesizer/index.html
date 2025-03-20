@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../../architecture/User-Journey-2/User-Journey-2/">
+        <link rel="prev" href="../federator/">
       
       
-        <link rel="next" href="../federator/">
+        <link rel="next" href="../../ui/ui/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Data Aggregation API - IIDI-Tech Documentation</title>
+        <title>Synthesizer API - IIDI-Tech Documentation</title>
       
     
     
@@ -62,7 +62,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#fhir-immunization-data-aggregation-api" class="md-skip">
+        <a href="#synthetic-fhir-data-generator-and-uploader" class="md-skip">
           Skip to content
         </a>
       
@@ -98,7 +98,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Data Aggregation API
+              Synthesizer API
             
           </span>
         </div>
@@ -422,31 +422,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Data Aggregation API
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../aggregation/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -456,242 +435,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#environment-variables" class="md-nav__link">
-    <span class="md-ellipsis">
-      Environment Variables
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#api-endpoints" class="md-nav__link">
-    <span class="md-ellipsis">
-      API Endpoints
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="API Endpoints">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-get-aggregated-immunization-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      1️⃣ Get Aggregated Immunization Data
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="1️⃣ Get Aggregated Immunization Data">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#get-aggregated-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      GET /aggregated-data
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#request-headers" class="md-nav__link">
-    <span class="md-ellipsis">
-      Request Headers
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#response-format" class="md-nav__link">
-    <span class="md-ellipsis">
-      Response Format
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Response Format">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#example-response" class="md-nav__link">
-    <span class="md-ellipsis">
-      Example Response:
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#response-fields" class="md-nav__link">
-    <span class="md-ellipsis">
-      Response Fields
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-health-check-endpoint" class="md-nav__link">
-    <span class="md-ellipsis">
-      2️⃣ Health Check Endpoint
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="2️⃣ Health Check Endpoint">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#get-health" class="md-nav__link">
-    <span class="md-ellipsis">
-      GET /health
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#response-format_1" class="md-nav__link">
-    <span class="md-ellipsis">
-      Response Format
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#data-processing-workflow" class="md-nav__link">
-    <span class="md-ellipsis">
-      Data Processing Workflow
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Data Processing Workflow">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#step-1-fetching-fhir-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 1: Fetching FHIR Data
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-2-fetching-patient-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 2: Fetching Patient Data
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-3-processing-and-aggregation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 3: Processing and Aggregation
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-4-caching-authentication" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 4: Caching &amp; Authentication
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#security-features" class="md-nav__link">
-    <span class="md-ellipsis">
-      Security Features
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#deployment" class="md-nav__link">
-    <span class="md-ellipsis">
-      Deployment
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Deployment">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#local-development" class="md-nav__link">
-    <span class="md-ellipsis">
-      Local Development
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#production-deployment" class="md-nav__link">
-    <span class="md-ellipsis">
-      Production Deployment
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -723,10 +466,31 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../synthesizer/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Synthesizer API
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -736,6 +500,278 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dependencies
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      Environment Variables
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Functions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-generate-a-random-date" class="md-nav__link">
+    <span class="md-ellipsis">
+      1️⃣ Generate a Random Date
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1️⃣ Generate a Random Date">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#random_datestart_date-end_date" class="md-nav__link">
+    <span class="md-ellipsis">
+      random_date(start_date, end_date)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-create-a-patient-resource" class="md-nav__link">
+    <span class="md-ellipsis">
+      2️⃣ Create a Patient Resource
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2️⃣ Create a Patient Resource">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create_patient_resourcepatient_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      create_patient_resource(patient_id)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-create-an-allergy-resource-only-for-bc-patients" class="md-nav__link">
+    <span class="md-ellipsis">
+      3️⃣ Create an Allergy Resource (Only for BC Patients)
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3️⃣ Create an Allergy Resource (Only for BC Patients)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create_allergy_resourcepatient_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      create_allergy_resource(patient_id)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-create-an-immunization-resource" class="md-nav__link">
+    <span class="md-ellipsis">
+      4️⃣ Create an Immunization Resource
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4️⃣ Create an Immunization Resource">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create_immunization_resourcepatient_id-birth_date" class="md-nav__link">
+    <span class="md-ellipsis">
+      create_immunization_resource(patient_id, birth_date)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-create-a-fhir-transaction-bundle" class="md-nav__link">
+    <span class="md-ellipsis">
+      5️⃣ Create a FHIR Transaction Bundle
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5️⃣ Create a FHIR Transaction Bundle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create_transaction_bundlerecords" class="md-nav__link">
+    <span class="md-ellipsis">
+      create_transaction_bundle(records)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-generate-synthetic-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      6️⃣ Generate Synthetic Records
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6️⃣ Generate Synthetic Records">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generate_synthetic_recordsnum_records" class="md-nav__link">
+    <span class="md-ellipsis">
+      generate_synthetic_records(num_records)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-upload-data-to-fhir-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      7️⃣ Upload Data to FHIR Server
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7️⃣ Upload Data to FHIR Server">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#upload_to_fhir_serverbundle" class="md-nav__link">
+    <span class="md-ellipsis">
+      upload_to_fhir_server(bundle)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#execution-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      Execution Flow
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-endpoint-interaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      API Endpoint Interaction
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-fhir-patient-resource-generated" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example FHIR Patient Resource (Generated)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deployment" class="md-nav__link">
+    <span class="md-ellipsis">
+      Deployment
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Deployment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#run-locally" class="md-nav__link">
+    <span class="md-ellipsis">
+      Run Locally
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -840,6 +876,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dependencies
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#environment-variables" class="md-nav__link">
     <span class="md-ellipsis">
       Environment Variables
@@ -849,57 +894,29 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#api-endpoints" class="md-nav__link">
+  <a href="#key-functions" class="md-nav__link">
     <span class="md-ellipsis">
-      API Endpoints
+      Key Functions
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="API Endpoints">
+    <nav class="md-nav" aria-label="Key Functions">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-get-aggregated-immunization-data" class="md-nav__link">
+  <a href="#1-generate-a-random-date" class="md-nav__link">
     <span class="md-ellipsis">
-      1️⃣ Get Aggregated Immunization Data
+      1️⃣ Generate a Random Date
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="1️⃣ Get Aggregated Immunization Data">
+    <nav class="md-nav" aria-label="1️⃣ Generate a Random Date">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#get-aggregated-data" class="md-nav__link">
+  <a href="#random_datestart_date-end_date" class="md-nav__link">
     <span class="md-ellipsis">
-      GET /aggregated-data
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#request-headers" class="md-nav__link">
-    <span class="md-ellipsis">
-      Request Headers
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#response-format" class="md-nav__link">
-    <span class="md-ellipsis">
-      Response Format
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Response Format">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#example-response" class="md-nav__link">
-    <span class="md-ellipsis">
-      Example Response:
+      random_date(start_date, end_date)
     </span>
   </a>
   
@@ -911,9 +928,19 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#response-fields" class="md-nav__link">
+  <a href="#2-create-a-patient-resource" class="md-nav__link">
     <span class="md-ellipsis">
-      Response Fields
+      2️⃣ Create a Patient Resource
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2️⃣ Create a Patient Resource">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create_patient_resourcepatient_id" class="md-nav__link">
+    <span class="md-ellipsis">
+      create_patient_resource(patient_id)
     </span>
   </a>
   
@@ -925,28 +952,115 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-health-check-endpoint" class="md-nav__link">
+  <a href="#3-create-an-allergy-resource-only-for-bc-patients" class="md-nav__link">
     <span class="md-ellipsis">
-      2️⃣ Health Check Endpoint
+      3️⃣ Create an Allergy Resource (Only for BC Patients)
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="2️⃣ Health Check Endpoint">
+    <nav class="md-nav" aria-label="3️⃣ Create an Allergy Resource (Only for BC Patients)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#get-health" class="md-nav__link">
+  <a href="#create_allergy_resourcepatient_id" class="md-nav__link">
     <span class="md-ellipsis">
-      GET /health
+      create_allergy_resource(patient_id)
     </span>
   </a>
   
 </li>
         
+      </ul>
+    </nav>
+  
+</li>
+        
           <li class="md-nav__item">
-  <a href="#response-format_1" class="md-nav__link">
+  <a href="#4-create-an-immunization-resource" class="md-nav__link">
     <span class="md-ellipsis">
-      Response Format
+      4️⃣ Create an Immunization Resource
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4️⃣ Create an Immunization Resource">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create_immunization_resourcepatient_id-birth_date" class="md-nav__link">
+    <span class="md-ellipsis">
+      create_immunization_resource(patient_id, birth_date)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-create-a-fhir-transaction-bundle" class="md-nav__link">
+    <span class="md-ellipsis">
+      5️⃣ Create a FHIR Transaction Bundle
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5️⃣ Create a FHIR Transaction Bundle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#create_transaction_bundlerecords" class="md-nav__link">
+    <span class="md-ellipsis">
+      create_transaction_bundle(records)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-generate-synthetic-records" class="md-nav__link">
+    <span class="md-ellipsis">
+      6️⃣ Generate Synthetic Records
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6️⃣ Generate Synthetic Records">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#generate_synthetic_recordsnum_records" class="md-nav__link">
+    <span class="md-ellipsis">
+      generate_synthetic_records(num_records)
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-upload-data-to-fhir-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      7️⃣ Upload Data to FHIR Server
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7️⃣ Upload Data to FHIR Server">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#upload_to_fhir_serverbundle" class="md-nav__link">
+    <span class="md-ellipsis">
+      upload_to_fhir_server(bundle)
     </span>
   </a>
   
@@ -963,60 +1077,27 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#data-processing-workflow" class="md-nav__link">
+  <a href="#execution-flow" class="md-nav__link">
     <span class="md-ellipsis">
-      Data Processing Workflow
+      Execution Flow
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Data Processing Workflow">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#step-1-fetching-fhir-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 1: Fetching FHIR Data
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-2-fetching-patient-data" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 2: Fetching Patient Data
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-3-processing-and-aggregation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 3: Processing and Aggregation
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#step-4-caching-authentication" class="md-nav__link">
-    <span class="md-ellipsis">
-      Step 4: Caching &amp; Authentication
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#security-features" class="md-nav__link">
+  <a href="#api-endpoint-interaction" class="md-nav__link">
     <span class="md-ellipsis">
-      Security Features
+      API Endpoint Interaction
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-fhir-patient-resource-generated" class="md-nav__link">
+    <span class="md-ellipsis">
+      Example FHIR Patient Resource (Generated)
     </span>
   </a>
   
@@ -1033,18 +1114,9 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#local-development" class="md-nav__link">
+  <a href="#run-locally" class="md-nav__link">
     <span class="md-ellipsis">
-      Local Development
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#production-deployment" class="md-nav__link">
-    <span class="md-ellipsis">
-      Production Deployment
+      Run Locally
     </span>
   </a>
   
@@ -1071,19 +1143,48 @@
 
 
 
-<h1 id="fhir-immunization-data-aggregation-api">FHIR Immunization Data Aggregation API</h1>
-<p>The <strong>FHIR Immunization Data Aggregation API</strong> is a <strong>Flask-based service</strong> that retrieves, processes, and aggregates immunization data from a <strong>FHIR server</strong>. This API <strong>groups immunization records by key attributes</strong> such as:</p>
-<ul>
-<li><strong>Occurrence Year</strong></li>
-<li><strong>Jurisdiction (ON or BC)</strong></li>
-<li><strong>Sex</strong></li>
-<li><strong>Age Group</strong></li>
-<li><strong>Dose Count</strong></li>
-</ul>
-<p>This API supports <strong>real-time data analysis and reporting</strong> for <strong>public health monitoring</strong>.</p>
+<h1 id="synthetic-fhir-data-generator-and-uploader">Synthetic FHIR Data Generator and Uploader</h1>
+<p>The <strong>Synthetic FHIR Data Generator and Uploader</strong> is a Python-based script designed to generate <strong>synthetic immunization records</strong> and upload them to a <strong>FHIR server</strong> as a <strong>transaction bundle</strong>. The script supports both <strong>British Columbia (BC) and Ontario (ON)</strong> jurisdictions and ensures realistic data generation with configurable parameters.</p>
+<hr />
+<h2 id="dependencies"><strong>Dependencies</strong></h2>
+<p>This script relies on the following Python libraries:</p>
+<table>
+<thead>
+<tr>
+<th>Dependency</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>requests</code></td>
+<td>For making API calls to the FHIR server.</td>
+</tr>
+<tr>
+<td><code>faker</code></td>
+<td>For generating realistic patient data.</td>
+</tr>
+<tr>
+<td><code>logging</code></td>
+<td>For structured logging and debugging.</td>
+</tr>
+<tr>
+<td><code>os</code></td>
+<td>For handling environment variables.</td>
+</tr>
+<tr>
+<td><code>random</code></td>
+<td>For generating randomized values.</td>
+</tr>
+<tr>
+<td><code>datetime</code></td>
+<td>For generating randomized dates.</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="environment-variables"><strong>Environment Variables</strong></h2>
-<p>The API is configurable using the following environment variables:</p>
+<p>The script behavior can be configured using the following environment variables:</p>
 <table>
 <thead>
 <tr>
@@ -1095,163 +1196,124 @@
 <tbody>
 <tr>
 <td><code>FHIR_URL</code></td>
-<td>Base URL of the FHIR server</td>
+<td>Base URL of the FHIR server.</td>
 <td><code>http://localhost:8080/fhir</code></td>
 </tr>
 <tr>
-<td><code>AGGREGATION_INTERVAL</code></td>
-<td>Time in seconds to cache aggregated data</td>
-<td><code>60</code></td>
+<td><code>NUM_RECORDS</code></td>
+<td>Number of synthetic immunization records to generate.</td>
+<td><code>1</code></td>
 </tr>
 <tr>
-<td><code>PUBLIC_KEY_PATH</code></td>
-<td>Path to the public key for JWT validation</td>
-<td><code>/secrets/public_key.pem</code></td>
-</tr>
-<tr>
-<td><code>IS_LOCAL_DEV</code></td>
-<td>Set <code>true</code> to disable authentication in local environments</td>
-<td><code>false</code></td>
+<td><code>PT</code></td>
+<td>Province code (<code>bc</code> or <code>on</code>) for jurisdiction logic.</td>
+<td><code>bc</code></td>
 </tr>
 </tbody>
 </table>
 <hr />
-<h2 id="api-endpoints"><strong>API Endpoints</strong></h2>
-<h3 id="1-get-aggregated-immunization-data"><strong>1️⃣ Get Aggregated Immunization Data</strong></h3>
-<h4 id="get-aggregated-data"><strong>GET <code>/aggregated-data</code></strong></h4>
-<p>Retrieves <strong>FHIR-based immunization records</strong>, processes them, and returns <strong>grouped</strong> data.</p>
-<h4 id="request-headers"><strong>Request Headers</strong></h4>
-<table>
-<thead>
-<tr>
-<th>Header</th>
-<th>Description</th>
-<th>Required</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>Authorization</code></td>
-<td>Bearer token for JWT authentication</td>
-<td>✅ (unless <code>IS_LOCAL_DEV = true</code>)</td>
-</tr>
-</tbody>
-</table>
-<h4 id="response-format"><strong>Response Format</strong></h4>
-<p>Returns aggregated immunization data in JSON format.</p>
-<h5 id="example-response"><strong>Example Response:</strong></h5>
-<pre><code class="language-json">[
-  {
-    &quot;OccurrenceYear&quot;: &quot;2023&quot;,
-    &quot;Jurisdiction&quot;: &quot;ON&quot;,
-    &quot;Sex&quot;: &quot;Female&quot;,
-    &quot;Age&quot;: &quot;5 years&quot;,
-    &quot;Dose&quot;: 2,
-    &quot;Count&quot;: 120,
-    &quot;ReferenceDate&quot;: &quot;2023-12-31&quot;
-  },
-  {
-    &quot;OccurrenceYear&quot;: &quot;2023&quot;,
-    &quot;Jurisdiction&quot;: &quot;BC&quot;,
-    &quot;Sex&quot;: &quot;Male&quot;,
-    &quot;Age&quot;: &quot;7 years&quot;,
-    &quot;Dose&quot;: 1,
-    &quot;Count&quot;: 95,
-    &quot;ReferenceDate&quot;: &quot;2023-12-31&quot;
-  }
-]
-</code></pre>
-<h4 id="response-fields"><strong>Response Fields</strong></h4>
-<table>
-<thead>
-<tr>
-<th>Field</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>OccurrenceYear</code></td>
-<td>The year the immunization occurred</td>
-</tr>
-<tr>
-<td><code>Jurisdiction</code></td>
-<td>The province where immunization was recorded</td>
-</tr>
-<tr>
-<td><code>Sex</code></td>
-<td>The patient's sex</td>
-</tr>
-<tr>
-<td><code>Age</code></td>
-<td>The patient's age group</td>
-</tr>
-<tr>
-<td><code>Dose</code></td>
-<td>The dose count for the vaccine</td>
-</tr>
-<tr>
-<td><code>Count</code></td>
-<td>Number of immunization records in this group</td>
-</tr>
-<tr>
-<td><code>ReferenceDate</code></td>
-<td>The last day of the occurrence year</td>
-</tr>
-</tbody>
-</table>
+<h2 id="key-functions"><strong>Key Functions</strong></h2>
+<h3 id="1-generate-a-random-date"><strong>1️⃣ Generate a Random Date</strong></h3>
+<h4 id="random_datestart_date-end_date"><code>random_date(start_date, end_date)</code></h4>
+<p>Generates a random date within the given range.</p>
 <hr />
-<h3 id="2-health-check-endpoint"><strong>2️⃣ Health Check Endpoint</strong></h3>
-<h4 id="get-health"><strong>GET <code>/health</code></strong></h4>
-<p>Returns API health status.</p>
-<h4 id="response-format_1"><strong>Response Format</strong></h4>
+<h3 id="2-create-a-patient-resource"><strong>2️⃣ Create a Patient Resource</strong></h3>
+<h4 id="create_patient_resourcepatient_id"><code>create_patient_resource(patient_id)</code></h4>
+<p>Generates a <strong>FHIR-compliant Patient resource</strong> with:</p>
+<ul>
+<li>Randomized demographic details (<strong>name, gender, birthdate, address</strong>).</li>
+<li>Unique identifiers (<strong>health card number, UUID</strong>).</li>
+<li>Additional metadata (<strong>consent status, ethnicity, language, risk factors</strong>).</li>
+</ul>
+<hr />
+<h3 id="3-create-an-allergy-resource-only-for-bc-patients"><strong>3️⃣ Create an Allergy Resource</strong> <em>(Only for BC Patients)</em></h3>
+<h4 id="create_allergy_resourcepatient_id"><code>create_allergy_resource(patient_id)</code></h4>
+<p>Generates an <strong>AllergyIntolerance</strong> resource with:</p>
+<ul>
+<li>Random <strong>allergy type, criticality, and onset date</strong>.</li>
+<li><strong>SNOMED-CT coding</strong> for standardization.</li>
+<li><strong>FHIR-compliant allergy status and type</strong>.</li>
+</ul>
+<hr />
+<h3 id="4-create-an-immunization-resource"><strong>4️⃣ Create an Immunization Resource</strong></h3>
+<h4 id="create_immunization_resourcepatient_id-birth_date"><code>create_immunization_resource(patient_id, birth_date)</code></h4>
+<p>Generates an <strong>Immunization resource</strong> with:</p>
+<ul>
+<li>Vaccine <strong>manufacturer, lot number, administration site</strong>.</li>
+<li>Randomized <strong>dose count (1 or 2 doses)</strong>.</li>
+<li><strong>Occurrence date post first birthday</strong>.</li>
+<li>Optional <strong>reaction details (fever)</strong>.</li>
+<li>Additional metadata (<strong>exemption reasons, concurrent vaccines</strong>).</li>
+</ul>
+<hr />
+<h3 id="5-create-a-fhir-transaction-bundle"><strong>5️⃣ Create a FHIR Transaction Bundle</strong></h3>
+<h4 id="create_transaction_bundlerecords"><code>create_transaction_bundle(records)</code></h4>
+<p>Constructs a <strong>FHIR-compliant transaction bundle</strong> containing:</p>
+<ul>
+<li><strong>Patient</strong>, <strong>Immunization</strong>, and <strong>Allergy (if applicable)</strong> resources.</li>
+<li><strong>Batch submission</strong> format for efficient FHIR API ingestion.</li>
+</ul>
+<hr />
+<h3 id="6-generate-synthetic-records"><strong>6️⃣ Generate Synthetic Records</strong></h3>
+<h4 id="generate_synthetic_recordsnum_records"><code>generate_synthetic_records(num_records)</code></h4>
+<p>Generates a specified number of <strong>synthetic patient and immunization records</strong>.</p>
+<hr />
+<h3 id="7-upload-data-to-fhir-server"><strong>7️⃣ Upload Data to FHIR Server</strong></h3>
+<h4 id="upload_to_fhir_serverbundle"><code>upload_to_fhir_server(bundle)</code></h4>
+<p>Uploads the generated <strong>FHIR transaction bundle</strong> to the FHIR server.</p>
+<ul>
+<li>Implements <strong>retry logic</strong> for fault tolerance.</li>
+<li>Logs success or failure messages.</li>
+</ul>
+<hr />
+<h2 id="execution-flow"><strong>Execution Flow</strong></h2>
+<p>1️⃣ Generates <code>NUM_RECORDS</code> synthetic immunization records.
+2️⃣ Creates a <strong>FHIR transaction bundle</strong>.
+3️⃣ Uploads the bundle to the specified <strong>FHIR server</strong>.
+4️⃣ Logs <strong>success</strong> or <strong>failure</strong> messages.</p>
+<hr />
+<h2 id="api-endpoint-interaction"><strong>API Endpoint Interaction</strong></h2>
+<ul>
+<li>The script <strong>POSTs</strong> data to the <code>FHIR_URL</code> via a <strong>FHIR transaction bundle</strong>.</li>
+<li>Implements <strong>retries for API failures</strong> to ensure data delivery.</li>
+</ul>
+<hr />
+<h2 id="example-fhir-patient-resource-generated"><strong>Example FHIR Patient Resource (Generated)</strong></h2>
 <pre><code class="language-json">{
-  &quot;status&quot;: &quot;ok&quot;
+  &quot;resourceType&quot;: &quot;Patient&quot;,
+  &quot;id&quot;: &quot;patient-1&quot;,
+  &quot;name&quot;: [
+    {
+      &quot;family&quot;: &quot;Smith&quot;,
+      &quot;given&quot;: [&quot;John&quot;, &quot;Michael&quot;]
+    }
+  ],
+  &quot;gender&quot;: &quot;male&quot;,
+  &quot;birthDate&quot;: &quot;2015-05-20&quot;,
+  &quot;address&quot;: [
+    {
+      &quot;line&quot;: [&quot;123 Fake Street&quot;],
+      &quot;city&quot;: &quot;Vancouver&quot;,
+      &quot;state&quot;: &quot;BC&quot;,
+      &quot;postalCode&quot;: &quot;V5K 0A1&quot;,
+      &quot;country&quot;: &quot;CA&quot;
+    }
+  ],
+  &quot;identifier&quot;: [
+    { &quot;system&quot;: &quot;http://healthcare.example.org/ids&quot;, &quot;value&quot;: &quot;abcd-1234&quot; },
+    {
+      &quot;system&quot;: &quot;http://healthcare.example.org/healthcard&quot;,
+      &quot;value&quot;: &quot;9876543210&quot;
+    }
+  ]
 }
 </code></pre>
 <hr />
-<h2 id="data-processing-workflow"><strong>Data Processing Workflow</strong></h2>
-<h3 id="step-1-fetching-fhir-data"><strong>Step 1: Fetching FHIR Data</strong></h3>
-<ul>
-<li>The API queries the FHIR server for <strong>Immunization</strong> resources.</li>
-<li>It paginates through records to retrieve complete datasets.</li>
-<li>Uses structured logging to monitor data retrieval.</li>
-</ul>
-<h3 id="step-2-fetching-patient-data"><strong>Step 2: Fetching Patient Data</strong></h3>
-<ul>
-<li>The API retrieves <strong>Patient</strong> resources from FHIR for each immunization record.</li>
-<li>Uses <strong>LRU caching</strong> to reduce redundant API calls.</li>
-</ul>
-<h3 id="step-3-processing-and-aggregation"><strong>Step 3: Processing and Aggregation</strong></h3>
-<ul>
-<li>Extracts <strong>Jurisdiction, Year, Sex, Age, Dose</strong>.</li>
-<li>Groups data by these attributes.</li>
-<li>Assigns <strong>December 31st</strong> as the <strong>ReferenceDate</strong>.</li>
-</ul>
-<h3 id="step-4-caching-authentication"><strong>Step 4: Caching &amp; Authentication</strong></h3>
-<ul>
-<li>Stores aggregated data for <code>AGGREGATION_INTERVAL</code> seconds.</li>
-<li>Enforces <strong>JWT authentication</strong> unless <code>IS_LOCAL_DEV</code> is enabled.</li>
-<li>Uses a <strong>public key</strong> for token verification.</li>
-</ul>
-<hr />
-<h2 id="security-features"><strong>Security Features</strong></h2>
-<ul>
-<li><strong>JWT Authentication</strong>: Tokens are validated via <strong>RSA public keys</strong>.</li>
-<li><strong>Data Protection</strong>: No personal identifiers are stored or exposed.</li>
-<li><strong>Rate Limiting &amp; Caching</strong>: Prevents excessive FHIR API calls.</li>
-<li><strong>Structured Logging</strong>: Ensures visibility into API operations.</li>
-</ul>
-<hr />
 <h2 id="deployment"><strong>Deployment</strong></h2>
-<h3 id="local-development"><strong>Local Development</strong></h3>
-<p>Run the API locally with authentication disabled:</p>
+<h3 id="run-locally"><strong>Run Locally</strong></h3>
+<p>Run the script with authentication disabled for local testing:</p>
 <pre><code class="language-bash">export IS_LOCAL_DEV=true
-python app.py
-</code></pre>
-<h3 id="production-deployment"><strong>Production Deployment</strong></h3>
-<p>Use <strong>Gunicorn</strong> for scalable deployments:</p>
-<pre><code class="language-bash">gunicorn -w 4 -b 0.0.0.0:5000 app:app
+python synthetic_fhir_data.py
 </code></pre>
 
 
