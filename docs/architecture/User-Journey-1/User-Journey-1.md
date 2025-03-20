@@ -2,6 +2,8 @@
 
 ## **Technical Architecture and Implementation for Secure Cross-Provincial Data Exchange**
 
+![User Journey 1](./User-Journey-1.png)
+
 ## **1. Introduction**
 
 The **Interoperable Immunization Data Initiative (IIDI)** is designed to facilitate a **secure, standards-based, and interoperable** approach for immunization record exchange across **Provincial and Territorial (PT) jurisdictions** in Canada. As part of this initiative, **User Journey 1** focuses on the **technical implementation of PT-to-PT transfers**, ensuring a scalable, Kubernetes-native solution that aligns with modern security, compliance, and interoperability best practices.
@@ -93,5 +95,3 @@ Security is **a core principle** of this design, ensuring that immunization data
 - **Role-Based Access Control (RBAC)**: Enforces strict **least-privilege access** for system components.
 - **Comprehensive Audit Logging**: Every request and response is **logged for compliance and forensic analysis**.
 - **Secure Kubernetes Workloads**: All services run in **isolated namespaces**, ensuring **multi-tenancy security best practices**.
-
-![User Journey 1](./User-Journey-1.png)
