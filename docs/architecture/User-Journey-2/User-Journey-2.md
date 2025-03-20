@@ -2,6 +2,8 @@
 
 ## **Technical Architecture and Implementation Strategy User Journey 2 (PT to PHAC)**
 
+![User Journey 2](./User-Journey-2.png)
+
 ## **1. Introduction**
 
 The **Interoperable Immunization Data Initiative (IIDI)** is designed to enable **secure, federated, and privacy-compliant immunization data sharing** between Provincial/Territorial (PT) health systems and the Public Health Agency of Canada (PHAC). This initiative follows a **distributed architecture**, ensuring that **each PT retains full control over its immunization records** while allowing for **standardized reporting and analytics** at the national level.
@@ -102,5 +104,3 @@ Once PT data is aggregated, it is securely transmitted to PHAC via the **Federat
 
 - Queries the **Federator API** for real-time immunization insights.
 - Displays statistics per **jurisdiction, age group, and vaccine type**, supporting **national public health monitoring**.
-
-![User Journey 2](./User-Journey-2.png)
