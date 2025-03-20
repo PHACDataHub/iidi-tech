@@ -1,0 +1,127 @@
+version: '3.8'
+name: iidi-test
+
+services:
+  gateway:
+    extends:
+      file: docker-compose.dev.yaml
+      service: gateway
+    configs:
+      - source: gateway.test.conf
+        target: /etc/nginx/conf.d/default.conf
+
+  on-fhir-db:
+    extends:
+      file: docker-compose.dev.yaml
+      service: on-fhir-db
+
+  on-fhir:
+    extends:
+      file: docker-compose.dev.yaml
+      service: on-fhir
+    environment:
+      FHIR_SERVER_ADDRESS: 'http://gateway:80/on/fhir'
+
+  on-bullmq-redis:
+    extends:
+      file: docker-compose.dev.yaml
+      service: on-bullmq-redis
+
+  on-transfer-outbound:
+    extends:
+      file: docker-compose.dev.yaml
+      service: on-transfer-outbound
+    ports:
+      - '3002:3000'
+
+  on-transfer-inbound:
+    extends:
+      file: docker-compose.dev.yaml
+      service: on-transfer-inbound
+    ports:
+      - '3001:3000'
+
+  bc-fhir-db:
+    extends:
+      file: docker-compose.dev.yaml
+      service: bc-fhir-db
+
+  bc-fhir:
+    extends:
+      file: docker-compose.dev.yaml
+      service: bc-fhir
+    environment:
+      FHIR_SERVER_ADDRESS: 'http://gateway:80/bc/fhir'
+
+  bc-bullmq-redis:
+    extends:
+      file: docker-compose.dev.yaml
+      service: bc-bullmq-redis
+
+  bc-transfer-outbound:
+    extends:
+      file: docker-compose.dev.yaml
+      service: bc-transfer-outbound
+    ports:
+      - '3004:3000'
+
+  bc-transfer-inbound:
+    extends:
+      file: docker-compose.dev.yaml
+      service: bc-transfer-inbound
+    ports:
+      - '3003:3000'
+
+  uj1-pt-pt:
+    image: user-journey-1:0.0.2
+    build:
+      context: ./user-journey-tests/uj1-pt-pt/
+    networks:
+      - gateway
+    environment:
+      BC_OUTBOUND_URL: http://gateway:80/bc/outbound
+      ON_OUTBOUND_URL: http://gateway:80/on/outbound
+      BC_FHIR_URL: http://gateway:80/bc/fhir
+      ON_FHIR_URL: http://gateway:80/on/fhir
+
+configs:
+  gateway.test.conf:
+    content: |
+      server {
+          location /on/fhir/ {
+              proxy_pass http://on-fhir:8080/fhir/;
+          }
+          location /bc/fhir/ {
+              proxy_pass http://bc-fhir:8080/fhir/;
+          }
+          location /on/outbound/ {
+              proxy_pass http://on-transfer-outbound:3000/;
+          }
+          location /bc/outbound/ {
+              proxy_pass http://bc-transfer-outbound:3000/;
+          }
+      }
+  hapi:
+    file: ./hapi-dev.application.yaml
+
+networks:
+  host-loopback:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.host_binding_ipv4: '127.0.0.1'
+  gateway:
+    driver: bridge
+  on-fhir-db:
+    driver: bridge
+  on-bullmq-redis:
+    driver: bridge
+  bc-fhir-db:
+    driver: bridge
+  bc-bullmq-redis:
+    driver: bridge
+  on-internal:
+    driver: bridge
+    internal: true
+  bc-internal:
+    driver: bridge
+    internal: true
