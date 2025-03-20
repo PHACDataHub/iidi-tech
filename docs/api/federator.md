@@ -8,11 +8,11 @@ The **Federator API** is an **Express-based service** designed to retrieve, proc
 
 The API can be configured using the following environment variables:
 
-| Variable               | Description                                               | Default                      |
-| ---------------------- | --------------------------------------------------------- | ---------------------------- |
-| `AGGREGATOR_URLS`       | A comma-separated list of URLs to fetch data from.        | `http://localhost:8080/data` |
-| `PRIVATE_KEY_PATH`      | Path to the private key used for signing JWT tokens for outbound requests (for aggregator communication) | `/secrets/private_key.pem`   |
-| `IS_LOCAL_DEV`          | Set `true` to disable JWT signing for local development environments | `false`                      |
+| Variable           | Description                                                                                              | Default                      |
+| ------------------ | -------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| `AGGREGATOR_URLS`  | A comma-separated list of URLs to fetch data from.                                                       | `http://localhost:8080/data` |
+| `PRIVATE_KEY_PATH` | Path to the private key used for signing JWT tokens for outbound requests (for aggregator communication) | `/secrets/private_key.pem`   |
+| `IS_LOCAL_DEV`     | Set `true` to disable JWT signing for local development environments                                     | `false`                      |
 
 > **Note**: Additional provinces or jurisdictions can be added to the federator by modifying the `AGGREGATOR_URLS` environment variable. Each province or jurisdiction must have a corresponding external data source endpoint.
 
@@ -26,18 +26,20 @@ The API can be configured using the following environment variables:
 
 This endpoint retrieves **aggregated data** from external data sources, validates it, and returns **grouped results**.
 
-##### **Query Parameters**:  
+##### **Query Parameters**:
+
 None.
 
 ##### **Request Headers**:
 
-| Header                | Description                                             |
-| --------------------- | ------------------------------------------------------- |
-| None                  | No authentication required for public API usage.       |
+| Header | Description                                      |
+| ------ | ------------------------------------------------ |
+| None   | No authentication required for public API usage. |
 
 ##### **Response Format**:
 
 - **`data`** (Array): A list of valid aggregated data objects. Each object contains:
+
   - `Age`: The age group for the data.
   - `Count`: The number of occurrences.
   - `Dose`: The immunization dose count.
@@ -74,3 +76,4 @@ None.
   ],
   "errors": []
 }
+```
