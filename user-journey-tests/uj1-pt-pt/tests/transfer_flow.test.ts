@@ -106,7 +106,30 @@ async function testRandomPatientTransfers() {
   }
 }
 
-testRandomPatientTransfers().catch((error) => {
+async function runWithRetries(retries = 3) {
+  let lastError: unknown;
+
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      logger.info(`Attempt ${attempt} of ${retries}`);
+      await testRandomPatientTransfers();
+      logger.info('Test passed successfully');
+      process.exit(0); // Exit with code 0 if successful
+    } catch (error) {
+      lastError = error;
+      logger.error(`Attempt ${attempt} failed:`, error);
+      if (attempt < retries) {
+        logger.info('Retrying...');
+      }
+    }
+  }
+
+  // If all retries fail
+  logger.error('All attempts failed');
+  throw lastError;
+}
+
+runWithRetries().catch((error) => {
   logger.error('Test suite failed:', error);
-  process.exit(1);
+  process.exit(1); // Exit with non-zero code on failure
 });

@@ -7,11 +7,12 @@ services:
   # ========================
   gateway:
     image: nginx:1.27.3
+    restart: always
     networks:
       - gateway
       - host-loopback
     ports:
-      - "127.0.0.1:8080:80"
+      - '127.0.0.1:8080:80'
     configs:
       - source: gateway.test.conf
         target: /etc/nginx/conf.d/default.conf
@@ -50,23 +51,75 @@ services:
       on-fhir-db:
         condition: service_healthy
 
-  on-bullmq-redis:
+  on-synthesizer: &synthesizer-service
+    image: synthesizer:1.4
+    restart: on-failure
+    build:
+      context: ./synthesizer
+    networks:
+      - gateway
+    environment:
+      NUM_RECORDS: 100
+      PT: on
+      FHIR_URL: http://on-fhir:8080/fhir # in this case, resolved inside the container, with container networking
+
+  on-transfer-inbound: &transfer-inbound-service
+    image: node-dev:1.0
+    tty: ${DOCKER_TTY:-true}
+    restart: always
+    build:
+      context: ./node-dev-docker-env
+      dockerfile: ./Dockerfile.node-dev
+    volumes:
+      - ./transfer-inbound:/home/node-dev/project
+      - ./transfer-inbound/.env.node-dev-docker-env-overrides:/home/node-dev/project/.env
+    command: npm run dev:${DOCKER_API_COMMAND:-docker}
+    networks:
+      - gateway
+      - host-loopback
+    ports:
+      - 3001:3000
+      - 9231:9229
+    environment:
+      EXPRESS_PORT: 3000
+      DEV_IS_LOCAL_ENV: True
+      FHIR_URL: http://on-fhir:8080/fhir
+
+  on-bullmq-redis: &bullmq-redis
     image: redis:7.4.1-alpine
+    restart: always
     networks:
       - on-bullmq-redis
-    command: redis-server --requirepass local-dev-value
+    ports:
+      - 6379:6379
+    command: /bin/sh -c "redis-server --requirepass $$REDIS_PASSWORD --port $$REDIS_PORT --loglevel notice"
+    environment: &bullmq-env
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: local-dev-value
 
-  on-transfer-outbound:
+  on-transfer-outbound: &transfer-outbound-service
     image: node-dev:1.0
+    restart: always
+    build:
+      context: ./node-dev-docker-env
+      dockerfile: ./Dockerfile.node-dev
+    volumes:
+      - ./transfer-outbound:/home/node-dev/project
+      - ./transfer-outbound/.env.node-dev-docker-env-overrides:/home/node-dev/project/.env
+    command: npm run dev:${DOCKER_API_COMMAND:-docker}
     networks:
       - gateway
       - on-bullmq-redis
     ports:
-      - "3002:3000"
+      - 3002:3000
     environment:
+      <<: *bullmq-env
+      EXPRESS_PORT: 3000
+      DEV_IS_LOCAL_ENV: True
       REDIS_HOST: on-bullmq-redis
-      REDIS_PASSWORD: local-dev-value
-      FHIR_URL: http://on-fhir:8080/fhir
+      FHIR_URL: http://on-fhir:8080/fhir # in this case, resolved inside the container, with container networking
+      OWN_TRANSFER_CODE: 'ON'
+      INBOUND_TRANSFER_SERIVCES_BY_TRANSFER_CODE: '{ "BC": "http://bc-transfer-inbound:3000" }' # resolved inside the container, with container networking
 
   # ========================
   # British Columbia (BC) Services
@@ -102,23 +155,49 @@ services:
       bc-fhir-db:
         condition: service_healthy
 
+  bc-synthesizer:
+    <<: *synthesizer-service
+    networks:
+      - gateway
+    environment:
+      NUM_RECORDS: 100
+      PT: bc
+      FHIR_URL: http://bc-fhir:8080/fhir
+
+  bc-transfer-inbound:
+    <<: *transfer-inbound-service
+    command: npm run dev
+    networks:
+      - gateway
+      - host-loopback
+    ports:
+      - 3003:3000
+    environment:
+      FHIR_URL: http://bc-fhir:8080/fhir
+
   bc-bullmq-redis:
-    image: redis:7.4.1-alpine
+    <<: *bullmq-redis
     networks:
       - bc-bullmq-redis
-    command: redis-server --requirepass local-dev-value
-
+    environment:
+      <<: *bullmq-env
   bc-transfer-outbound:
-    image: node-dev:1.0
+    <<: *transfer-outbound-service
+    command: npm run dev
     networks:
       - gateway
       - bc-bullmq-redis
+      - host-loopback
     ports:
-      - "3004:3000"
+      - 3004:3000
     environment:
+      <<: *bullmq-env
+      EXPRESS_PORT: 3000
+      DEV_IS_LOCAL_ENV: True
       REDIS_HOST: bc-bullmq-redis
-      REDIS_PASSWORD: local-dev-value
       FHIR_URL: http://bc-fhir:8080/fhir
+      OWN_TRANSFER_CODE: 'BC'
+      INBOUND_TRANSFER_SERIVCES_BY_TRANSFER_CODE: '{ "ON": "http://on-transfer-inbound:3000" }' # resolved inside the container, with container networking
 
   # ========================
   # Test Container
@@ -130,10 +209,10 @@ services:
     networks:
       - gateway
     environment:
-      BC_OUTBOUND_URL: http://gateway:80/bc/outbound
-      ON_OUTBOUND_URL: http://gateway:80/on/outbound
-      BC_FHIR_URL: http://gateway:80/bc/fhir
-      ON_FHIR_URL: http://gateway:80/on/fhir
+      BC_OUTBOUND_URL: http://bc-transfer-outbound:3000
+      ON_OUTBOUND_URL: http://on-transfer-outbound:3000
+      BC_FHIR_URL: http://bc-fhir:8080/fhir
+      ON_FHIR_URL: http://on-fhir:8080/fhir
 
 # ========================
 # Configurations
