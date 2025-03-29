@@ -17,3 +17,4 @@ nav:
       - Synthesizer API: api/synthesizer.md
   - UI:
       - UI: ui/ui.md
+  - Rshiny Dashboard: rshiny/dashboard.md
