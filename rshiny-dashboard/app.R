@@ -13,7 +13,7 @@ api_url <- Sys.getenv("AGGREGATOR_URL", "http://federator:3000/aggregated-data")
 
 # UI
 ui <- dashboardPage(
-  dashboardHeader(title = "Immunization Coverage Analytics"),
+  dashboardHeader(title = "Immunization Analytics"),
   dashboardSidebar(
     sidebarMenu(
       menuItem("Overview", tabName = "overview", icon = icon("dashboard")),
