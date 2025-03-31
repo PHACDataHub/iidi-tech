@@ -40,7 +40,7 @@ ui <- dashboardPage(
         tabName = "trends",
         fluidRow(
           box(title = "Dose Count Distribution", plotOutput("dose_distribution"), width = 12),
-          box(title = "Vaccination trends by number of people", plotOutput("coverage_trends"), width = 12)
+          box(title = "Vaccination trend by age", plotOutput("coverage_trends"), width = 12)
         )
       ),
       tabItem(
@@ -205,7 +205,7 @@ output$coverage_trends <- renderPlot({
         geom_line(linewidth = 1.2) +
         geom_point(size = 2) +
         theme_minimal() +
-        labs(title = "Vaccination trends by number of people", x = "Year", y = "Vaccinated (%)")
+        labs(title = "Vaccination trend by age", x = "Year", y = "Vaccinated (%)")
 })
 
 
