@@ -15,5 +15,8 @@ nav:
       - Data Aggregation API: api/aggregation.md
       - Federator API: api/federator.md
       - Synthesizer API: api/synthesizer.md
+      - Inbound API: api/inbound.md
+      - Outbound API: api/outbound.md
   - UI:
       - UI: ui/ui.md
+  - Rshiny Dashboard: rshiny/dashboard.md
