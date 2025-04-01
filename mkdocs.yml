@@ -19,3 +19,4 @@ nav:
       - Outbound API: api/outbound.md
   - UI:
       - UI: ui/ui.md
+  - Rshiny Dashboard: rshiny/dashboard.md
