@@ -406,10 +406,11 @@ services:
       FHIR_SERVER_ADDRESS: '${IIDI_NGINX_HOST:-http://localhost:8080}/on/fhir' # see proxy address via gateway.default.conf
   on-synthesizer: &synthesizer-service
     image: synthesizer:1.4
-    tty: ${DOCKER_TTY:-true}
-    restart: on-failure # reattempt until successful
+    pull_policy: never # this is a named local image, disable docker default attempt to pull from a remote
     build:
       context: ./synthesizer
+    tty: ${DOCKER_TTY:-true}
+    restart: on-failure # reattempt until successful
     networks:
       - on-internal
     environment:
@@ -418,10 +419,11 @@ services:
       FHIR_URL: http://on-fhir:8080/fhir # in this case, resolved inside the container, with container networking
   on-aggregator: &aggregator-service
     image: aggregator:1.10
-    tty: ${DOCKER_TTY:-true}
-    restart: always
+    pull_policy: never # this is a named local image, disable docker default attempt to pull from a remote
     build:
       context: ./aggregator
+    tty: ${DOCKER_TTY:-true}
+    restart: always
     configs:
       - source: dev-public-key.conf
         target: /dev-secrets/public_key.pem
@@ -437,10 +439,11 @@ services:
       PUBLIC_KEY_PATH: /dev-secrets/public_key.pem
   on-patient-browser: &patient-browser-service
     image: patient-browser:1.1
-    tty: ${DOCKER_TTY:-true}
-    restart: always
+    pull_policy: never # this is a named local image, disable docker default attempt to pull from a remote
     build:
       context: ./patient-browser
+    tty: ${DOCKER_TTY:-true}
+    restart: always
     networks:
       - gateway
       - on-internal
@@ -450,11 +453,12 @@ services:
       FHIR_URL: '${IIDI_NGINX_HOST:-http://localhost:8080}/on/fhir/' # in this case, resolved in the host browser, not container networking, see gateway.default.conf
   on-transfer-inbound: &transfer-inbound-service
     image: node-dev:1.0
-    tty: ${DOCKER_TTY:-true}
-    restart: always
+    pull_policy: never # this is a named local image, disable docker default attempt to pull from a remote
     build:
       context: ./node-dev-docker-env
       dockerfile: ./Dockerfile.node-dev
+    tty: ${DOCKER_TTY:-true}
+    restart: always
     volumes:
       - ./transfer-inbound:/home/node-dev/project
       - ./transfer-inbound/.env.node-dev-docker-env-overrides:/home/node-dev/project/.env
@@ -486,11 +490,12 @@ services:
       REDIS_PASSWORD: local-dev-value
   on-transfer-outbound: &transfer-outbound-service
     image: node-dev:1.0
-    tty: ${DOCKER_TTY:-true}
-    restart: always
+    pull_policy: never # this is a named local image, disable docker default attempt to pull from a remote
     build:
       context: ./node-dev-docker-env
       dockerfile: ./Dockerfile.node-dev
+    tty: ${DOCKER_TTY:-true}
+    restart: always
     volumes:
       - ./transfer-outbound:/home/node-dev/project
       - ./transfer-outbound/.env.node-dev-docker-env-overrides:/home/node-dev/project/.env
@@ -598,11 +603,12 @@ services:
 
   federator:
     image: node-dev:1.0
-    tty: ${DOCKER_TTY:-true}
-    restart: always
+    pull_policy: never # this is a named local image, disable docker default attempt to pull from a remote
     build:
       context: ./node-dev-docker-env
       dockerfile: ./Dockerfile.node-dev
+    tty: ${DOCKER_TTY:-true}
+    restart: always
     volumes:
       - ./federator:/home/node-dev/project
       - ./federator/.env.node-dev-docker-env-overrides:/home/node-dev/project/.env
@@ -626,10 +632,11 @@ services:
       PRIVATE_KEY_PATH: '/dev-secrets/private_key.pem'
   dashboard:
     image: rshiny-dashboard:1.0
-    tty: ${DOCKER_TTY:-true}
-    restart: always
+    pull_policy: never # this is a named local image, disable docker default attempt to pull from a remote
     build:
       context: ./rshiny-dashboard
+    tty: ${DOCKER_TTY:-true}
+    restart: always
     networks:
       - gateway
       - federal-internal
@@ -640,9 +647,10 @@ services:
 
   demo-portal:
     image: demo-portal:1.5
-    tty: ${DOCKER_TTY:-true}
+    pull_policy: never # this is a named local image, disable docker default attempt to pull from a remote
     build:
       context: ./demo-portal
+    tty: ${DOCKER_TTY:-true}
     networks:
       - gateway
     ports:
@@ -660,11 +668,12 @@ services:
       ON_DEMO_TRANSFER_DASHBOARD_URL: '${IIDI_NGINX_HOST:-http://localhost:8080}/demo-transfer-dashboard?pt=ON'
   demo-transfer-dashboard:
     image: node-dev:1.0
-    tty: ${DOCKER_TTY:-true}
-    restart: always
+    pull_policy: never # this is a named local image, disable docker default attempt to pull from a remote
     build:
       context: ./node-dev-docker-env
       dockerfile: ./Dockerfile.node-dev
+    tty: ${DOCKER_TTY:-true}
+    restart: always
     volumes:
       - ./demo-transfer-dashboard:/home/node-dev/project
       - ./demo-transfer-dashboard/.env.node-dev-docker-env-overrides:/home/node-dev/project/.env
