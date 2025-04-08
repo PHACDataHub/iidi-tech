@@ -405,7 +405,7 @@ services:
       <<: *fhir-db-env
       DB_PORT: 5432
       DB_HOST: on-fhir-db
-      FHIR_SERVER_ADDRESS: http://localhost:8080/on/fhir # see proxy address via gateway.default.conf
+      FHIR_SERVER_ADDRESS: '${IIDI_NGINX_HOST:-http://localhost:8080}/on/fhir' # see proxy address via gateway.default.conf
   on-synthesizer: &synthesizer-service
     image: synthesizer:1.4
     tty: ${DOCKER_TTY:-true}
@@ -449,7 +449,7 @@ services:
     ports:
       - 80:80
     environment:
-      FHIR_URL: http://localhost:8080/on/fhir/ # in this case, resolved in the host browser, not container networking, see gateway.default.conf
+      FHIR_URL: '${IIDI_NGINX_HOST:-http://localhost:8080}/on/fhir/' # in this case, resolved in the host browser, not container networking, see gateway.default.conf
   on-transfer-inbound: &transfer-inbound-service
     image: node-dev:1.0
     tty: ${DOCKER_TTY:-true}
@@ -532,7 +532,7 @@ services:
       <<: *fhir-db-env
       DB_PORT: 5432
       DB_HOST: bc-fhir-db
-      FHIR_SERVER_ADDRESS: http://localhost:8080/bc/fhir # see proxy address via gateway.default.conf
+      FHIR_SERVER_ADDRESS: '${IIDI_NGINX_HOST:-http://localhost:8080}/bc/fhir' # see proxy address via gateway.default.conf
   bc-synthesizer:
     <<: *synthesizer-service
     networks:
@@ -557,7 +557,7 @@ services:
       - gateway
       - bc-internal
     environment:
-      FHIR_URL: http://localhost:8080/bc/fhir/ # in this case, resolved in the host browser, not container networking, see gateway.default.conf
+      FHIR_URL: '${IIDI_NGINX_HOST:-http://localhost:8080}/bc/fhir/' # in this case, resolved in the host browser, not container networking, see gateway.default.conf
   bc-transfer-inbound:
     <<: *transfer-inbound-service
     command: npm run dev # note: only opening debug ports on the ON services
@@ -650,16 +650,16 @@ services:
     ports:
       - 8080:8080
     environment:
-      FED_DASHBOARD_URL: http://localhost:8080/fed/dashboard
-      FED_FEDERATOR_URL: http://localhost:8080/fed/federator/aggregated-data
-      BC_BROWSER_URL: http://localhost:8080/bc/browser
-      BC_FHIR_URL: http://localhost:8080/bc/fhir
-      BC_AGGREGATOR_URL: http://localhost:8080/bc/aggregator/aggregated-data
-      BC_DEMO_TRANSFER_DASHBOARD_URL: http://localhost:8080/demo-transfer-dashboard?pt=BC
-      ON_BROWSER_URL: http://localhost:8080/on/browser
-      ON_FHIR_URL: http://localhost:8080/on/fhir
-      ON_AGGREGATOR_URL: http://localhost:8080/on/aggregator/aggregated-data
-      ON_DEMO_TRANSFER_DASHBOARD_URL: http://localhost:8080/demo-transfer-dashboard?pt=ON
+      FED_DASHBOARD_URL: '${IIDI_NGINX_HOST:-http://localhost:8080}/fed/dashboard'
+      FED_FEDERATOR_URL: '${IIDI_NGINX_HOST:-http://localhost:8080}/fed/federator/aggregated-data'
+      BC_BROWSER_URL: '${IIDI_NGINX_HOST:-http://localhost:8080}/bc/browser'
+      BC_FHIR_URL: '${IIDI_NGINX_HOST:-http://localhost:8080}/bc/fhir'
+      BC_AGGREGATOR_URL: '${IIDI_NGINX_HOST:-http://localhost:8080}/bc/aggregator/aggregated-data'
+      BC_DEMO_TRANSFER_DASHBOARD_URL: '${IIDI_NGINX_HOST:-http://localhost:8080}/demo-transfer-dashboard?pt=BC'
+      ON_BROWSER_URL: '${IIDI_NGINX_HOST:-http://localhost:8080}/on/browser'
+      ON_FHIR_URL: '${IIDI_NGINX_HOST:-http://localhost:8080}/on/fhir'
+      ON_AGGREGATOR_URL: '${IIDI_NGINX_HOST:-http://localhost:8080}/on/aggregator/aggregated-data'
+      ON_DEMO_TRANSFER_DASHBOARD_URL: '${IIDI_NGINX_HOST:-http://localhost:8080}/demo-transfer-dashboard?pt=ON'
   demo-transfer-dashboard:
     image: node-dev:1.0
     tty: ${DOCKER_TTY:-true}
@@ -686,5 +686,5 @@ services:
       PORT: 3005
       BASE_PATH: /demo-transfer-dashboard # see docker-compose nginx config, the rsbuild is behind a proxy path, needs to be configured to serve relative to it
       # the demo transfer dashboard will make transfer-outbound API request from the browser, so request must go through the nginx gateway paths
-      ON_OUTBOUND_URL: http://localhost:8080/on/outbound
-      BC_OUTBOUND_URL: http://localhost:8080/bc/outbound
+      ON_OUTBOUND_URL: '${IIDI_NGINX_HOST:-http://localhost:8080}/on/outbound'
+      BC_OUTBOUND_URL: '${IIDI_NGINX_HOST:-http://localhost:8080}/bc/outbound'
