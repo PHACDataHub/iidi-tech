@@ -1,5 +1,3 @@
 {
-  "remoteEnv": {
-    "IIDI_NGINX_HOST": "https://${CODESPACE_NAME}-8080"
-  }
+  "postCreateCommand": "./.devcontainer/setup.sh"
 }
