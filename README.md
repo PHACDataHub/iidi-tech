@@ -99,7 +99,9 @@ Before setting up the development environment, ensure the following dependencies
 
 ## Development quickstart
 
-### Prerequisites
+### Local Machine
+
+#### Local Prerequisites
 
 - Docker v27 (older versions may be sufficient, unverified)
 - Optional:
@@ -109,7 +111,7 @@ Before setting up the development environment, ensure the following dependencies
   - VSCode
     - not strictly required, other editors could be used, but assumed in future steps
 
-### Quickstart Steps
+#### Local Quickstart Steps
 
 - Clone repository locally
 - Open a terminal inside the repo root
@@ -120,7 +122,39 @@ Before setting up the development environment, ensure the following dependencies
 - Wait for docker-compose services to finish spinning up
 - Visit http://localhost:8080 for the "demo portal", which links through to the available services
 
-### IMPORTANT: working with the local docker-compose env
+#### Local Node Service Debugging
+
+- (Re)start the docker-compose environment with `npm run dev:debug`
+- Open `chrome://inspect/#devices` in chrome, click "Open dedicated DevTools for Node" and use the "Add connection" menu to set ports to watch
+  - One per node server in the docker-compose env, should all be exposed as `127.0.0.1:92##`. Look in `./docker-compose.dev.yaml` for containers with port mappings like `9229:92##` to see what services expose debugger sockets
+
+### GitHub Codespaces
+
+#### Codespaces Prerequisites
+
+- Credits to burn
+  - We don't currently have employer provided credits. You likely have a personal amount of 120 free core-hours per month. These may burn faster than you'd think though, the codespace currently needs at least 4 cores to perform. Not ideal.
+
+#### Codespaces Quickstart Steps
+
+- Create a codespace attached to the `iidi-tech` repo
+- Note that `npm run ci:all` runs as a post startup step, don't have to do it manually but packages may not be available immediately on fresh codespace launch
+- (Optional) install recommended vscode exstensions (see `.vscode/extensions.json`); codespaces will prompt you for this
+- Start the local dev docker-compose environment with `npm run dev` from the repo root (default working dir when you open a terminal in the codespace)
+- Wait for docker-compose services to finish spinning up
+- Under the ports tab, find the external URL associated with the codespaces 8080 port. Open this port and you should see the "demo portal" page, which links through to the available services
+
+#### Codespaces Node Service Debugging
+
+- (Re)start the docker-compose environment with `npm run dev:debug`
+- On your local machine, install the GitHub CLI "gh", run `gh auth login` and `gh auth refresh -h github.com -s codespace`, follow interactive steps
+- Use the GitHub CLI ssh tool to create an SSH tunnel from your local machine to the codespace container, eg. `gh codespace ssh -- -L 92##:localhost:92## -L 92##:localhost:92##...`
+  - One per node server in the docker-compose env, should all be exposed an ports `92##`. Look in `./docker-compose.dev.yaml` for containers with port mappings like `9229:92##` to see what services expose debuggers
+  - Note: might be rejected if you try to make too many tunnels, uncertain. If it does, only tunnel to the specific debug port(s) you need
+- Open `chrome://inspect/#devices` in chrome, click "Open dedicated DevTools for Node" and use the "Add connection" menu to set ports to watch
+  - One per SSH tunnel, should all be exposed as `127.0.0.1:92##`
+
+### IMPORTANT: working with the dev docker-compose env
 
 It's important to note that the local docker images are cached by the `name:tag` pair set in each docker-compose service's `image` field. Images that copy in code/dependnecies at image build time need to have their tag incremented in the docker-compose file to ensure that up to date changes are captured! This is both a problem in dev (to refresh against local changes, you need to either increment the tag number or run `docker image rm name:tag --force` and then restart the docker-compose env) and for commited code between devs (assume other devs have cached builds of older version numbers, if you merge changes without bumping the tag then your changes may not be reflected in their local dev env).
 
