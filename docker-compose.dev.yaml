@@ -360,6 +360,7 @@ services:
     configs:
       - source: gateway.default.conf
         target: /etc/nginx/conf.d/default.conf
+        mode: 0444 # this is the default value, making explicit as something in codespaces seems to overide it
     networks:
       - gateway
       - host-loopback
@@ -397,6 +398,7 @@ services:
     configs:
       - source: hapi
         target: /app/config/application.yaml
+        mode: 0444 # this is the default value, making explicit as something in codespaces seems to overide it
     environment:
       # NOTE: the env vars below are interpolated in to the hapi application.yaml at run time
       # If you add any env vars for other purposes, put them above this comment, to keep track of things
@@ -427,6 +429,7 @@ services:
     configs:
       - source: dev-public-key.conf
         target: /dev-secrets/public_key.pem
+        mode: 0444 # this is the default value, making explicit as something in codespaces seems to overide it
     networks:
       - gateway
       - on-internal
@@ -615,6 +618,7 @@ services:
     configs:
       - source: dev-private-key.conf
         target: /dev-secrets/private_key.pem
+        mode: 0444 # this is the default value, making explicit as something in codespaces seems to overide it
     command: npm run dev:${DOCKER_API_COMMAND:-docker} # 'docker' or 'docker-debug'
     networks:
       - gateway
