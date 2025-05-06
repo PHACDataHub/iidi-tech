@@ -22,15 +22,15 @@ Note: for steps mentioning existance and functionality of any links, don't requi
 
 For each of the provinces found on the Demo Portal:
 
-- [ ] open the FHIR Server's web interface. You should be on the `/home` route and under "Resources" on the left hand side you should see non-zero counts displayed for the following resource types
+- [ ] open the FHIR Server's web interface. You should be on either the root or`/home` route. There should be a section with the heading "Resources" on the left hand side of the page. Under the "Resources" heading, you should see non-zero counts displayed for the following resource types
   - [ ] `Patient`
   - [ ] `Immunization`
-  - [ ] `AllergyIntolerance`(O.N only\*)
-    - \*unless transfers from O.N. to BC have been performed, in which case B.C. will have the `AllergyIntolerance` records of the transfered patients
+  - [ ] `AllergyIntolerance`(BC only\*)
+    - \*unless transfers from BC to ON have been performed, in which case ON will have the `AllergyIntolerance` records of the transfered patients
 - [ ] from the Demo Portal, open the Patient Browser of the same province and confirm that there is a non-zero number of viewable records
 - [ ] on the Patient Browser, to confirm that it's connecting to the expected FHIR server, pick a random patient record and
   1. note the patient's `ID` value
-  2. in another tab, return to the corresponding FHIR server and replace `/home` in the address bar with `/fhir/Patient/{ID}`, substituting `{ID}` for the ID from the previous step
+  2. in another tab, return to the corresponding FHIR server and replace the path in the address bar with `/fhir/Patient/{ID}`, substituting `{ID}` for the ID from the previous step
   3. confirm that the raw data viewed on the FHIR server matches the summary displayed in the Patient Browser
 
 ### UJ1: PT to PT transfer
@@ -41,15 +41,14 @@ For each of the provinces found on the Demo Portal:
 
 - [ ] open the province's Patient Transfer Dashboard. Confirm that it loads and that the page's title contains the correct province's name
 - [ ] select a patient to transfer in following steps. You can use the province's Patient Browser to quickly pick one
-- [ ] on the Patient Browser, to confirm that it's connecting to the expected FHIR server, pick a random patient record and
   1. note the patient's `ID` value
-  2. in another tab, return to the corresponding FHIR server and replace `/home` in the address bar with `/fhir/Patient/{ID}`, substituting `{ID}` for the ID from the previous step
+  2. in another tab, return to the corresponding FHIR server and replace the path in the address bar with `/fhir/Patient/{ID}`, substituting `{ID}` for the ID from the previous step
   3. confirm that the patient record does not have `"active": false` and any `"link"` values with `"type": "replaced-by"`. If it does then this record has been transfered already, pick another
 - [ ] return to the province's Transfer Dashboard and initiate a transfer for the selected `ID`
 - [ ] confirm that a success notice is displayed containing the transfer job ID for the transfer request
 - [ ] continue to refresh the Transfer Request table until the corresponding Transfer Status column is "Success"
 - [ ] note the "Patient ID in receiving system" value in the corresponding Result column
-- [ ] on the current province's FHIR server, using the original patient `ID`, return to `/fhir/Patient/{ID}` and confirm that the record now has `"active": false` and a `"link"` value with `"type": "replaced-by"`
+- [ ] on the **original province's** FHIR server, using the original patient `ID`, return to `/fhir/Patient/{ID}` and confirm that the record now has `"active": false` and a `"link"` value with `"type": "replaced-by"`
 - [ ] on the **receiving province's** FHIR server, using the new ID providied in the Transfer Dashboard's Transfer Requests table's Result column, visit `/fhir/Patient/{new ID}` and confirm that the information matches the record from the originating FHIR server
 
 ### UJ2: PT to PHAC federation
