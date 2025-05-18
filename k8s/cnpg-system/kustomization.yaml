@@ -43,3 +43,6 @@ patches:
     target:
       kind: Deployment
       name: cnpg-controller-manager
+
+transformers:
+  - remove-argocd-annotation.yaml

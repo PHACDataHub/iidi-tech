@@ -1,0 +1,9 @@
+apiVersion: builtin
+kind: AnnotationsTransformer
+metadata:
+  name: remove-large-argocd-annotation
+annotations:
+  argocd.argoproj.io/last-applied-configuration: null
+fieldSpecs:
+  - path: metadata/annotations
+    kind: CustomResourceDefinition
