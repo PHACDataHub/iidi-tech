@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://github.com/PHACDataHub/iidi-tech.git
     targetRevision: iidi/argocd-integration
-    path: cert-manager
+    path: k8s/cert-manager
   destination:
     server: https://kubernetes.default.svc
     namespace: cert-manager

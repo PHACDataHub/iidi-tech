@@ -26,7 +26,7 @@ spec:
   source:
     repoURL: https://github.com/PHACDataHub/iidi-tech.git
     targetRevision: iidi/argocd-integration
-    path: federal
+    path: k8s/federal
   destination:
     server: https://kubernetes.default.svc
     namespace: federal

@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://github.com/PHACDataHub/iidi-tech.git
     targetRevision: iidi/argocd-integration
-    path: cnpg-system
+    path: k8s/cnpg-system
   destination:
     server: https://kubernetes.default.svc
     namespace: cnpg-system

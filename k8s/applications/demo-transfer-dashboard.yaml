@@ -21,7 +21,7 @@ spec:
   source:
     repoURL: https://github.com/PHACDataHub/iidi-tech.git
     targetRevision: iidi/argocd-integration
-    path: demo-transfer-dashboard
+    path: k8s/demo-transfer-dashboard
   destination:
     server: https://kubernetes.default.svc
     namespace: demo-transfer-dashboard

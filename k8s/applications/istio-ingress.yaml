@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://github.com/PHACDataHub/iidi-tech.git
     targetRevision: iidi/argocd-integration
-    path: istio-ingress
+    path: k8s/istio-ingress
   destination:
     server: https://kubernetes.default.svc
     namespace: istio-ingress
