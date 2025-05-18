@@ -13,7 +13,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: synthetic-data
-        image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/synthetic-data:main-01df63e5bec99369feefd606f28e4db267f7716c-1741382883 # {"$imagepolicy": "flux-system:synthetic-data-bc"}
+        image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/synthetic-data:main-01df63e5bec99369feefd606f28e4db267f7716c-1741382883
         imagePullPolicy: Always
         env:
         - name: NUM_RECORDS
