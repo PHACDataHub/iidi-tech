@@ -4,7 +4,7 @@ kind: Kustomization
 resources:
   - redis-deployment.yaml
   - redis-service.yaml
-  - redis-secret.enc.yaml
+  - redis-secret.yaml
   - redis-config.yaml
 
 patches:
