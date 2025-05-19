@@ -9,6 +9,6 @@ resources:
 
 images:
   - name: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-federator
-    newTag: main-placeholder
+    newTag: main-13d5000112355bc91a9d121863bab403c5166859-1741799249
   - name: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-dashboard
-    newTag: main-placeholder
+    newTag: main-ab9b600d90bbdd1fd495386c90262d1362942c9f-1743436852

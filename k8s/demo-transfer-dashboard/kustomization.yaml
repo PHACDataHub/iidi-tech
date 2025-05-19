@@ -41,4 +41,4 @@ patches:
 
 images:
   - name: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-demo-transfer-dashboard
-    newTag: main-placeholder
+    newTag: main-0c2fc2901f7023705c0272b126132fdf3eb4234d-1741880466
