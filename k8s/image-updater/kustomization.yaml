@@ -4,6 +4,7 @@ resources:
   - image-updater.yaml
 
 patchesJson6902:
+  # Patch the ServiceAccount for GCP Workload Identity
   - target:
       group: ""
       version: v1

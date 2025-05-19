@@ -13,6 +13,7 @@ metadata:
     # Git write-back configuration
     argocd-image-updater.argoproj.io/write-back-method: git:secret
     argocd-image-updater.argoproj.io/git-branch: iidi/argocd-integration
+    argocd-image-updater.argoproj.io/write-back-target: kustomization
 
     # Update strategy and tag filtering per image
     argocd-image-updater.argoproj.io/federator.update-strategy: newest-build

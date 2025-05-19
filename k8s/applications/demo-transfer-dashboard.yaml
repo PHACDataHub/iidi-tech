@@ -12,6 +12,7 @@ metadata:
     # Git automation setup
     argocd-image-updater.argoproj.io/write-back-method: git:secret
     argocd-image-updater.argoproj.io/git-branch: iidi/argocd-integration
+    argocd-image-updater.argoproj.io/write-back-target: kustomization
 
     # Image strategy + tag regex (match main-<sha>-<timestamp>)
     argocd-image-updater.argoproj.io/demo-transfer-dashboard.update-strategy: newest-build
