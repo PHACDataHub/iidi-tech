@@ -9,3 +9,15 @@ resources:
   - ./patient-browser
   - ./aggregation-server
   - ./on-transfer
+
+images:
+  - name: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-aggregator
+    newTag: main-placeholder
+  - name: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/patient-browser-iidi
+    newTag: main-placeholder
+  - name: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-transfer-inbound
+    newTag: main-placeholder
+  - name: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-transfer-outbound
+    newTag: main-placeholder
+  - name: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/synthetic-data
+    newTag: main-placeholder

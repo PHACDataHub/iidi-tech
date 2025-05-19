@@ -14,7 +14,7 @@ metadata:
     argocd-image-updater.argoproj.io/git-branch: iidi/argocd-integration
 
     # Image strategy + tag regex (match main-<sha>-<timestamp>)
-    argocd-image-updater.argoproj.io/demo-transfer-dashboard.update-strategy: latest
+    argocd-image-updater.argoproj.io/demo-transfer-dashboard.update-strategy: newest-build
     argocd-image-updater.argoproj.io/demo-transfer-dashboard.allow-tags: regexp:^main-[a-fA-F0-9]+-(?P<ts>.*)
 spec:
   project: default

@@ -38,3 +38,7 @@ patches:
       kind: Deployment
       name: demo-transfer-dashboard
       namespace: demo-transfer-dashboard
+
+images:
+  - name: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-demo-transfer-dashboard
+    newTag: main-placeholder

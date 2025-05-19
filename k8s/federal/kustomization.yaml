@@ -6,3 +6,9 @@ resources:
   - virtual-service.yaml
   - ./federator
   - ./rshiny-dashboard
+
+images:
+  - name: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-federator
+    newTag: main-placeholder
+  - name: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-dashboard
+    newTag: main-placeholder

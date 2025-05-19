@@ -18,19 +18,19 @@ metadata:
     argocd-image-updater.argoproj.io/git-branch: iidi/argocd-integration
 
     # Update strategy and tag filtering per image
-    argocd-image-updater.argoproj.io/aggregator.update-strategy: latest
+    argocd-image-updater.argoproj.io/aggregator.update-strategy: newest-build
     argocd-image-updater.argoproj.io/aggregator.allow-tags: regexp:^main-[a-fA-F0-9]+-(?P<ts>.*)
 
-    argocd-image-updater.argoproj.io/patient-browser.update-strategy: latest
+    argocd-image-updater.argoproj.io/patient-browser.update-strategy: newest-build
     argocd-image-updater.argoproj.io/patient-browser.allow-tags: regexp:^main-[a-fA-F0-9]+-(?P<ts>.*)
 
-    argocd-image-updater.argoproj.io/transfer-inbound.update-strategy: latest
+    argocd-image-updater.argoproj.io/transfer-inbound.update-strategy: newest-build
     argocd-image-updater.argoproj.io/transfer-inbound.allow-tags: regexp:^main-[a-fA-F0-9]+-(?P<ts>.*)
 
-    argocd-image-updater.argoproj.io/transfer-outbound.update-strategy: latest
+    argocd-image-updater.argoproj.io/transfer-outbound.update-strategy: newest-build
     argocd-image-updater.argoproj.io/transfer-outbound.allow-tags: regexp:^main-[a-fA-F0-9]+-(?P<ts>.*)
 
-    argocd-image-updater.argoproj.io/synthetic-data.update-strategy: latest
+    argocd-image-updater.argoproj.io/synthetic-data.update-strategy: newest-build
     argocd-image-updater.argoproj.io/synthetic-data.allow-tags: regexp:^main-[a-fA-F0-9]+-(?P<ts>.*)
 
 spec:
