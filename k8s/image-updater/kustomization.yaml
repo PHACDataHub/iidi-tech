@@ -1,0 +1,14 @@
+resources:
+  - image-updater.yaml
+
+patches:
+  # Patch argocd-image-updater SA for GCP WIP
+  - target:
+      kind: ServiceAccount
+      name: argocd-image-updater
+      namespace: argocd
+    patch: |
+      - op: add
+        path: /metadata/annotations
+        value:
+          iam.gke.io/gcp-service-account: flux-image-puller@phx-01he5rx4wsv.iam.gserviceaccount.com
