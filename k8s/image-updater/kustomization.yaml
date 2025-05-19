@@ -14,4 +14,4 @@ patchesJson6902:
       - op: add
         path: /metadata/annotations
         value:
-          iam.gke.io/gcp-service-account: flux-image-puller@phx-01he5rx4wsv.iam.gserviceaccount.com
+          iam.gke.io/gcp-service-account: argocd-image-updater@phx-01he5rx4wsv.iam.gserviceaccount.com
