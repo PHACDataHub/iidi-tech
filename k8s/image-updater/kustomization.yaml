@@ -3,8 +3,10 @@ namespace: argocd
 resources:
   - image-updater.yaml
 
-patches:
+patchesJson6902:
   - target:
+      group: ""
+      version: v1
       kind: ServiceAccount
       name: argocd-image-updater
       namespace: argocd
