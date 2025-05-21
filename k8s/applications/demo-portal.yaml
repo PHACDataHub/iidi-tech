@@ -11,7 +11,7 @@ metadata:
 
     # Git write-back settings
     argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/git-creds
-    argocd-image-updater.argoproj.io/git-branch: iidi/argocd-integration
+    argocd-image-updater.argoproj.io/git-branch: main
     argocd-image-updater.argoproj.io/write-back-target: kustomization
 
     # Update strategy and tag regex filtering
@@ -21,7 +21,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/PHACDataHub/iidi-tech.git
-    targetRevision: iidi/argocd-integration
+    targetRevision: main
     path: k8s/demo-portal
   destination:
     server: https://kubernetes.default.svc

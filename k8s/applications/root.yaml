@@ -9,7 +9,7 @@ spec:
   project: default
   source:
     repoURL: https://github.com/PHACDataHub/iidi-tech.git
-    targetRevision: iidi/argocd-integration
+    targetRevision: main
     path: k8s/applications
     directory:
       recurse: true
