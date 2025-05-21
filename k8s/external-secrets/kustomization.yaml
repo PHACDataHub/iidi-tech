@@ -4,9 +4,9 @@ kind: Kustomization
 namespace: external-secrets
 
 resources:
-  - eso-service-account.yaml              # Manually managed SA with GCP IAM annotation
-  - cluster-secret-store.yaml            # Your ClusterSecretStore pointing to eso-sa
-  - external-secrets-store.yaml          # Includes all CRDs and any ExternalSecrets or SecretStores
+  - eso-service-account.yaml
+  - cluster-secret-store.yaml
+  - external-secrets-store.yaml
 
 helmCharts:
   - name: external-secrets
@@ -15,7 +15,7 @@ helmCharts:
     releaseName: external-secrets
     namespace: external-secrets
     valuesInline:
-      installCRDs: false                  # You're applying CRDs manually
+      installCRDs: false
       serviceAccount:
-        create: false                    # You're creating it manually
+        create: false
         name: eso-sa
