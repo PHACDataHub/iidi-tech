@@ -102,3 +102,16 @@ data:
         state: success
         label: "argo-cd/{{.app.metadata.name}}"
         targetURL: "{{.context.argocdUrl}}/applications/{{.app.metadata.name}}?operation=true"
+
+  # default subscriptions, applied to all application resources
+  # I believe `github: ""` under recipients will cause the `repoURL` of the given application resource to be used
+  subscriptions: |
+    - recipients:
+      - github: "" 
+      triggers:
+      - on-health-degraded
+      - on-sync-failed
+      - on-deployed
+      - on-sync-running
+      - on-sync-status-unknown
+      - on-sync-succeeded
