@@ -17,8 +17,7 @@ spec:
     spec:
       containers:
       - name: federator
-        image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-federator:main-13d5000112355bc91a9d121863bab403c5166859-1741799249 # {"$imagepolicy": "flux-system:federator-image-policy"}
-        imagePullPolicy: Always
+        image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-federator:main-13d5000112355bc91a9d121863bab403c5166859-1741799249
         ports:
         - containerPort: 3000
         env:

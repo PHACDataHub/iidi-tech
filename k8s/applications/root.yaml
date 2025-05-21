@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: argocd-bootstrap
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/PHACDataHub/iidi-tech.git
+    targetRevision: iidi/argocd-integration
+    path: k8s/applications
+    directory:
+      recurse: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

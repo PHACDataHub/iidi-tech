@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: federal
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    # List of container images to track via Argo CD Image Updater
+    argocd-image-updater.argoproj.io/image-list: |
+      federator=northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-federator
+      dashboard=northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-dashboard
+
+    # Git write-back configuration
+    argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/git-creds
+    argocd-image-updater.argoproj.io/git-branch: iidi/argocd-integration
+    argocd-image-updater.argoproj.io/write-back-target: kustomization
+
+    # Update strategy and tag filtering per image
+    argocd-image-updater.argoproj.io/federator.update-strategy: newest-build
+    argocd-image-updater.argoproj.io/federator.allow-tags: regexp:^main-[a-fA-F0-9]+-(?P<ts>.*)
+
+    argocd-image-updater.argoproj.io/dashboard.update-strategy: newest-build
+    argocd-image-updater.argoproj.io/dashboard.allow-tags: regexp:^main-[a-fA-F0-9]+-(?P<ts>.*)
+
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/PHACDataHub/iidi-tech.git
+    targetRevision: iidi/argocd-integration
+    path: k8s/federal
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: federal
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

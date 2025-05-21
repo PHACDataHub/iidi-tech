@@ -4,7 +4,7 @@ kind: Kustomization
 resources:
   - deployment.yaml
   - service.yaml
-  - federator-secret.enc.yaml
+  - federator-key.yaml
 
 patches:
   - patch: |-

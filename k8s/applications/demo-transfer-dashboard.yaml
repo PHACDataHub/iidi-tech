@@ -1,0 +1,35 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: demo-transfer-dashboard
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+    # Track container images
+    argocd-image-updater.argoproj.io/image-list: |
+      demo-transfer-dashboard=northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-demo-transfer-dashboard
+
+    # Git automation setup
+    argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/git-creds
+    argocd-image-updater.argoproj.io/git-branch: iidi/argocd-integration
+    argocd-image-updater.argoproj.io/write-back-target: kustomization
+
+    # Image strategy + tag regex (match main-<sha>-<timestamp>)
+    argocd-image-updater.argoproj.io/demo-transfer-dashboard.update-strategy: newest-build
+    argocd-image-updater.argoproj.io/demo-transfer-dashboard.allow-tags: regexp:^main-[a-fA-F0-9]+-(?P<ts>.*)
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/PHACDataHub/iidi-tech.git
+    targetRevision: iidi/argocd-integration
+    path: k8s/demo-transfer-dashboard
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: demo-transfer-dashboard
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
