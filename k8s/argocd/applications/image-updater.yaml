@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://github.com/PHACDataHub/iidi-tech.git
     targetRevision: main
-    path: k8s/image-updater
+    path: k8s/argocd/image-updater
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
