@@ -48,7 +48,7 @@ data:
       oncePer: app.status.operationState?.syncResult?.revision
       send:
         - app-sync-failed
-      when: app.status.operationState != nil and app.status.operationState.phase in ['Error',Failed']
+      when: app.status.operationState != nil and app.status.operationState.phase in ['Error','Failed']
   template.app-sync-failed: >
     message: |
       Application {{.app.metadata.name}} syncing has failed.
