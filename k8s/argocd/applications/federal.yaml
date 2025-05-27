@@ -17,10 +17,10 @@ metadata:
 
     # Update strategy and tag filtering per image
     argocd-image-updater.argoproj.io/federator.update-strategy: newest-build
-    argocd-image-updater.argoproj.io/federator.allow-tags: regexp:^main-[a-fA-F0-9]+-(?P<ts>.*)
+    argocd-image-updater.argoproj.io/federator.allow-tags: regexp:^main-[a-fA-F0-9]+-[0-9]+$
 
     argocd-image-updater.argoproj.io/dashboard.update-strategy: newest-build
-    argocd-image-updater.argoproj.io/dashboard.allow-tags: regexp:^main-[a-fA-F0-9]+-(?P<ts>.*)
+    argocd-image-updater.argoproj.io/dashboard.allow-tags: regexp:^main-[a-fA-F0-9]+-[0-9]+$
 
 spec:
   project: default
