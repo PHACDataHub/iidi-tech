@@ -6,7 +6,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "2"
     # Track container images
-    argocd-image-updater.argoproj.io/image-list: |
+    argocd-image-updater.argoproj.io/image-list: >
       demo-transfer-dashboard=northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-demo-transfer-dashboard
 
     # Git automation setup

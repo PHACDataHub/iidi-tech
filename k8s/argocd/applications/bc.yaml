@@ -6,11 +6,11 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "2"
     # List of container images to track via Argo CD Image Updater
-    argocd-image-updater.argoproj.io/image-list: |
-      aggregator=northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-aggregator
-      patient-browser=northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/patient-browser-iidi
-      transfer-inbound=northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-transfer-inbound
-      transfer-outbound=northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-transfer-outbound
+    argocd-image-updater.argoproj.io/image-list: >
+      aggregator=northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-aggregator,
+      patient-browser=northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/patient-browser-iidi,
+      transfer-inbound=northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-transfer-inbound,
+      transfer-outbound=northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-transfer-outbound,
       synthetic-data=northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/synthetic-data
 
     # Git write-back configuration

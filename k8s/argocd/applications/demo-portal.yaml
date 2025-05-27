@@ -6,7 +6,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "2"
     # Image tracking for Argo CD Image Updater
-    argocd-image-updater.argoproj.io/image-list: |
+    argocd-image-updater.argoproj.io/image-list: >
       demo-portal=northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/demo-portal
 
     # Git write-back settings

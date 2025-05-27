@@ -6,8 +6,8 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "2"
     # List of container images to track via Argo CD Image Updater
-    argocd-image-updater.argoproj.io/image-list: |
-      federator=northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-federator
+    argocd-image-updater.argoproj.io/image-list: >
+      federator=northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-federator,
       dashboard=northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-dashboard
 
     # Git write-back configuration
