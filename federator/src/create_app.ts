@@ -17,7 +17,7 @@ const get_private_key = _.memoize((private_key_path) =>
 export const create_app = async () => {
   const app = express();
 
-  // we'll need to be able to read `X-Forwarded-*` headers, both in prod and when using the dev docker setup
+  // We'll need to be able to read `X-Forwarded-*` headers, both in prod and when using the dev docker setup
   app.set('trust proxy', true);
 
   app.use(express.json()); // parses JSON body payloads, converts req.body from a string to object
