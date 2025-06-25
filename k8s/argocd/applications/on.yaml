@@ -50,11 +50,11 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
-      # Fields currently not managed in manifests. Ignored to avoid argocd diffs for defaulted values
+  # Fields currently not managed in manifests. Ignored to avoid argocd diffs for defaulted values
   ignoreDifferences:
     - group: external-secrets.io
       kind: ExternalSecret
-      namespace: on
+      namespace: "on"
       jqPathExpressions:
         - .spec.data[].remoteRef.conversionStrategy
         - .spec.data[].remoteRef.decodingStrategy
