@@ -89,7 +89,7 @@ data:
         limits:
           memory: 1Gi
         requests:
-          cpu: 10m
+          cpu: 50m
           memory: 64Mi
       secret_name: kiali
       security_context: {}

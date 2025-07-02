@@ -22,7 +22,7 @@ patches:
                 resources:
                   requests:
                     cpu: 250m
-                    memory: 128Mi
+                    memory: 252Mi
                   limits:
                     cpu: 1.5
                     memory: 1Gi
