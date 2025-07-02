@@ -383,9 +383,9 @@ collapsible_sections = [
                 governance frameworks. Key architecture components are documented below:
             </p>
             <ul>
-                <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/GCP-Architecture.png" target="_blank"><strong>GCP Architecture Overview</strong></a> - High-level infrastructure design for deployment.</li>
+                <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/GCP%20Architecture/GCP-Architecture.png" target="_blank"><strong>GCP Architecture Overview</strong></a> - High-level infrastructure design for deployment.</li>
             </ul>
-            <img src="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/GCP-Architecture.png?raw=true" 
+            <img src="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/GCP%20Architecture/GCP-Architecture.png?raw=true" 
                 alt="GCP Architecture Diagram" style="max-width:100%;">
 
             <h6>Architecture Review Board Documentation</h6>
