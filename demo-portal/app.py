@@ -377,23 +377,23 @@ collapsible_sections = [
             </p>
 
             <h6><strong>Architecture Diagram</strong></h6>
-            <img src="/static/svg/federated-data-architecture.svg"
+            <img src="/static/svg/foundation-for-federated-data-architecture.svg"
                 alt="Federated Data Architecture"
                 style="max-width: 100%; border: 1px solid #ccc; padding: 6px; border-radius: 6px; margin-top: 10px;">
 
             <h6 style="margin-top: 20px;"><strong>Key Concepts</strong></h6>
             <ul>
-                <li><strong>Data Governance Gateway:</strong> A central hub that controls access and enforces policies for data sharing across jurisdictions. It ensures compliance, security, and privacy in line with established standards.</li>
-                <li><strong>Policy Enforcement:</strong> Applies governance rules to regulate how data is accessed and used throughout the architecture.</li>
-                <li><strong>Data Standards (HL7 FHIR):</strong> Specifies the use of Health Level Seven (HL7) Fast Healthcare Interoperability Resources (FHIR) to ensure data consistency and compatibility across systems.</li>
-                <li><strong>Security Protocols:</strong> Measures that protect data from unauthorised access and breaches. Includes encryption, authentication, and other cybersecurity controls.</li>
-                <li><strong>Cloud Platforms:</strong> Federated infrastructure that provides scalability, high availability, and secure service hosting.</li>
-                <li><strong>Data Storage Solutions:</strong> Technologies used to store data securely in a structured format, enabling efficient access and management.</li>
-                <li><strong>API Management:</strong> Tools that manage how applications interact and exchange data via standardised APIs.</li>
-                <li><strong>Provinces and Territories Nodes:</strong> The local data systems owned by each province or territory, maintaining full control over their data while participating in the federated ecosystem.</li>
-                <li><strong>Real-Time Data Sync Mechanisms:</strong> Components that synchronise data across jurisdictions in near real-time to ensure consistency and timeliness.</li>
-                <li><strong>Access Control Models:</strong> Define who can access specific data and under what conditions, safeguarding sensitive information in compliance with privacy regulations.</li>
-                <li><strong>PHAC Cloud Environment:</strong> A centralised cloud platform for PHAC, supporting analytics, reporting, and national dashboard operations.</li>
+                <li><strong style="background-color:#fff3cd; padding:2px 6px; border-radius:4px;">Data Governance Gateway:</strong> A central hub that controls access and enforces policies for data sharing across jurisdictions. It ensures compliance, security, and privacy in line with established standards.</li>
+                <li><strong style="background-color:#fff3cd; padding:2px 6px; border-radius:4px;">Policy Enforcement:</strong> Applies governance rules to regulate how data is accessed and used throughout the architecture.</li>
+                <li><strong style="background-color:#e7f1fc; padding:2px 6px; border-radius:4px;">Data Standards (HL7 FHIR):</strong> Specifies the use of HL7 FHIR to ensure data consistency and compatibility across systems.</li>
+                <li><strong style="background-color:#fff3cd; padding:2px 6px; border-radius:4px;">Security Protocols:</strong> Protect data from unauthorised access and breaches. Includes encryption, authentication, and other cybersecurity controls.</li>
+                <li><strong style="background-color:#e7f1fc; padding:2px 6px; border-radius:4px;">Cloud Platforms:</strong> Federated infrastructure that provides scalability, high availability, and secure service hosting.</li>
+                <li><strong style="background-color:#e7f1fc; padding:2px 6px; border-radius:4px;">Data Storage Solutions:</strong> Securely store data in a structured format, enabling efficient access and management.</li>
+                <li><strong style="background-color:#e7f1fc; padding:2px 6px; border-radius:4px;">API Management:</strong> Manage how applications interact and exchange data via standardised APIs.</li>
+                <li><strong style="background-color:#d1e7dd; padding:2px 6px; border-radius:4px;">Provinces and Territories Nodes:</strong> Local systems owned by provinces and territories, each maintaining full control over their data.</li>
+                <li><strong style="background-color:#e7f1fc; padding:2px 6px; border-radius:4px;">Real-Time Data Sync Mechanisms:</strong> Synchronise data across jurisdictions in near real-time for consistency and timeliness.</li>
+                <li><strong style="background-color:#fff3cd; padding:2px 6px; border-radius:4px;">Access Control Models:</strong> Define access permissions and enforce privacy-compliant controls.</li>
+                <li><strong style="background-color:#e2e3f3; padding:2px 6px; border-radius:4px;">PHAC Cloud Environment:</strong> Centralised cloud platform supporting analytics and national reporting.</li>
             </ul>
         """,
     },
