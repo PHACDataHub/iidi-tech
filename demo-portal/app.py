@@ -370,33 +370,31 @@ collapsible_sections = [
         "content": """
             <h5><strong>Overview</strong></h5>
             <p>
-                The Foundation for Federated Data Architecture outlines the core components and guiding principles
-                that support secure, interoperable, and province-controlled immunization data exchange across Canada.
-                This architectural foundation ensures data sovereignty, end-to-end security, and operational alignment
-                with national public health reporting needs.
+                The Foundation for Federated Data Architecture outlines the components and principles
+                that enable secure, province-controlled immunisation data exchange across Canada.
+                This model supports interoperability, real-time data access, and strong privacy protection,
+                while preserving full provincial control over patient records.
             </p>
-
-            <h6><strong>Key Concepts</strong></h6>
-            <ul>
-                <li><strong>Data Governance Gateway:</strong> Central hub for policy enforcement and access control across jurisdictions.</li>
-                <li><strong>Access Control Models:</strong> Define who can access data under what conditions, ensuring compliance and privacy.</li>
-                <li><strong>API Management:</strong> Federated APIs standardize secure data interactions across systems.</li>
-                <li><strong>Data Standards (HL7 FHIR):</strong> Ensures semantic consistency and cross-jurisdictional compatibility.</li>
-                <li><strong>Cloud Platforms:</strong> Support scalable, resilient infrastructure for federated services.</li>
-                <li><strong>Data Storage Solutions:</strong> Enable secure and structured data access at rest.</li>
-                <li><strong>Policy Enforcement & Security Protocols:</strong> Enforce encryption, identity, and compliance rules.</li>
-            </ul>
 
             <h6><strong>Architecture Diagram</strong></h6>
-            <img src="/static/svg/foundation-for-federated-data-architecture.svg"
-                alt="Foundation for Federated Data Architecture"
+            <img src="/static/svg/federated-data-architecture.svg"
+                alt="Federated Data Architecture"
                 style="max-width: 100%; border: 1px solid #ccc; padding: 6px; border-radius: 6px; margin-top: 10px;">
 
-            <p style="margin-top: 10px;">
-                This foundation supports both provincial autonomy and pan-Canadian coordination,
-                enabling real-time reporting, controlled PT-to-PT transfers, and national aggregation to PHAC
-                — all while maintaining strict compliance with privacy legislation.
-            </p>
+            <h6 style="margin-top: 20px;"><strong>Key Concepts</strong></h6>
+            <ul>
+                <li><strong>Data Governance Gateway:</strong> A central hub that controls access and enforces policies for data sharing across jurisdictions. It ensures compliance, security, and privacy in line with established standards.</li>
+                <li><strong>Policy Enforcement:</strong> Applies governance rules to regulate how data is accessed and used throughout the architecture.</li>
+                <li><strong>Data Standards (HL7 FHIR):</strong> Specifies the use of Health Level Seven (HL7) Fast Healthcare Interoperability Resources (FHIR) to ensure data consistency and compatibility across systems.</li>
+                <li><strong>Security Protocols:</strong> Measures that protect data from unauthorised access and breaches. Includes encryption, authentication, and other cybersecurity controls.</li>
+                <li><strong>Cloud Platforms:</strong> Federated infrastructure that provides scalability, high availability, and secure service hosting.</li>
+                <li><strong>Data Storage Solutions:</strong> Technologies used to store data securely in a structured format, enabling efficient access and management.</li>
+                <li><strong>API Management:</strong> Tools that manage how applications interact and exchange data via standardised APIs.</li>
+                <li><strong>Provinces and Territories Nodes:</strong> The local data systems owned by each province or territory, maintaining full control over their data while participating in the federated ecosystem.</li>
+                <li><strong>Real-Time Data Sync Mechanisms:</strong> Components that synchronise data across jurisdictions in near real-time to ensure consistency and timeliness.</li>
+                <li><strong>Access Control Models:</strong> Define who can access specific data and under what conditions, safeguarding sensitive information in compliance with privacy regulations.</li>
+                <li><strong>PHAC Cloud Environment:</strong> A centralised cloud platform for PHAC, supporting analytics, reporting, and national dashboard operations.</li>
+            </ul>
         """,
     },
     {
