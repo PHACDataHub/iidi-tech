@@ -38,4 +38,4 @@ patches:
       namespace: demo-portal
 images:
   - name: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/demo-portal
-    newTag: main-ad27a3cf9b5c382af17fd941d6566a1d48b2b2c5-1751476375
+    newTag: main-6bed4eec40aa9a1cbbd5e507a8b92a15f3d1a8d9-1751485462
