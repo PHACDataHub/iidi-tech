@@ -14,14 +14,20 @@ entities = {
         {"name": "Patient Browser", "url": os.getenv("BC_BROWSER_URL")},
         {"name": "HAPI FHIR Server", "url": os.getenv("BC_FHIR_URL")},
         # {"name": "Aggregator", "url": os.getenv("BC_AGGREGATOR_URL")}, #Disabling the Aggregator as it requires key-based authentication to retrieve data.
-        {"name": "Patient Transfer Dashboard", "url": os.getenv("BC_DEMO_TRANSFER_DASHBOARD_URL")}
+        {
+            "name": "Patient Transfer Dashboard",
+            "url": os.getenv("BC_DEMO_TRANSFER_DASHBOARD_URL"),
+        },
     ],
     "Ontario (ON)": [
         {"name": "Patient Browser", "url": os.getenv("ON_BROWSER_URL")},
         {"name": "HAPI FHIR Server", "url": os.getenv("ON_FHIR_URL")},
         # {"name": "Aggregator", "url": os.getenv("ON_AGGREGATOR_URL")}, #Disabling the Aggregator as it requires key-based authentication to retrieve data.
-        {"name": "Patient Transfer Dashboard", "url": os.getenv("ON_DEMO_TRANSFER_DASHBOARD_URL")}
-    ]
+        {
+            "name": "Patient Transfer Dashboard",
+            "url": os.getenv("ON_DEMO_TRANSFER_DASHBOARD_URL"),
+        },
+    ],
 }
 
 # Define collapsible sections dynamically instead of hardcoding them in HTML
@@ -32,7 +38,7 @@ collapsible_sections = [
             <h5><strong>Overview: What is Being Generated?</strong></h5>
             <p>
                 The synthetic data mimics real-world immunization records from provincial registries while ensuring
-                FHIR-compliant JSON format for interoperability. Differences between BC and ON data models are accounted for, 
+                FHIR-compliant JSON format for interoperability. Differences between BC and ON data models are accounted for,
                 including variations in fields such as allergy tracking.
             </p>
 
@@ -132,7 +138,7 @@ collapsible_sections = [
                 <li><strong>Handles Provincial Variations</strong>: BC and ON have different data models.</li>
                 <li><strong>Includes Adverse Reactions & Exemptions</strong>: Adds realism for testing.</li>
             </ul>
-        """
+        """,
     },
     {
         "title": "PT-to-PT Transfer Assumptions",
@@ -197,20 +203,20 @@ collapsible_sections = [
                 <li>Initial scope focused on MMR vaccine records, expandable in future phases.</li>
                 <li>Optional UI demonstration to visualize transferred records.</li>
             </ul>
-        """
+        """,
     },
     {
         "title": "Aggregation & PHAC Data Access",
         "content": """
             <h5><strong>Overview: Why is Aggregation Needed?</strong></h5>
             <p style="line-height: 1.5; color: #333;">
-                PHAC does not require full patient-level data but instead needs structured, summarized reports for national immunization monitoring. 
-                Aggregation transforms raw immunization records into anonymized datasets, ensuring accuracy while protecting privacy. 
+                PHAC does not require full patient-level data but instead needs structured, summarized reports for national immunization monitoring.
+                Aggregation transforms raw immunization records into anonymized datasets, ensuring accuracy while protecting privacy.
                 This process maintains consistency across provinces, even when different immunization tracking systems are used.
             </p>
             <p style="line-height: 1.5; color: #333;">
-                <strong>PHAC does not access or process identifiable Personal Health Information (PHI) at any stage.</strong> 
-                All de-identification is performed at the Provincial/Territorial (PT) level before any data is shared with PHAC. 
+                <strong>PHAC does not access or process identifiable Personal Health Information (PHI) at any stage.</strong>
+                All de-identification is performed at the Provincial/Territorial (PT) level before any data is shared with PHAC.
                 The information shared with PHAC is structured, anonymized, and formatted for public health reporting in compliance with privacy regulations.
                 Aggregation ensures uniform national immunization reporting while aligning with PT-specific privacy frameworks.
             </p>
@@ -286,15 +292,15 @@ collapsible_sections = [
                 <p><strong>PHAC's Role in Aggregation:</strong> The document previously suggested PHAC "fetches" patient data and aggregates it, which is inaccurate.</p>
                 <p><strong>Clarification:</strong> Aggregation is conducted entirely at the PT level. PHAC receives only aggregated, anonymized data.</p>
             </div>
-        """
+        """,
     },
     {
         "title": "Technical Infrastructure",
         "content": """
             <h5>Overview</h5>
             <p>
-                The technical architecture enables secure, real-time immunization data exchange between jurisdictions while 
-                ensuring that each province maintains full control over its data. It follows a federated model, using a 
+                The technical architecture enables secure, real-time immunization data exchange between jurisdictions while
+                ensuring that each province maintains full control over its data. It follows a federated model, using a
                 combination of API gateways, security layers, and standardized data exchange mechanisms.
             </p>
 
@@ -357,15 +363,49 @@ collapsible_sections = [
                 <li>Event-driven architecture allows real-time data synchronization.</li>
                 <li>Cloud-hosted infrastructure supports high availability and fault tolerance.</li>
             </ul>
-        """
+        """,
+    },
+    {
+        "title": "Foundation for Federated Data Architecture",
+        "content": """
+            <h5><strong>Overview</strong></h5>
+            <p>
+                The Foundation for Federated Data Architecture outlines the core components and guiding principles
+                that support secure, interoperable, and province-controlled immunization data exchange across Canada.
+                This architectural foundation ensures data sovereignty, end-to-end security, and operational alignment
+                with national public health reporting needs.
+            </p>
+
+            <h6><strong>Key Concepts</strong></h6>
+            <ul>
+                <li><strong>Data Governance Gateway:</strong> Central hub for policy enforcement and access control across jurisdictions.</li>
+                <li><strong>Access Control Models:</strong> Define who can access data under what conditions, ensuring compliance and privacy.</li>
+                <li><strong>API Management:</strong> Federated APIs standardize secure data interactions across systems.</li>
+                <li><strong>Data Standards (HL7 FHIR):</strong> Ensures semantic consistency and cross-jurisdictional compatibility.</li>
+                <li><strong>Cloud Platforms:</strong> Support scalable, resilient infrastructure for federated services.</li>
+                <li><strong>Data Storage Solutions:</strong> Enable secure and structured data access at rest.</li>
+                <li><strong>Policy Enforcement & Security Protocols:</strong> Enforce encryption, identity, and compliance rules.</li>
+            </ul>
+
+            <h6><strong>Architecture Diagram</strong></h6>
+            <img src="/static/svg/foundation-for-federated-data-architecture.svg"
+                alt="Foundation for Federated Data Architecture"
+                style="max-width: 100%; border: 1px solid #ccc; padding: 6px; border-radius: 6px; margin-top: 10px;">
+
+            <p style="margin-top: 10px;">
+                This foundation supports both provincial autonomy and pan-Canadian coordination,
+                enabling real-time reporting, controlled PT-to-PT transfers, and national aggregation to PHAC
+                — all while maintaining strict compliance with privacy legislation.
+            </p>
+        """,
     },
     {
         "title": "GitHub Repository & Architecture",
         "content": """
             <h5>Overview</h5>
             <p>
-                The Interoperable Immunization Data Initiative (IIDI) is built using a secure, scalable, and federated model. 
-                The architecture enables seamless data exchange while ensuring that provincial and territorial jurisdictions 
+                The Interoperable Immunization Data Initiative (IIDI) is built using a secure, scalable, and federated model.
+                The architecture enables seamless data exchange while ensuring that provincial and territorial jurisdictions
                 maintain control over their immunization records.
             </p>
 
@@ -379,13 +419,13 @@ collapsible_sections = [
 
             <h6>Technical Architecture</h6>
             <p>
-                The IIDI technical stack is designed for interoperability, security, and compliance with public health data 
+                The IIDI technical stack is designed for interoperability, security, and compliance with public health data
                 governance frameworks. Key architecture components are documented below:
             </p>
             <ul>
                 <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/GCP%20Architecture/GCP-Architecture.png" target="_blank"><strong>GCP Architecture Overview</strong></a> - High-level infrastructure design for deployment.</li>
             </ul>
-            <img src="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/GCP%20Architecture/GCP-Architecture.png?raw=true" 
+            <img src="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/GCP%20Architecture/GCP-Architecture.png?raw=true"
                 alt="GCP Architecture Diagram" style="max-width:100%;">
 
             <h6>Architecture Review Board Documentation</h6>
@@ -396,13 +436,17 @@ collapsible_sections = [
                 <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/User-Journey-1.md" target="_blank"><strong>Interoperable Immunization Data Initiative (IIDI) – User Journey 1: PT-to-PT Transfer</strong></a></li>
                 <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/User-Journey-2.md" target="_blank"><strong>Interoperable Immunization Data Initiative (IIDI) – User Journey 2: PT-to-PHAC</strong></a></li>
             </ul>
-        """
-    }
+        """,
+    },
 ]
 
-@app.route('/')
+
+@app.route("/")
 def index():
-    return render_template('index.html', entities=entities, collapsible_sections=collapsible_sections)
+    return render_template(
+        "index.html", entities=entities, collapsible_sections=collapsible_sections
+    )
+
 
 def check_health(url):
     """Helper function to check service health by making an HTTP request."""
@@ -412,26 +456,31 @@ def check_health(url):
     except requests.exceptions.RequestException:
         return None  # Any exception means service is unreachable
 
-@app.route('/health-check/<province_name>')
+
+@app.route("/health-check/<province_name>")
 def health_check(province_name):
     """Endpoint to check the health of services per province."""
     province_name = province_name.replace("%20", " ")
-    
+
     if province_name in entities:
         province_health_status = {}
         for service in entities[province_name]:
-            result = check_health(service['url'])
-            health_status = "healthy" if result else "error" if result is None else "unhealthy"
-            province_health_status[service['name']] = health_status
-        
+            result = check_health(service["url"])
+            health_status = (
+                "healthy" if result else "error" if result is None else "unhealthy"
+            )
+            province_health_status[service["name"]] = health_status
+
         return jsonify({province_name: province_health_status})
-    
+
     return jsonify({"error": "Province not found"}), 404
 
-@app.route('/health', methods=['GET'])
+
+@app.route("/health", methods=["GET"])
 def health():
     """Simple health check for Kubernetes probes."""
     return jsonify({"status": "healthy"}), 200
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8080)
