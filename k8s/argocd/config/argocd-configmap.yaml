@@ -17,3 +17,10 @@ data:
   resource.customizations.ignoreResourceUpdates.external-secrets.io_ExternalSecret: |
     jsonPointers:
     - /status
+  
+  # Handle Argo CD diff discrepancies for PostgreSQL Cluster CRD resources
+  # Required due to serialization differences in Kubernetes quantity types
+  # See: https://argo-cd.readthedocs.io/en/stable/user-guide/diffing/#known-kubernetes-types-in-crds
+  resource.customizations.knownTypeFields.postgresql.cnpg.io_Cluster: |
+    - field: spec.resources
+      type: core/v1/ResourceRequirements
