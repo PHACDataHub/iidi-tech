@@ -390,8 +390,6 @@ collapsible_sections = [
                 The authoritative sources of immunisation data within each province or territory. These nodes maintain full control
                 and apply governance policies before any data is shared externally.
             </li>
-        </ul>
-        <ul>
             <li><strong style="background-color:#d1e7dd; padding:2px 6px; border-radius:4px;">General Users:</strong>
                 Authorised systems or users who access governed outputs — not raw PT data — to generate insights, analytics,
                 or reports. Access is standardised, governed, and fully auditable.
