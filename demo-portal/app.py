@@ -384,7 +384,7 @@ collapsible_sections = [
 
         <h6 style="margin-top: 20px;"><strong>Key Concepts</strong></h6>
 
-        <h6 style="margin-top: 16px; color: #856404;"><strong>🟨 Security, Control, Governance and Enforcement</strong></h6>
+        <h6 style="margin-top: 16px; color: #856404;"><strong>Security, Control, Governance and Enforcement</strong></h6>
         <ul>
             <li><strong style="background-color:#fff3cd; padding:2px 6px; border-radius:4px;">Access Control Models:</strong>
                 Define who can access what data, under which conditions, and for what purpose. Tailored to each jurisdiction’s legal frameworks,
@@ -407,19 +407,19 @@ collapsible_sections = [
             </li>
         </ul>
 
-        <h6 style="margin-top: 16px; color: #0c5460;"><strong>🟦 Infrastructure, Storage, Query, Data Flow and Standards</strong></h6>
+        <h6 style="margin-top: 16px; color: #0c5460;"><strong>Infrastructure, Storage, Query, Data Flow and Standards</strong></h6>
         <ul>
-            <li><strong style="background-color:#bee5eb; padding:2px 6px; border-radius:4px;">Cloud Platforms:</strong>
+            <li><strong style="background-color:#cfe2ff; padding:2px 6px; border-radius:4px;">Cloud Platforms:</strong>
                 Scalable and secure environments for deploying workloads, sharing services, and running jurisdiction-specific applications.
                 These platforms enable a consistent operational foundation across jurisdictions.
             </li>
 
-            <li><strong style="background-color:#bee5eb; padding:2px 6px; border-radius:4px;">API Management:</strong>
+            <li><strong style="background-color:#cfe2ff; padding:2px 6px; border-radius:4px;">API Management:</strong>
                 Provides secure access points for system-to-system communication. Includes request validation, rate limiting,
                 authentication, and observability across federated APIs.
             </li>
 
-            <li><strong style="background-color:#bee5eb; padding:2px 6px; border-radius:4px;">Data Storage Solutions:</strong>
+            <li><strong style="background-color:#cfe2ff; padding:2px 6px; border-radius:4px;">Data Storage Solutions:</strong>
                 Stores both jurisdictional and aggregated datasets using encryption-at-rest and role-based access controls.
                 Designed for durability, auditability, and regional autonomy.
             </li>
@@ -429,13 +429,13 @@ collapsible_sections = [
                 It underpins semantic interoperability across different jurisdictions and systems.
             </li>
 
-            <li><strong style="background-color:#d1ecf1; padding:2px 6px; border-radius:4px;">Real-Time Data Sync:</strong>
+            <li><strong style="background-color:#cfe2ff; padding:2px 6px; border-radius:4px;">Real-Time Data Sync:</strong>
                 Asynchronous, event-driven pipelines that update immunisation records across systems continuously.
                 These mechanisms ensure up-to-date views while preserving data sovereignty.
             </li>
         </ul>
 
-        <h6 style="margin-top: 16px; color: #155724;"><strong>🟩 Source Data Emitters</strong></h6>
+        <h6 style="margin-top: 16px; color: #155724;"><strong>Source Data Emitters</strong></h6>
         <ul>
             <li><strong style="background-color:#d1e7dd; padding:2px 6px; border-radius:4px;">Data Emitter Nodes:</strong>
                 The authoritative sources of immunisation data within each province or territory. These nodes maintain full control
@@ -443,7 +443,7 @@ collapsible_sections = [
             </li>
         </ul>
 
-        <h6 style="margin-top: 16px; color: #155724;"><strong>🟩 General Data Users</strong></h6>
+        <h6 style="margin-top: 16px; color: #155724;"><strong>General Data Users</strong></h6>
         <ul>
             <li><strong style="background-color:#d1e7dd; padding:2px 6px; border-radius:4px;">General Users:</strong>
                 Authorised systems or users who access governed outputs — not raw PT data — to generate insights, analytics,
