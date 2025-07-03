@@ -384,6 +384,20 @@ collapsible_sections = [
 
         <h6 style="margin-top: 20px;"><strong>Key Concepts</strong></h6>
 
+        <h6 style="margin-top: 16px; color: #155724;"><strong>Data Emitters and Users</strong></h6>
+        <ul>
+            <li><strong style="background-color:#d1e7dd; padding:2px 6px; border-radius:4px;">Data Emitter Nodes:</strong>
+                The authoritative sources of immunisation data within each province or territory. These nodes maintain full control
+                and apply governance policies before any data is shared externally.
+            </li>
+        </ul>
+        <ul>
+            <li><strong style="background-color:#d1e7dd; padding:2px 6px; border-radius:4px;">General Users:</strong>
+                Authorised systems or users who access governed outputs — not raw PT data — to generate insights, analytics,
+                or reports. Access is standardised, governed, and fully auditable.
+            </li>
+        </ul>
+
         <h6 style="margin-top: 16px; color: #856404;"><strong>Security, Control, Governance and Enforcement</strong></h6>
         <ul>
             <li><strong style="background-color:#fff3cd; padding:2px 6px; border-radius:4px;">Access Control Models:</strong>
@@ -435,21 +449,6 @@ collapsible_sections = [
             </li>
         </ul>
 
-        <h6 style="margin-top: 16px; color: #155724;"><strong>Source Data Emitters</strong></h6>
-        <ul>
-            <li><strong style="background-color:#d1e7dd; padding:2px 6px; border-radius:4px;">Data Emitter Nodes:</strong>
-                The authoritative sources of immunisation data within each province or territory. These nodes maintain full control
-                and apply governance policies before any data is shared externally.
-            </li>
-        </ul>
-
-        <h6 style="margin-top: 16px; color: #155724;"><strong>General Data Users</strong></h6>
-        <ul>
-            <li><strong style="background-color:#d1e7dd; padding:2px 6px; border-radius:4px;">General Users:</strong>
-                Authorised systems or users who access governed outputs — not raw PT data — to generate insights, analytics,
-                or reports. Access is standardised, governed, and fully auditable.
-            </li>
-        </ul>
     """,
     },
     {
