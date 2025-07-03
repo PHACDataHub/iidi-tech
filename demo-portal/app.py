@@ -370,12 +370,11 @@ collapsible_sections = [
         "content": """
         <h5><strong>Overview</strong></h5>
         <p>
-            The Foundation for Federated Data Architecture defines a secure and interoperable model for immunisation data exchange across Canada.
-            It brings together four key domains — <strong>Data Emitters</strong> (provinces and territories), <strong>Governance and Enforcement</strong>,
-            <strong>Federated Infrastructure</strong>, and <strong>General Users</strong> (such as PHAC) — into a cohesive framework.
-            This architecture enables real-time synchronisation, standardised access, and strong privacy protection, all while preserving
-            full jurisdictional control and ownership of data. It ensures that every data exchange adheres to shared governance rules and
-            national reporting requirements, without centralising sensitive information.
+            The Foundation for Federated Data Architecture outlines a secure and interoperable model for exchanging immunisation data across Canada.
+            It allows real-time synchronisation, role-based access, and privacy-first data sharing — without centralising control or ownership.
+            The model consists of four domains: <strong>Data Emitters</strong>, <strong>Security and Governance</strong>,
+            <strong>Federated Infrastructure</strong>, and <strong>General Users</strong>. Together, these domains form the foundation of compliant,
+            distributed health data exchange.
         </p>
 
         <h6><strong>Architecture Diagram</strong></h6>
@@ -384,61 +383,71 @@ collapsible_sections = [
              style="max-width: 100%; border: 1px solid #ccc; padding: 6px; border-radius: 6px; margin-top: 10px;">
 
         <h6 style="margin-top: 20px;"><strong>Key Concepts</strong></h6>
+
+        <h6 style="margin-top: 16px; color: #856404;"><strong>🟨 Security, Control, Governance and Enforcement</strong></h6>
         <ul>
-            <li><strong style="background-color:#d1e7dd; padding:2px 6px; border-radius:4px;">Data Emitters Nodes:</strong>
-                Represent jurisdictional data systems maintained by provinces and territories. These nodes retain full control over their data
-                while enabling secure, governed participation in national reporting and analytics. No raw data is moved without compliance to
-                predefined sharing rules.
+            <li><strong style="background-color:#fff3cd; padding:2px 6px; border-radius:4px;">Access Control Models:</strong>
+                Define who can access what data, under which conditions, and for what purpose. Tailored to each jurisdiction’s legal frameworks,
+                they enforce compliant, transparent, and auditable data usage.
             </li>
 
             <li><strong style="background-color:#fff3cd; padding:2px 6px; border-radius:4px;">Data Governance Gateway:</strong>
-                Acts as the central validation engine, ensuring every data exchange request adheres to jurisdictional agreements and legal
-                requirements. It is the enforcement point for identity verification, consent models, and access control decisions.
+                Validates all data requests by enforcing jurisdictional agreements, consent requirements, and access policies.
+                It serves as the central gatekeeper for safe and legal data exchange.
             </li>
 
             <li><strong style="background-color:#fff3cd; padding:2px 6px; border-radius:4px;">Policy Enforcement:</strong>
-                Applies machine-readable governance rules — including access conditions, purpose-of-use constraints, and retention logic — in real time.
-                These policies ensure that data is accessed only under legitimate, approved, and compliant contexts.
-            </li>
-
-            <li><strong style="background-color:#e7f1fc; padding:2px 6px; border-radius:4px;">Data Standards (HL7 FHIR):</strong>
-                The technical foundation for interoperability. HL7 FHIR defines how health data is formatted and exchanged, enabling consistent
-                integration across multiple systems, platforms, and jurisdictions.
+                Executes real-time policy checks such as time-bound access, consent verification, and purpose-of-use restrictions.
+                These enforcement systems make governance actionable at runtime.
             </li>
 
             <li><strong style="background-color:#fff3cd; padding:2px 6px; border-radius:4px;">Security Protocols:</strong>
-                Comprehensive protections including end-to-end encryption, identity-based access, and audit trails. This layer defends against
-                unauthorized access, tampering, or misuse, in line with federal and provincial cybersecurity frameworks.
+                Apply identity validation, encryption, and system hardening across the federation. These controls support compliance
+                with Canadian privacy legislation and prevent unauthorised access.
+            </li>
+        </ul>
+
+        <h6 style="margin-top: 16px; color: #0c5460;"><strong>🟦 Infrastructure, Storage, Query, Data Flow and Standards</strong></h6>
+        <ul>
+            <li><strong style="background-color:#bee5eb; padding:2px 6px; border-radius:4px;">Cloud Platforms:</strong>
+                Scalable and secure environments for deploying workloads, sharing services, and running jurisdiction-specific applications.
+                These platforms enable a consistent operational foundation across jurisdictions.
             </li>
 
-            <li><strong style="background-color:#e7f1fc; padding:2px 6px; border-radius:4px;">Cloud Platforms:</strong>
-                Federated and secure hosting environments that enable provinces and federal users to deploy workloads, share services, and store
-                data reliably. These platforms ensure high availability, resilience, and observability across distributed systems.
+            <li><strong style="background-color:#bee5eb; padding:2px 6px; border-radius:4px;">API Management:</strong>
+                Provides secure access points for system-to-system communication. Includes request validation, rate limiting,
+                authentication, and observability across federated APIs.
             </li>
 
-            <li><strong style="background-color:#e7f1fc; padding:2px 6px; border-radius:4px;">Data Storage Solutions:</strong>
-                Resilient and scalable storage backends supporting both raw and aggregated datasets. They provide encryption-at-rest, role-based
-                access control, and integrations with analytics tools for secure insight generation.
+            <li><strong style="background-color:#bee5eb; padding:2px 6px; border-radius:4px;">Data Storage Solutions:</strong>
+                Stores both jurisdictional and aggregated datasets using encryption-at-rest and role-based access controls.
+                Designed for durability, auditability, and regional autonomy.
             </li>
 
-            <li><strong style="background-color:#e7f1fc; padding:2px 6px; border-radius:4px;">API Management:</strong>
-                Securely brokers interactions between provincial systems and national users. This layer enforces authentication, rate limiting,
-                audit logging, and access policies across federated APIs, supporting traceable and compliant data flows.
+            <li><strong style="background-color:#cfe2ff; padding:2px 6px; border-radius:4px;">Data Standards (HL7 FHIR):</strong>
+                HL7 FHIR enables structured, consistent, and machine-readable representation of health records.
+                It underpins semantic interoperability across different jurisdictions and systems.
             </li>
 
-            <li><strong style="background-color:#e7f1fc; padding:2px 6px; border-radius:4px;">Real-Time Data Sync Mechanisms:</strong>
-                Asynchronous pipelines that propagate changes between PT systems and the central environment continuously. These mechanisms maintain
-                data freshness, traceability, and alignment with governance rules — without centralising control or introducing delay.
+            <li><strong style="background-color:#d1ecf1; padding:2px 6px; border-radius:4px;">Real-Time Data Sync:</strong>
+                Asynchronous, event-driven pipelines that update immunisation records across systems continuously.
+                These mechanisms ensure up-to-date views while preserving data sovereignty.
             </li>
+        </ul>
 
-            <li><strong style="background-color:#fff3cd; padding:2px 6px; border-radius:4px;">Access Control Models:</strong>
-                Fine-grained authorization frameworks that define who can access what data, under what circumstances. These models protect sensitive
-                health information, respect privacy legislation, and enforce policy conditions through automated enforcement at runtime.
+        <h6 style="margin-top: 16px; color: #155724;"><strong>🟩 Source Data Emitters</strong></h6>
+        <ul>
+            <li><strong style="background-color:#d1e7dd; padding:2px 6px; border-radius:4px;">Data Emitter Nodes:</strong>
+                The authoritative sources of immunisation data within each province or territory. These nodes maintain full control
+                and apply governance policies before any data is shared externally.
             </li>
+        </ul>
 
-            <li><strong style="background-color:#e2e3f3; padding:2px 6px; border-radius:4px;">PHAC Cloud Environment:</strong>
-                A centralised cloud platform for authorised users like PHAC. It acts as the national consumer of aggregated immunisation data,
-                enabling federal analytics, reporting, and dashboard generation through secure, automated, and compliant access mechanisms.
+        <h6 style="margin-top: 16px; color: #155724;"><strong>🟩 General Data Users</strong></h6>
+        <ul>
+            <li><strong style="background-color:#d1e7dd; padding:2px 6px; border-radius:4px;">General Users:</strong>
+                Authorised systems or users who access governed outputs — not raw PT data — to generate insights, analytics,
+                or reports. Access is standardised, governed, and fully auditable.
             </li>
         </ul>
     """,
