@@ -18,7 +18,7 @@ The technical model assumes a **push-based** transfer mechanism where the **orig
 
 The **PT-to-PT transfer mechanism** is built on a **decentralized, API-driven architecture** where each PT maintains its **own independent namespace within a Kubernetes cluster** while adhering to a standardized data exchange model. The architecture is designed to be **scalable, secure, and easily extendable**, allowing additional provinces to onboard without requiring modifications to the existing infrastructure.
 
-Each **PT namespace** is deployed on **Google Kubernetes Engine (GKE)** and managed using **GitOps best practices** through **FluxCD and Kustomize**. This ensures a declarative, auditable, and version-controlled infrastructure while maintaining a consistent deployment pipeline across multiple jurisdictions.
+Each **PT namespace** is deployed on **Google Kubernetes Engine (GKE)** and managed using **GitOps best practices** through **ArgoCD and Kustomize**. This ensures a declarative, auditable, and version-controlled infrastructure while maintaining a consistent deployment pipeline across multiple jurisdictions.
 
 The **core architectural components** of the PT-to-PT transfer model include the following:
 

@@ -370,7 +370,7 @@ collapsible_sections = [
         "content": """
         <h5><strong>Overview</strong></h5>
         <p>
-            The Foundation for Federated Data Architecture outlines a secure and interoperable model for exchanging immunisation data across Canada.
+            The Foundation for Federated Data Architecture outlines a secure and interoperable model for exchanging immunization data across Canada.
             It allows real-time synchronisation, role-based access, and privacy-first data sharing — without centralising control or ownership.
             The model consists of four domains: <strong>Data Emitters</strong>, <strong>Security and Governance</strong>,
             <strong>Federated Infrastructure</strong>, and <strong>General Users</strong>. Together, these domains form the foundation of compliant,
@@ -387,7 +387,7 @@ collapsible_sections = [
         <h6 style="margin-top: 16px; color: #155724;"><strong>Data Emitters and Users</strong></h6>
         <ul>
             <li><strong style="background-color:#d1e7dd; padding:2px 6px; border-radius:4px;">Data Emitter Nodes:</strong>
-                The authoritative sources of immunisation data within each province or territory. These nodes maintain full control
+                The authoritative sources of immunization data within each province or territory. These nodes maintain full control
                 and apply governance policies before any data is shared externally.
             </li>
             <li><strong style="background-color:#d1e7dd; padding:2px 6px; border-radius:4px;">General Users:</strong>
@@ -442,7 +442,7 @@ collapsible_sections = [
             </li>
 
             <li><strong style="background-color:#cfe2ff; padding:2px 6px; border-radius:4px;">Real-Time Data Sync:</strong>
-                Asynchronous, event-driven pipelines that update immunisation records across systems continuously.
+                Asynchronous, event-driven pipelines that update immunization records across systems continuously.
                 These mechanisms ensure up-to-date views while preserving data sovereignty.
             </li>
         </ul>
