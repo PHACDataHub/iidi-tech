@@ -10,7 +10,7 @@ The **Interoperable Immunization Data Initiative (IIDI)** is designed to enable 
 
 A core principle of IIDI is that **PHAC does not access, store, or process personal health information (PHI)**. Instead, **all de-identification and aggregation occur at the PT level** before data is transmitted. This ensures that only **pre-processed, anonymized immunization summaries** are shared with PHAC, aligning with federal and provincial privacy policies.
 
-This document provides an **in-depth technical breakdown** of the IIDI architecture, detailing how **Kubernetes, CloudNativePG (CNPG), Flux, Kustomize, GitOps, FHIR, and SMART on FHIR technologies** are leveraged to **build a scalable, secure, and future-proof immunization data-sharing ecosystem**.
+This document provides an **in-depth technical breakdown** of the IIDI architecture, detailing how **Kubernetes, CloudNativePG (CNPG), ArgoCD, Kustomize, GitOps, FHIR, and SMART on FHIR technologies** are leveraged to **build a scalable, secure, and future-proof immunization data-sharing ecosystem**.
 
 ---
 
@@ -27,13 +27,13 @@ The IIDI infrastructure is fully deployed on **Google Kubernetes Engine (GKE)** 
 
 Namespaces are secured using **Kubernetes Role-Based Access Control (RBAC), NetworkPolicies, and Anthos Service Mesh (ASM)**, ensuring that PT workloads are fully isolated.
 
-### **2.2 GitOps-Driven Deployment with Flux & Kustomize**
+### **2.2 GitOps-Driven Deployment with ArgoCD & Kustomize**
 
-All deployments follow a **GitOps model** using **Flux and Kustomize**, ensuring that application configurations remain declarative, version-controlled, and continuously reconciled with production environments.
+All deployments follow a **GitOps model** using **ArgoCD and Kustomize**, ensuring that application configurations remain declarative, version-controlled, and continuously reconciled with production environments.
 
-- **FluxCD**: Automates deployments by continuously monitoring GitHub repositories for configuration changes.
+- **ArgoCD**: Updates changes to image version of applications in the Git repository. Automates deployments by continuously monitoring GitHub repositories for configuration changes.
 - **Kustomize**: Enables **environment-specific overlays**, allowing **PT-specific variations** while maintaining a consistent core deployment structure.
-- **Cloud Build**: Handles **CI/CD pipelines**, ensuring that **image builds, and infrastructure changes** are validated before deployment.
+- **Cloud Build**: Handles **CI/CD pipelines**, ensuring that **image builds, and infrastructure changes** are validated before deployment. Ensures that the latest version of the application is pushed to the artifact registry.
 
 This **declarative, version-controlled approach** ensures that all changes to the system are **traceable, reproducible, and securely managed**.
 
