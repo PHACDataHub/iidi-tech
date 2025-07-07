@@ -142,14 +142,7 @@ collapsible_sections = [
                 <li><strong>Audit & Compliance Framework</strong>: Ensures all data access is logged and follows regulatory requirements.</li>
             </ul>
 
-            <h6>Data Flow</h6>
-            <ol>
-                <li>A request for immunization data is initiated by an authorized system.</li>
-                <li>The Access Control Gateway verifies authentication and consent requirements.</li>
-                <li>Once approved, data is retrieved from the provincial immunization system.</li>
-                <li>The interoperability layer processes and transforms the data to a standard format.</li>
-                <li>The response is securely delivered back to the requester.</li>
-            </ol>
+            
 
             <h6>Security & Compliance</h6>
             <ul>
@@ -171,7 +164,17 @@ collapsible_sections = [
         "title": "User Journey 1: PT-to-PT Transfer",
         "content": """
             <h5><strong>Overview: What is PT-to-PT Transfer?</strong></h5>
-            <p>When a patient moves or seeks healthcare in another province, their immunization record needs to be securely transferred. This Proof of Concept (PoC) focuses on the technical feasibility of such transfers while leaving governance, consent, and policy discussions out of scope.</p>
+            <p>
+                The PT-to-PT transfer mechanism enables secure, structured movement of immunization records when a patient relocates
+                between jurisdictions. This workflow ensures that records are securely exchanged without centralization. 
+            </p>
+            <ul>
+                <li><strong>API Gateway</strong>: Facilitates secure and authenticated communication.</li>
+                <li><strong>FHIR Data Transfer</strong>: Ensures records are formatted correctly.</li>
+                <li><strong>Message Queue</strong>: Manages retries and queued requests.</li>
+                <li><strong>Outbound Transfer Service</strong>: Extracts and sends immunization data.</li>
+                <li><strong>Inbound Transfer Service</strong>: Receives and validates incoming records.</li>
+            </ul>
 
             <h6><strong>Technical Flow of the Transfer</strong></h6>
             <ol>
@@ -182,65 +185,61 @@ collapsible_sections = [
                 <li>Record becomes available in receiving province's registry</li>
             </ol>
 
-            <h6><strong>PT-to-PT Transfer Workflow</strong></h6>
             <img src="/static/images/UJ-1.png" alt="PT-to-PT Data Transfer Workflow" style="max-width:100%; border:1px solid #ddd; padding:10px; border-radius:8px;">
             
-            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 20px; margin-bottom: 20px;">
-                <h6><strong>Key Assumptions</strong></h6>
-                <ul>
-                    <li>Consent management must be externally managed (out of PoC scope)</li>
-                    <li>Push-based model ensures data is only transferred when authorized</li>
-                    <li>Manual transfer requests (fax, email) remain possible but out of scope</li>
-                    <li>PoC leverages FHIR repositories for secure data exchange validation</li>
-                    <li>Initial scope focused on MMR vaccine records</li>
-                </ul>
-            </div>
-            
-            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px;">
-                <h6><strong>Data Transferred Between Provinces</strong></h6>
-                <table style="width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid #ddd;">
-                    <thead style="background-color: #e9ecef;">
-                        <tr>
-                            <th style="text-align: left; padding: 10px;">Category</th>
-                            <th style="text-align: left; padding: 10px;">Data Elements</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Patient Information</strong></td>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">
-                                <ul>
-                                    <li>Provincial patient identifier</li>
-                                    <li>Full name, birth date, gender</li>
-                                    <li>Address (city, province, postal code)</li>
-                                    <li>Health card number (for identity matching)</li>
-                                </ul>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Immunization History</strong></td>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">
-                                <ul>
-                                    <li>Vaccine type (CVX codes)</li>
-                                    <li>Date of administration and dose number</li>
-                                    <li>Manufacturer and lot number</li>
-                                    <li>Site of administration</li>
-                                    <li>Adverse reactions and exemptions</li>
-                                </ul>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px;"><strong>Metadata</strong></td>
-                            <td style="padding: 10px;">
-                                <ul>
-                                    <li>Transfer origin marker (source jurisdiction)</li>
-                                    <li>Receiving province acknowledgment</li>
-                                </ul>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <h6><strong>Data Transferred Between Provinces</strong></h6>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid #ddd;">
+                <thead style="background-color: #e9ecef;">
+                    <tr>
+                        <th style="text-align: left; padding: 10px;">Category</th>
+                        <th style="text-align: left; padding: 10px;">Data Elements</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Patient Information</strong></td>
+                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                            <ul>
+                                <li>Unique patient identifier within the provincial system.</li>
+                                <li>Full name, birth date, gender</li>
+                                <li>Address (city, province, postal code)</li>
+                                <li>Health card number (if applicable) for identity matching</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Immunization History</strong></td>
+                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                            <ul>
+                                <li>Vaccine type (CVX codes)</li>
+                                <li>Date of administration and dose number</li>
+                                <li>Manufacturer and lot number</li>
+                                <li>Site of administration (e.g., left arm, right arm)</li>
+                                <li>Adverse reactions and exemptions (if applicable)</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px;"><strong>Metadata</strong></td>
+                        <td style="padding: 10px;">
+                            <ul>
+                                <li>Transfer origin marker indicating the source jurisdiction</li>
+                                <li>Receiving province acknowledgment confirming integration.</li>
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h6><strong>Addressing Key Concerns and Clarificationsk</strong></h6>
+            <ul>
+                <li>Data is <strong>synthetically generated</strong> based on FHIR standards. PoC leverages FHIR repositories for secure data exchange validation</li>
+                <li>Consent management must be externally managed (out of PoC scope)</li>
+                <li>Push-based model ensures data is only transferred when authorized</li>
+                <li>Manual transfer requests (fax, email) remain possible but out of scope</li>
+                <li>Initial scope focused on MMR vaccine records, expandable in future phases</li>
+                <li>Optional UI demonstration to visualize transferred records.</li>
+            </ul>
         """
     },
     {
@@ -270,8 +269,18 @@ collapsible_sections = [
                     </ul>
                 </div>
             </div>
+
             
             <img src="/static/images/UJ-2.png" alt="Federated Immunization Data Architecture" style="max-width:100%; border:1px solid #ddd; padding:10px; border-radius:8px; margin-bottom:20px;">
+
+            <h6><strong>Data Flow</strong></h6>
+            <ol>
+                <li>A request for immunization data is initiated by an authorized system.</li>
+                <li>The Access Control Gateway verifies authentication and consent requirements.</li>
+                <li>Once approved, data is retrieved from the provincial immunization system.</li>
+                <li>The interoperability layer processes and transforms the data to a standard format.</li>
+                <li>The response is securely delivered back to the requester.</li>
+            </ol>
             
             <h5><strong>Key Principles</strong></h5>
                 <ul>
