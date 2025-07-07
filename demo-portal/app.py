@@ -125,6 +125,14 @@ collapsible_sections = [
                 combination of API gateways, security layers, and standardized data exchange mechanisms.
             </p>
 
+            <h6><strong>Kubernetes Infrastructure</strong></h6>
+            <p>
+                The platform is built on Kubernetes, providing a scalable and resilient foundation for our federated architecture.
+                Below is our Kubernetes cluster diagram:
+            </p>
+            <img src="/static/images/k8s-architecture.png" alt="Kubernetes Infrastructure" style="max-width:100%; border:1px solid #ddd; padding:10px; border-radius:8px; margin-bottom:20px;">
+            
+
             <h6>Key Components</h6>
             <ul>
                 <li><strong>Provincial Immunization Systems</strong>: Each province maintains its own immunization data repository.</li>
@@ -243,9 +251,7 @@ collapsible_sections = [
                 This architecture ensures each province maintains local control over immunization records while supporting national-level 
                 aggregation for public health surveillance. The model consists of:
             </p>
-            
-            <img src="/static/images/UJ-2.png" alt="Federated Immunization Data Architecture" style="max-width:100%; border:1px solid #ddd; padding:10px; border-radius:8px; margin-bottom:20px;">
-            
+
             <div style="display: flex; gap: 20px; margin-bottom: 20px;">
                 <div style="flex: 1; background-color: #f8f9fa; padding: 15px; border-radius: 8px;">
                     <h6><strong>Provincial Components</strong></h6>
@@ -261,112 +267,108 @@ collapsible_sections = [
                     <ul>
                         <li><strong>Federator (PHAC)</strong>: Receives aggregated data</li>
                         <li><strong>R-Shiny Dashboards</strong>: National analytics and insights</li>
-                        <li><strong>Compliance Monitoring</strong>: Audit and reporting systems</li>
                     </ul>
                 </div>
             </div>
             
-            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                <h5><strong>Aggregation & PHAC Data Access</strong></h5>
-                
-                <h6><strong>Why is Aggregation Needed?</strong></h6>
-                <p>
-                    PHAC does not require full patient-level data but instead needs structured, summarized reports for national immunization monitoring. 
-                    Aggregation transforms raw immunization records into anonymized datasets, ensuring accuracy while protecting privacy. 
-                    This process maintains consistency across provinces, even when different immunization tracking systems are used.
-                </p>
-                
-                <div style="background-color: #e9f7e9; padding: 15px; border-radius: 8px; margin: 15px 0;">
-                    <p><strong>PHAC Access Policy:</strong></p>
-                    <p>
-                        PHAC does not access or process identifiable Personal Health Information (PHI) at any stage. 
-                        All de-identification is performed at the Provincial/Territorial (PT) level before any data is shared with PHAC. 
-                        The information shared with PHAC is structured, anonymized, and formatted for public health reporting in compliance with privacy regulations. 
-                        Aggregation ensures uniform national immunization reporting while aligning with PT-specific privacy frameworks.
-                    </p>
-                </div>
-                
-                <h6><strong>How Data Aggregation Works</strong></h6>
-                <ol>
-                    <li><strong>Extract</strong> immunization records from FHIR repositories at the PT level</li>
-                    <li><strong>De-identify</strong> data by removing personally identifiable details (e.g., names, health card numbers) entirely at the PT level before aggregation</li>
-                    <li><strong>Categorize</strong> data by jurisdiction, age group, gender, and vaccine type</li>
-                    <li><strong>Summarize</strong> dose counts and calculate total vaccinated individuals</li>
-                    <li><strong>Format</strong> the final dataset into a structured, anonymized report in compliance with PHAC's reporting framework</li>
-                </ol>
-                
-                <h6><strong>Key Data Captured in Aggregation</strong></h6>
-                <table style="width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid #ddd;">
-                    <thead style="background-color: #e9ecef;">
-                        <tr>
-                            <th style="text-align: left; padding: 10px;">Field</th>
-                            <th style="text-align: left; padding: 10px;">Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">Reference Date</td>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">Date of immunization event (reported at an aggregate level)</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">Jurisdiction</td>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">Province where immunization was recorded (e.g., BC, ON)</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">Age Group</td>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">Categorized age ranges (e.g., 0-2 years, 3-5 years, etc.)</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">Gender</td>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">Aggregate counts by gender category (Male, Female, Other)</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">Vaccine Type</td>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">Type of vaccine administered (e.g., MMR, COVID-19)</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">Dose Count</td>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">Total number of doses administered in the reporting period</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px;">Total Patients Vaccinated</td>
-                            <td style="padding: 10px;">Unique number of individuals vaccinated within the reporting period</td>
-                        </tr>
-                    </tbody>
-                </table>
-                
-                <h6 style="margin-top: 20px;"><strong>Benefits for Public Health and PHAC</strong></h6>
-                <ul>
-                    <li>Reduces complexity by providing summarized, structured reports rather than raw data</li>
-                    <li>Ensures privacy by removing personal identifiers and focusing on aggregate statistics</li>
-                    <li>Standardizes immunization reporting across jurisdictions for consistency and interoperability</li>
-                    <li>Scales efficiently to include new vaccines and evolving public health priorities</li>
-                </ul>
-            </div>
+            <img src="/static/images/UJ-2.png" alt="Federated Immunization Data Architecture" style="max-width:100%; border:1px solid #ddd; padding:10px; border-radius:8px; margin-bottom:20px;">
             
-            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                <h6><strong>Addressing Key Concerns and Clarifications</strong></h6>
-                
-                <div style="background-color: #fff8e6; padding: 15px; border-radius: 8px; margin: 10px 0;">
-                    <p><strong>PHAC's Role in De-Identification</strong></p>
-                    <p><em>Previous misconception:</em> The document wording implied that PHAC de-identifies data</p>
-                    <p><strong>Clarification:</strong> PTs are fully responsible for de-identification before sharing data. PHAC does not access raw patient-level data.</p>
-                </div>
-                
-                <div style="background-color: #fff8e6; padding: 15px; border-radius: 8px; margin: 10px 0;">
-                    <p><strong>PHAC's Role in Aggregation</strong></p>
-                    <p><em>Previous misconception:</em> The document suggested PHAC "fetches" patient data and aggregates it</p>
-                    <p><strong>Clarification:</strong> Aggregation is conducted entirely at the PT level. PHAC receives only aggregated, anonymized data.</p>
-                </div>
-                
-                <h6><strong>Key Principles</strong></h6>
+            <h5><strong>Key Principles</strong></h5>
                 <ul>
                     <li>PTs maintain full control over their immunization data</li>
                     <li>PHAC only receives pre-aggregated, anonymized datasets</li>
                     <li>No patient-level data leaves provincial systems</li>
                     <li>All de-identification occurs at source (PT level)</li>
                 </ul>
-            </div>
+            
+            <h5><strong>Aggregation & PHAC Data Access</strong></h5>
+            
+            <p>
+                PHAC does not require full patient-level data but instead needs structured, summarized reports for national immunization monitoring. 
+                Aggregation transforms raw immunization records into anonymized datasets, ensuring accuracy while protecting privacy. 
+                This process maintains consistency across provinces, even when different immunization tracking systems are used. 
+            </p>
+            
+            <p>
+                <b>PHAC does not access or process identifiable Personal Health Information (PHI) at any stage.</b> All de-identification is performed at 
+                the Provincial/Territorial (PT) level before any data is shared with PHAC. The information shared with PHAC is structured, anonymized, 
+                and formatted for public health reporting in compliance with privacy regulations. Aggregation ensures uniform national immunization 
+                reporting while aligning with PT-specific privacy frameworks.
+            </p>
+            
+            <h6><strong>How Data Aggregation Works</strong></h6>
+            <ol>
+                <li><strong>Extract</strong> immunization records from FHIR repositories at the PT level</li>
+                <li><strong>De-identify</strong> data by removing personally identifiable details (e.g., names, health card numbers) entirely at the PT level before aggregation</li>
+                <li><strong>Categorize</strong> data by jurisdiction, age group, gender, and vaccine type</li>
+                <li><strong>Summarize</strong> dose counts and calculate total vaccinated individuals</li>
+                <li><strong>Format</strong> the final dataset into a structured, anonymized report in compliance with PHAC's reporting framework</li>
+            </ol>
+            
+            <h6><strong>Key Data Captured in Aggregation</strong></h6>
+            <table style="width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid #ddd;">
+                <thead style="background-color: #e9ecef;">
+                    <tr>
+                        <th style="text-align: left; padding: 10px;">Field</th>
+                        <th style="text-align: left; padding: 10px;">Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">Reference Date</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">Date of immunization event (reported at an aggregate level)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">Jurisdiction</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">Province where immunization was recorded (e.g., BC, ON)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">Age Group</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">Categorized age ranges (e.g., 0-2 years, 3-5 years, etc.)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">Gender</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">Aggregate counts by gender category (Male, Female, Other)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">Vaccine Type</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">Type of vaccine administered (e.g., MMR, COVID-19)</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">Dose Count</td>
+                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">Total number of doses administered in the reporting period</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px;">Total Patients Vaccinated</td>
+                        <td style="padding: 10px;">Unique number of individuals vaccinated within the reporting period</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <h6 style="margin-top: 20px;"><strong>Benefits for Public Health and PHAC</strong></h6>
+            <ul>
+                <li>Reduces complexity by providing summarized, structured reports rather than raw data</li>
+                <li>Ensures privacy by removing personal identifiers and focusing on aggregate statistics</li>
+                <li>Standardizes immunization reporting across jurisdictions for consistency and interoperability</li>
+                <li>Scales efficiently to include new vaccines and evolving public health priorities</li>
+            </ul>
+            
+            <h6><strong>Addressing Key Concerns and Clarifications</strong></h6>
+            <ul>
+                <li>
+                    <strong>De-identification Responsibility:</strong> 
+                    The previous document incorrectly implied PHAC de-identifies data. 
+                    <strong>PTs are fully responsible for de-identification before sharing data, 
+                    and PHAC does not access raw patient-level data.</strong>
+                </li>
+                <li>
+                    <strong>Aggregation Process:</strong> 
+                    The document previously inaccurately suggested PHAC "fetches" patient data for aggregation. 
+                    <strong>Aggregation is conducted entirely at the PT level, 
+                    and PHAC only receives aggregated, anonymized data.</strong>
+                </li>
+            </ul>
+                
         """
     },
     {
