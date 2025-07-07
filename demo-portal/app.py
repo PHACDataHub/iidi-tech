@@ -116,7 +116,7 @@ collapsible_sections = [
         """
     },
     {
-        "title": "Technical Infrastructure",
+        "title": "Technical Architecture",
         "content": """
             <h5>Overview</h5>
             <p>
@@ -125,10 +125,10 @@ collapsible_sections = [
                 combination of API gateways, security layers, and standardized data exchange mechanisms.
             </p>
 
-            <h6><strong>Kubernetes Infrastructure</strong></h6>
             <p>
                 The platform is built on Kubernetes, providing a scalable and resilient foundation for our federated architecture.
-                Below is our Kubernetes cluster diagram:
+                Below is <a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/IIDI-Architecture-Diagram.png" target="_blank" style="color: #0066cc; text-decoration: underline;">
+                our Kubernetes cluster diagram</a>:
             </p>
             <img src="/static/images/k8s-architecture.png" alt="Kubernetes Infrastructure" style="max-width:100%; border:1px solid #ddd; padding:10px; border-radius:8px; margin-bottom:20px;">
             
@@ -137,9 +137,7 @@ collapsible_sections = [
             <ul>
                 <li><strong>Provincial Immunization Systems</strong>: Each province maintains its own immunization data repository.</li>
                 <li><strong>FHIR-Based Data Exchange</strong>: Standardized API interactions ensure compatibility between different systems.</li>
-                <li><strong>Access Control Gateway</strong>: Manages authentication, authorization, and data access policies.</li>
                 <li><strong>Interoperability Layer</strong>: Enables data transformation and validation to align different provincial data formats.</li>
-                <li><strong>Audit & Compliance Framework</strong>: Ensures all data access is logged and follows regulatory requirements.</li>
             </ul>
 
             
@@ -307,11 +305,11 @@ collapsible_sections = [
             
             <h6><strong>How Data Aggregation Works</strong></h6>
             <ol>
-                <li><strong>Extract</strong> immunization records from FHIR repositories at the PT level</li>
-                <li><strong>De-identify</strong> data by removing personally identifiable details (e.g., names, health card numbers) entirely at the PT level before aggregation</li>
-                <li><strong>Categorize</strong> data by jurisdiction, age group, gender, and vaccine type</li>
-                <li><strong>Summarize</strong> dose counts and calculate total vaccinated individuals</li>
-                <li><strong>Format</strong> the final dataset into a structured, anonymized report in compliance with PHAC's reporting framework</li>
+                <li>Extract immunization records from FHIR repositories at the PT level</li>
+                <li>De-identify data by removing personally identifiable details (e.g., names, health card numbers) entirely at the PT level before aggregation</li>
+                <li>Categorize data by jurisdiction, age group, gender, and vaccine type</li>
+                <li>Summarize dose counts and calculate total vaccinated individuals</li>
+                <li>Format the final dataset into a structured, anonymized report in compliance with PHAC's reporting framework</li>
             </ol>
             
             <h6><strong>Key Data Captured in Aggregation</strong></h6>
@@ -486,22 +484,24 @@ collapsible_sections = [
                         <tr>
                             <td style="padding: 8px; border-bottom: 1px solid #ddd;">Dose Number</td>
                             <td style="padding: 8px; border-bottom: 1px solid #ddd;">Immunization.protocolApplied.doseNumber</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">1, 2, 3</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Based on vaccine type</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px;">Adverse Reactions</td>
-                            <td style="padding: 8px;">Immunization.reaction</td>
-                            <td style="padding: 8px;">"Fever", "Swelling"</td>
-                            <td style="padding: 8px;">Conditional generation</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">1, 2</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Random selection</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
+
+            <h6><strong>Summary of Key Features</strong></h6>
+            <ul style="margin-top: 5px; margin-bottom: 5px;">
+                <li><strong>FHIR-Compliant</strong>: Structured to align with HL7 FHIR.</li>
+                <li><strong>Synthetic but Realistic</strong>: Uses Faker for realistic patient data.</li>
+                <li><strong>Handles Provincial Variations</strong>: BC and ON have different data models.</li>
+                <li><strong>Includes Adverse Reactions & Exemptions</strong>: Adds realism for testing.</li>
+            </ul>
         """
     },
     {
-        "title": "GitHub Repository & Architecture",
+        "title": "GitHub Repository & Infrastructure",
         "content": """
             <h5>Overview</h5>
             <p>
@@ -518,24 +518,24 @@ collapsible_sections = [
                 <li><a href="https://github.com/PHACDataHub/iidi-tech" target="_blank" style="color: #0066cc; text-decoration: underline;"><strong>IIDI-Tech GitHub Repository</strong></a></li>
             </ul>
 
-            <h6>Technical Architecture</h6>
+            <h6>Infrastructure</h6>
             <p>
                 The IIDI technical stack is designed for interoperability, security, and compliance with public health data
-                governance frameworks. Key architecture components are documented below:
+                governance frameworks. Key infrastrcutural components are documented below:
             </p>
             <ul>
-                <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/GCP%20Architecture/GCP-Architecture.png" target="_blank" style="color: #0066cc; text-decoration: underline;"><strong>GCP Architecture Overview</strong></a> - High-level infrastructure design for deployment.</li>
+                <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/GCP%20Architecture/GCP-Architecture.png" target="_blank" style="color: #0066cc; text-decoration: underline;"><strong>GCP Infrastructure Overview</strong></a> - High-level infrastructure design for deployment.</li>
             </ul>
             <img src="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/GCP%20Architecture/GCP-Architecture.png?raw=true"
-                alt="GCP Architecture Diagram" style="max-width:100%; border:1px solid #ddd; padding:10px; border-radius:8px; margin-top:10px; margin-bottom:20px;">
+                alt="GCP Infrastructure Diagram" style="max-width:100%; border:1px solid #ddd; padding:10px; border-radius:8px; margin-top:10px; margin-bottom:20px;">
 
             <h6>Architecture Review Board Documentation</h6>
             <p>
                 The architecture follows a federated data model to support two primary user journeys:
             </p>
             <ul>
-                <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/User-Journey-1.md" target="_blank" style="color: #0066cc; text-decoration: underline;"><strong>Interoperable Immunization Data Initiative (IIDI) – User Journey 1: PT-to-PT Transfer</strong></a></li>
-                <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/User-Journey-2.md" target="_blank" style="color: #0066cc; text-decoration: underline;"><strong>Interoperable Immunization Data Initiative (IIDI) – User Journey 2: Federated Architecture</strong></a></li>
+                <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/User-Journey-1/User-Journey-1.md" target="_blank" style="color: #0066cc; text-decoration: underline;"><strong>Interoperable Immunization Data Initiative (IIDI) – User Journey 1: PT-to-PT Transfer</strong></a></li>
+                <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/User-Journey-2/User-Journey-2.md" target="_blank" style="color: #0066cc; text-decoration: underline;"><strong>Interoperable Immunization Data Initiative (IIDI) – User Journey 2: Federated Architecture</strong></a></li>
             </ul>
         """
     }
