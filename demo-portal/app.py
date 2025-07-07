@@ -125,6 +125,14 @@ collapsible_sections = [
                 combination of API gateways, security layers, and standardized data exchange mechanisms.
             </p>
 
+            <h6><strong>Kubernetes Infrastructure</strong></h6>
+            <p>
+                The platform is built on Kubernetes, providing a scalable and resilient foundation for our federated architecture.
+                Below is our Kubernetes cluster diagram:
+            </p>
+            <img src="/static/images/k8s-architecture.png" alt="Kubernetes Infrastructure" style="max-width:100%; border:1px solid #ddd; padding:10px; border-radius:8px; margin-bottom:20px;">
+            
+
             <h6>Key Components</h6>
             <ul>
                 <li><strong>Provincial Immunization Systems</strong>: Each province maintains its own immunization data repository.</li>
