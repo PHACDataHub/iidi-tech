@@ -33,339 +33,6 @@ entities = {
 # Define collapsible sections dynamically instead of hardcoding them in HTML
 collapsible_sections = [
     {
-        "title": "Synthetic Patient Data Generation",
-        "content": """
-            <h5><strong>Overview: What is Being Generated?</strong></h5>
-            <p>
-                The synthetic data mimics real-world immunization records from provincial registries while ensuring
-                FHIR-compliant JSON format for interoperability. Differences between BC and ON data models are accounted for,
-                including variations in fields such as allergy tracking.
-            </p>
-
-            <div style="background-color: #f8f9fa; padding: 10px; border-radius: 8px;">
-                <h6><strong>FHIR Patient Resource Structure</strong></h6>
-                <p>A FHIR Patient Resource consists of core fields and extensions, ensuring consistency across jurisdictions.</p>
-
-                <table style="width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid #ddd;">
-                    <thead>
-                        <tr style="background-color: #e9ecef; border-bottom: 2px solid #ccc;">
-                            <th style="text-align: left; padding: 10px;">Field</th>
-                            <th style="text-align: left; padding: 10px;">FHIR Path</th>
-                            <th style="text-align: left; padding: 10px;">Example Value</th>
-                            <th style="text-align: left; padding: 10px;">Logic</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Patient ID</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Patient.id</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">"patient-001"</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Unique identifier.</td>
-                        </tr>
-                        <tr style="background-color: #f8f9fa;">
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Name</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Patient.name</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">{ "family": "Singh", "given": ["Simar"] }</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Randomized names using Faker.</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Gender</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Patient.gender</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">"male", "female", "other"</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Random selection.</td>
-                        </tr>
-                        <tr style="background-color: #f8f9fa;">
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Birth Date</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Patient.birthDate</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">"2012-06-15"</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Randomized within given age range.</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Address</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Patient.address</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">{ "city": "Toronto", "state": "ON" }</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Province-specific logic.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <h6><strong>Provincial Differences in Data Generation</strong></h6>
-            <div style="background-color: #f8f9fa; padding: 10px; border-radius: 8px;">
-                <p><strong>British Columbia (BC) Specific Fields</strong></p>
-                <ul style="margin-top: 5px; margin-bottom: 5px;">
-                    <li>Allergy information is included using FHIR `AllergyIntolerance` resource.</li>
-                    <li>Uses SNOMED CT-coded allergy types, severity levels, and reaction dates.</li>
-                </ul>
-
-                <p><strong>Ontario (ON) Specific Fields</strong></p>
-                <ul style="margin-top: 5px; margin-bottom: 5px;">
-                    <li>Ontario does not track allergy information in immunization records.</li>
-                    <li>The script skips allergy generation for ON patients.</li>
-                </ul>
-            </div>
-
-            <h6><strong>Immunization Data Generation (FHIR Standard)</strong></h6>
-            <table style="width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid #ddd;">
-                <thead>
-                    <tr style="background-color: #e9ecef; border-bottom: 2px solid #ccc;">
-                        <th style="text-align: left; padding: 10px;">Field</th>
-                        <th style="text-align: left; padding: 10px;">FHIR Path</th>
-                        <th style="text-align: left; padding: 10px;">Example Value</th>
-                        <th style="text-align: left; padding: 10px;">Logic</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td style="padding: 8px; border-bottom: 1px solid #eee;">Vaccine Type</td>
-                        <td style="padding: 8px; border-bottom: 1px solid #eee;">Immunization.vaccineCode</td>
-                        <td style="padding: 8px; border-bottom: 1px solid #eee;">"MMR", "Influenza"</td>
-                        <td style="padding: 8px; border-bottom: 1px solid #eee;">Random selection.</td>
-                    </tr>
-                    <tr style="background-color: #f8f9fa;">
-                        <td style="padding: 8px; border-bottom: 1px solid #eee;">Manufacturer</td>
-                        <td style="padding: 8px; border-bottom: 1px solid #eee;">Immunization.manufacturer</td>
-                        <td style="padding: 8px; border-bottom: 1px solid #eee;">"Pfizer", "Moderna"</td>
-                        <td style="padding: 8px; border-bottom: 1px solid #eee;">Random manufacturer assignment.</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <h6><strong>Summary of Key Features</strong></h6>
-            <ul style="margin-top: 5px; margin-bottom: 5px;">
-                <li><strong>FHIR-Compliant</strong>: Structured to align with HL7 FHIR.</li>
-                <li><strong>Synthetic but Realistic</strong>: Uses Faker for realistic patient data.</li>
-                <li><strong>Handles Provincial Variations</strong>: BC and ON have different data models.</li>
-                <li><strong>Includes Adverse Reactions & Exemptions</strong>: Adds realism for testing.</li>
-            </ul>
-        """,
-    },
-    {
-        "title": "PT-to-PT Transfer Assumptions",
-        "content": """
-            <h5><strong>Overview: What is PT-to-PT Transfer?</strong></h5>
-            <p>When a patient moves or seeks healthcare in another province, their immunization record needs to be securely transferred. This Proof of Concept (PoC) focuses on the technical feasibility of such transfers while leaving governance, consent, and policy discussions out of scope.</p>
-
-            <h6><strong>How the Transfer Works</strong></h6>
-            <p>The transfer follows a structured push-based approach:</p>
-            <ul style="margin-top: 5px; margin-bottom: 5px;">
-                <li>The originating province (data owner) initiates the transfer.</li>
-                <li>A secure API transmits immunization records between provinces.</li>
-                <li>The transfer occurs only after external consent and authorization.</li>
-                <li>The receiving province acknowledges and integrates the record.</li>
-            </ul>
-
-            <h6><strong>Data Transferred Between Provinces</strong></h6>
-
-            <p><strong>1. Patient Information</strong></p>
-            <ul style="margin-top: 5px; margin-bottom: 5px;">
-                <li>Unique patient identifier within the provincial system.</li>
-                <li>Full name, birth date, and gender.</li>
-                <li>Address, including city, province, and postal code.</li>
-                <li>Health card number (if applicable) for identity matching.</li>
-            </ul>
-
-            <p><strong>2. Immunization History</strong></p>
-            <ul style="margin-top: 5px; margin-bottom: 5px;">
-                <li>Vaccine type (CVX codes).</li>
-                <li>Date of administration and dose number.</li>
-                <li>Manufacturer and lot number.</li>
-                <li>Site of administration (e.g., left arm, right arm).</li>
-                <li>Adverse reactions and exemptions (if applicable).</li>
-            </ul>
-
-            <p><strong>3. Metadata for PT-to-PT Transfers</strong></p>
-            <ul style="margin-top: 5px; margin-bottom: 5px;">
-                <li>Transfer origin marker indicating the source jurisdiction.</li>
-                <li>Receiving province acknowledgment confirming integration.</li>
-            </ul>
-
-            <h6><strong>Technical Flow of the Transfer</strong></h6>
-            <ol style="margin-top: 5px; margin-bottom: 5px;">
-                <li>Patient relocates or seeks healthcare in another province.</li>
-                <li>Originating province completes consent and authorization.</li>
-                <li>A secure API request is triggered by the originating province.</li>
-                <li>Receiving province ingests and processes the immunization record.</li>
-                <li>The record is now available in the receiving province’s registry.</li>
-            </ol>
-
-            <h6><strong>Key Assumptions and Considerations</strong></h6>
-            <ul style="margin-top: 5px; margin-bottom: 5px;">
-                <li>This PoC does not handle consent management; it must be externally managed.</li>
-                <li>The push-based model ensures data is only transferred when authorized.</li>
-                <li>Manual transfer requests (fax, email, policy-driven) remain possible but are out of scope.</li>
-                <li>The PoC leverages FHIR repositories to validate secure data exchange.</li>
-            </ul>
-
-            <h6><strong>Testing and Simulation Approach</strong></h6>
-            <ul style="margin-top: 5px; margin-bottom: 5px;">
-                <li>FHIR-based simulation using synthetic data.</li>
-                <li>Initial scope focused on MMR vaccine records, expandable in future phases.</li>
-                <li>Optional UI demonstration to visualize transferred records.</li>
-            </ul>
-        """,
-    },
-    {
-        "title": "Aggregation & PHAC Data Access",
-        "content": """
-            <h5><strong>Overview: Why is Aggregation Needed?</strong></h5>
-            <p style="line-height: 1.5; color: #333;">
-                PHAC does not require full patient-level data but instead needs structured, summarized reports for national immunization monitoring.
-                Aggregation transforms raw immunization records into anonymized datasets, ensuring accuracy while protecting privacy.
-                This process maintains consistency across provinces, even when different immunization tracking systems are used.
-            </p>
-            <p style="line-height: 1.5; color: #333;">
-                <strong>PHAC does not access or process identifiable Personal Health Information (PHI) at any stage.</strong>
-                All de-identification is performed at the Provincial/Territorial (PT) level before any data is shared with PHAC.
-                The information shared with PHAC is structured, anonymized, and formatted for public health reporting in compliance with privacy regulations.
-                Aggregation ensures uniform national immunization reporting while aligning with PT-specific privacy frameworks.
-            </p>
-
-            <div style="background-color: #f8f9fa; padding: 10px; border-radius: 8px;">
-                <h6><strong>Key Data Captured in Aggregation</strong></h6>
-                <p>The aggregation logic extracts the following key fields:</p>
-
-                <table style="width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid #ddd;">
-                    <thead>
-                        <tr style="background-color: #e9ecef; border-bottom: 2px solid #ccc;">
-                            <th style="text-align: left; padding: 10px;">Field</th>
-                            <th style="text-align: left; padding: 10px;">Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Reference Date</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Date of immunization event (reported at an aggregate level).</td>
-                        </tr>
-                        <tr style="background-color: #f8f9fa;">
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Jurisdiction</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Province where the immunization was recorded (e.g., BC, ON).</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Age Group</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Categorized age ranges (e.g., 0-2 years, 3-5 years, etc.).</td>
-                        </tr>
-                        <tr style="background-color: #f8f9fa;">
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Gender</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Aggregate counts by gender category (Male, Female, Other).</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Vaccine Type</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Type of vaccine administered (e.g., MMR, COVID-19).</td>
-                        </tr>
-                        <tr style="background-color: #f8f9fa;">
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Dose Count</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #eee;">Total number of doses administered in the reporting period.</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 8px;">Total Patients Vaccinated</td>
-                            <td style="padding: 8px;">Unique number of individuals vaccinated within the reporting period.</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <h6><strong>How Data Aggregation Works</strong></h6>
-            <ol style="margin-top: 5px; margin-bottom: 5px; padding-left: 15px;">
-                <li>Extract immunization records from FHIR repositories at the PT level.</li>
-                <li>De-identify data by removing personally identifiable details (e.g., names, health card numbers) entirely at the PT level before aggregation.</li>
-                <li>Categorize data by jurisdiction, age group, gender, and vaccine type.</li>
-                <li>Summarize dose counts and calculate total vaccinated individuals.</li>
-                <li>Format the final dataset into a structured, anonymized report in compliance with PHAC's reporting framework.</li>
-            </ol>
-
-            <div style="background-color: #f8f9fa; padding: 10px; border-radius: 8px; margin-top: 15px;">
-                <h6><strong>Benefits for Public Health and PHAC</strong></h6>
-                <ul style="margin-top: 5px; margin-bottom: 5px;">
-                    <li>Reduces complexity by providing summarized, structured reports rather than raw data.</li>
-                    <li>Ensures privacy by removing personal identifiers and focusing on aggregate statistics.</li>
-                    <li>Standardizes immunization reporting across jurisdictions for consistency and interoperability.</li>
-                    <li>Scales efficiently to include new vaccines and evolving public health priorities.</li>
-                </ul>
-            </div>
-
-            <div style="background-color: #f8f9fa; padding: 10px; border-radius: 8px; margin-top: 15px;">
-                <h6><strong>Addressing Key Concerns and Clarifications</strong></h6>
-                <p><strong>PHAC's Role in De-Identification:</strong> The previous document wording implied that PHAC de-identifies data, which is incorrect.</p>
-                <p><strong>Clarification:</strong> PTs are fully responsible for de-identification before sharing data. PHAC does not access raw patient-level data.</p>
-
-                <p><strong>PHAC's Role in Aggregation:</strong> The document previously suggested PHAC "fetches" patient data and aggregates it, which is inaccurate.</p>
-                <p><strong>Clarification:</strong> Aggregation is conducted entirely at the PT level. PHAC receives only aggregated, anonymized data.</p>
-            </div>
-        """,
-    },
-    {
-        "title": "Technical Infrastructure",
-        "content": """
-            <h5>Overview</h5>
-            <p>
-                The technical architecture enables secure, real-time immunization data exchange between jurisdictions while
-                ensuring that each province maintains full control over its data. It follows a federated model, using a
-                combination of API gateways, security layers, and standardized data exchange mechanisms.
-            </p>
-
-            <h6>Key Components</h6>
-            <ul>
-                <li><strong>Provincial Immunization Systems</strong>: Each province maintains its own immunization data repository.</li>
-                <li><strong>FHIR-Based Data Exchange</strong>: Standardized API interactions ensure compatibility between different systems.</li>
-                <li><strong>Access Control Gateway</strong>: Manages authentication, authorization, and data access policies.</li>
-                <li><strong>Interoperability Layer</strong>: Enables data transformation and validation to align different provincial data formats.</li>
-                <li><strong>Audit & Compliance Framework</strong>: Ensures all data access is logged and follows regulatory requirements.</li>
-            </ul>
-            <h6><strong>Federated Immunization Data Architecture (UJ-1)</strong></h6>
-            <p>
-                The <strong>federated model</strong> ensures that each province maintains local control over its immunization records while
-                supporting national-level aggregation for public health surveillance. The architecture consists of:
-            </p>
-            <ul>
-                <li><strong>FHIR Immunization Registries</strong>: Each province maintains its own secure database.</li>
-                <li><strong>Synthetic Data Generator</strong>: Creates test data for validation.</li>
-                <li><strong>SMART Patient Viewer</strong>: Allows healthcare providers to view immunization records.</li>
-                <li><strong>Aggregator</strong>: Summarizes and anonymizes immunization records before sharing with PHAC.</li>
-                <li><strong>Federator (PHAC)</strong>: Receives de-identified, aggregated data for national reporting.</li>
-                <li><strong>R-Shiny Dashboards</strong>: Provides real-time analytics and insights.</li>
-            </ul>
-            <img src="/static/images/UJ-1.png" alt="Federated Immunization Data Architecture (UJ-1)" style="max-width:100%;">
-
-            <h6><strong>PT-to-PT Transfer Workflow (UJ-2)</strong></h6>
-            <p>
-                The PT-to-PT transfer mechanism enables secure, structured movement of immunization records when a patient relocates
-                between jurisdictions. This workflow ensures that records are securely exchanged without centralization.
-            </p>
-            <ul>
-                <li><strong>API Gateway</strong>: Facilitates secure and authenticated communication.</li>
-                <li><strong>FHIR Data Transfer</strong>: Ensures records are formatted correctly.</li>
-                <li><strong>Message Queue</strong>: Manages retries and queued requests.</li>
-                <li><strong>Outbound Transfer Service</strong>: Extracts and sends immunization data.</li>
-                <li><strong>Inbound Transfer Service</strong>: Receives and validates incoming records.</li>
-            </ul>
-            <img src="/static/images/UJ-2.png" alt="PT-to-PT Data Transfer Workflow (UJ-2)" style="max-width:100%;">
-            <h6>Data Flow</h6>
-            <ol>
-                <li>A request for immunization data is initiated by an authorized system.</li>
-                <li>The Access Control Gateway verifies authentication and consent requirements.</li>
-                <li>Once approved, data is retrieved from the provincial immunization system.</li>
-                <li>The interoperability layer processes and transforms the data to a standard format.</li>
-                <li>The response is securely delivered back to the requester.</li>
-            </ol>
-
-            <h6>Security & Compliance</h6>
-            <ul>
-                <li>End-to-end encryption is enforced for all data exchanges.</li>
-                <li>Mutual TLS authentication ensures secure API communication.</li>
-                <li>Audit logs are maintained to track all requests and access events.</li>
-                <li>Provincial data sovereignty is preserved by keeping raw data within jurisdictions.</li>
-            </ul>
-
-            <h6>Scalability & Infrastructure</h6>
-            <ul>
-                <li>Containerized microservices enable efficient scaling.</li>
-                <li>Event-driven architecture allows real-time data synchronization.</li>
-                <li>Cloud-hosted infrastructure supports high availability and fault tolerance.</li>
-            </ul>
-        """,
-    },
-    {
         "title": "Foundation for Federated Data Architecture",
         "content": """
         <h5><strong>Overview</strong></h5>
@@ -446,8 +113,381 @@ collapsible_sections = [
                 These mechanisms ensure up-to-date views while preserving data sovereignty.
             </li>
         </ul>
+        """
+    },
+    {
+        "title": "Technical Infrastructure",
+        "content": """
+            <h5>Overview</h5>
+            <p>
+                The technical architecture enables secure, real-time immunization data exchange between jurisdictions while
+                ensuring that each province maintains full control over its data. It follows a federated model, using a
+                combination of API gateways, security layers, and standardized data exchange mechanisms.
+            </p>
 
-    """,
+            <h6>Key Components</h6>
+            <ul>
+                <li><strong>Provincial Immunization Systems</strong>: Each province maintains its own immunization data repository.</li>
+                <li><strong>FHIR-Based Data Exchange</strong>: Standardized API interactions ensure compatibility between different systems.</li>
+                <li><strong>Access Control Gateway</strong>: Manages authentication, authorization, and data access policies.</li>
+                <li><strong>Interoperability Layer</strong>: Enables data transformation and validation to align different provincial data formats.</li>
+                <li><strong>Audit & Compliance Framework</strong>: Ensures all data access is logged and follows regulatory requirements.</li>
+            </ul>
+
+            <h6>Data Flow</h6>
+            <ol>
+                <li>A request for immunization data is initiated by an authorized system.</li>
+                <li>The Access Control Gateway verifies authentication and consent requirements.</li>
+                <li>Once approved, data is retrieved from the provincial immunization system.</li>
+                <li>The interoperability layer processes and transforms the data to a standard format.</li>
+                <li>The response is securely delivered back to the requester.</li>
+            </ol>
+
+            <h6>Security & Compliance</h6>
+            <ul>
+                <li>End-to-end encryption is enforced for all data exchanges.</li>
+                <li>Mutual TLS authentication ensures secure API communication.</li>
+                <li>Audit logs are maintained to track all requests and access events.</li>
+                <li>Provincial data sovereignty is preserved by keeping raw data within jurisdictions.</li>
+            </ul>
+
+            <h6>Scalability & Infrastructure</h6>
+            <ul>
+                <li>Containerized microservices enable efficient scaling.</li>
+                <li>Event-driven architecture allows real-time data synchronization.</li>
+                <li>Cloud-hosted infrastructure supports high availability and fault tolerance.</li>
+            </ul>
+        """
+    },
+    {
+        "title": "User Journey 1: PT-to-PT Transfer",
+        "content": """
+            <h5><strong>Overview: What is PT-to-PT Transfer?</strong></h5>
+            <p>When a patient moves or seeks healthcare in another province, their immunization record needs to be securely transferred. This Proof of Concept (PoC) focuses on the technical feasibility of such transfers while leaving governance, consent, and policy discussions out of scope.</p>
+
+            <h6><strong>Technical Flow of the Transfer</strong></h6>
+            <ol>
+                <li>Patient relocates or seeks healthcare in another province</li>
+                <li>Originating province completes consent and authorization</li>
+                <li>Secure API request triggered by originating province</li>
+                <li>Receiving province ingests and processes immunization record</li>
+                <li>Record becomes available in receiving province's registry</li>
+            </ol>
+
+            <h6><strong>PT-to-PT Transfer Workflow</strong></h6>
+            <img src="/static/images/UJ-1.png" alt="PT-to-PT Data Transfer Workflow" style="max-width:100%; border:1px solid #ddd; padding:10px; border-radius:8px;">
+            
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-top: 20px; margin-bottom: 20px;">
+                <h6><strong>Key Assumptions</strong></h6>
+                <ul>
+                    <li>Consent management must be externally managed (out of PoC scope)</li>
+                    <li>Push-based model ensures data is only transferred when authorized</li>
+                    <li>Manual transfer requests (fax, email) remain possible but out of scope</li>
+                    <li>PoC leverages FHIR repositories for secure data exchange validation</li>
+                    <li>Initial scope focused on MMR vaccine records</li>
+                </ul>
+            </div>
+            
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px;">
+                <h6><strong>Data Transferred Between Provinces</strong></h6>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid #ddd;">
+                    <thead style="background-color: #e9ecef;">
+                        <tr>
+                            <th style="text-align: left; padding: 10px;">Category</th>
+                            <th style="text-align: left; padding: 10px;">Data Elements</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Patient Information</strong></td>
+                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                                <ul>
+                                    <li>Provincial patient identifier</li>
+                                    <li>Full name, birth date, gender</li>
+                                    <li>Address (city, province, postal code)</li>
+                                    <li>Health card number (for identity matching)</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Immunization History</strong></td>
+                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                                <ul>
+                                    <li>Vaccine type (CVX codes)</li>
+                                    <li>Date of administration and dose number</li>
+                                    <li>Manufacturer and lot number</li>
+                                    <li>Site of administration</li>
+                                    <li>Adverse reactions and exemptions</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;"><strong>Metadata</strong></td>
+                            <td style="padding: 10px;">
+                                <ul>
+                                    <li>Transfer origin marker (source jurisdiction)</li>
+                                    <li>Receiving province acknowledgment</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        """
+    },
+    {
+        "title": "User Journey 2: Federated Immunization Data Architecture",
+        "content": """
+            <h5><strong>Federated Architecture Overview</strong></h5>
+            <p>
+                This architecture ensures each province maintains local control over immunization records while supporting national-level 
+                aggregation for public health surveillance. The model consists of:
+            </p>
+            
+            <img src="/static/images/UJ-2.png" alt="Federated Immunization Data Architecture" style="max-width:100%; border:1px solid #ddd; padding:10px; border-radius:8px; margin-bottom:20px;">
+            
+            <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+                <div style="flex: 1; background-color: #f8f9fa; padding: 15px; border-radius: 8px;">
+                    <h6><strong>Provincial Components</strong></h6>
+                    <ul>
+                        <li><strong>FHIR Immunization Registries</strong>: Secure provincial databases</li>
+                        <li><strong>Synthetic Data Generator</strong>: Creates test data for validation</li>
+                        <li><strong>SMART Patient Viewer</strong>: Healthcare provider access to records</li>
+                        <li><strong>Aggregator</strong>: Summarizes/anonymizes records for PHAC</li>
+                    </ul>
+                </div>
+                <div style="flex: 1; background-color: #f8f9fa; padding: 15px; border-radius: 8px;">
+                    <h6><strong>Federal Components</strong></h6>
+                    <ul>
+                        <li><strong>Federator (PHAC)</strong>: Receives aggregated data</li>
+                        <li><strong>R-Shiny Dashboards</strong>: National analytics and insights</li>
+                        <li><strong>Compliance Monitoring</strong>: Audit and reporting systems</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <h5><strong>Aggregation & PHAC Data Access</strong></h5>
+                
+                <h6><strong>Why is Aggregation Needed?</strong></h6>
+                <p>
+                    PHAC does not require full patient-level data but instead needs structured, summarized reports for national immunization monitoring. 
+                    Aggregation transforms raw immunization records into anonymized datasets, ensuring accuracy while protecting privacy. 
+                    This process maintains consistency across provinces, even when different immunization tracking systems are used.
+                </p>
+                
+                <div style="background-color: #e9f7e9; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                    <p><strong>PHAC Access Policy:</strong></p>
+                    <p>
+                        PHAC does not access or process identifiable Personal Health Information (PHI) at any stage. 
+                        All de-identification is performed at the Provincial/Territorial (PT) level before any data is shared with PHAC. 
+                        The information shared with PHAC is structured, anonymized, and formatted for public health reporting in compliance with privacy regulations. 
+                        Aggregation ensures uniform national immunization reporting while aligning with PT-specific privacy frameworks.
+                    </p>
+                </div>
+                
+                <h6><strong>How Data Aggregation Works</strong></h6>
+                <ol>
+                    <li><strong>Extract</strong> immunization records from FHIR repositories at the PT level</li>
+                    <li><strong>De-identify</strong> data by removing personally identifiable details (e.g., names, health card numbers) entirely at the PT level before aggregation</li>
+                    <li><strong>Categorize</strong> data by jurisdiction, age group, gender, and vaccine type</li>
+                    <li><strong>Summarize</strong> dose counts and calculate total vaccinated individuals</li>
+                    <li><strong>Format</strong> the final dataset into a structured, anonymized report in compliance with PHAC's reporting framework</li>
+                </ol>
+                
+                <h6><strong>Key Data Captured in Aggregation</strong></h6>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid #ddd;">
+                    <thead style="background-color: #e9ecef;">
+                        <tr>
+                            <th style="text-align: left; padding: 10px;">Field</th>
+                            <th style="text-align: left; padding: 10px;">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">Reference Date</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">Date of immunization event (reported at an aggregate level)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">Jurisdiction</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">Province where immunization was recorded (e.g., BC, ON)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">Age Group</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">Categorized age ranges (e.g., 0-2 years, 3-5 years, etc.)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">Gender</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">Aggregate counts by gender category (Male, Female, Other)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">Vaccine Type</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">Type of vaccine administered (e.g., MMR, COVID-19)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">Dose Count</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">Total number of doses administered in the reporting period</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px;">Total Patients Vaccinated</td>
+                            <td style="padding: 10px;">Unique number of individuals vaccinated within the reporting period</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <h6 style="margin-top: 20px;"><strong>Benefits for Public Health and PHAC</strong></h6>
+                <ul>
+                    <li>Reduces complexity by providing summarized, structured reports rather than raw data</li>
+                    <li>Ensures privacy by removing personal identifiers and focusing on aggregate statistics</li>
+                    <li>Standardizes immunization reporting across jurisdictions for consistency and interoperability</li>
+                    <li>Scales efficiently to include new vaccines and evolving public health priorities</li>
+                </ul>
+            </div>
+            
+            <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <h6><strong>Addressing Key Concerns and Clarifications</strong></h6>
+                
+                <div style="background-color: #fff8e6; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <p><strong>PHAC's Role in De-Identification</strong></p>
+                    <p><em>Previous misconception:</em> The document wording implied that PHAC de-identifies data</p>
+                    <p><strong>Clarification:</strong> PTs are fully responsible for de-identification before sharing data. PHAC does not access raw patient-level data.</p>
+                </div>
+                
+                <div style="background-color: #fff8e6; padding: 15px; border-radius: 8px; margin: 10px 0;">
+                    <p><strong>PHAC's Role in Aggregation</strong></p>
+                    <p><em>Previous misconception:</em> The document suggested PHAC "fetches" patient data and aggregates it</p>
+                    <p><strong>Clarification:</strong> Aggregation is conducted entirely at the PT level. PHAC receives only aggregated, anonymized data.</p>
+                </div>
+                
+                <h6><strong>Key Principles</strong></h6>
+                <ul>
+                    <li>PTs maintain full control over their immunization data</li>
+                    <li>PHAC only receives pre-aggregated, anonymized datasets</li>
+                    <li>No patient-level data leaves provincial systems</li>
+                    <li>All de-identification occurs at source (PT level)</li>
+                </ul>
+            </div>
+        """
+    },
+    {
+        "title": "Synthetic Patient Data Generation",
+        "content": """
+            <h5><strong>Overview: What is Being Generated?</strong></h5>
+            <p>
+                The synthetic data mimics real-world immunization records from provincial registries while ensuring
+                FHIR-compliant JSON format for interoperability. Differences between BC and ON data models are accounted for,
+                including variations in fields such as allergy tracking.
+            </p>
+
+            <div style="background-color: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 20px;">
+                <h6><strong>FHIR Patient Resource Structure</strong></h6>
+                <p>A FHIR Patient Resource consists of core fields and extensions, ensuring consistency across jurisdictions.</p>
+
+                <table style="width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid #ddd;">
+                    <thead style="background-color: #e9ecef;">
+                        <tr>
+                            <th style="text-align: left; padding: 10px;">Field</th>
+                            <th style="text-align: left; padding: 10px;">FHIR Path</th>
+                            <th style="text-align: left; padding: 10px;">Example Value</th>
+                            <th style="text-align: left; padding: 10px;">Logic</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Patient ID</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Patient.id</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">"patient-001"</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Unique identifier</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Name</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Patient.name</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">{ "family": "Singh", "given": ["Simar"] }</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Randomized names</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Gender</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Patient.gender</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">"male", "female", "other"</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Random selection</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Birth Date</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Patient.birthDate</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">"2012-06-15"</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Randomized within age range</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px;">Address</td>
+                            <td style="padding: 8px;">Patient.address</td>
+                            <td style="padding: 8px;">{ "city": "Toronto", "state": "ON" }</td>
+                            <td style="padding: 8px;">Province-specific logic</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="background-color: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 20px;">
+                <h6><strong>Provincial Differences in Data Generation</strong></h6>
+                <div style="display: flex; gap: 20px;">
+                    <div style="flex: 1;">
+                        <p><strong>British Columbia (BC) Specific Fields</strong></p>
+                        <ul>
+                            <li>Allergy information included using FHIR AllergyIntolerance resource</li>
+                            <li>Uses SNOMED CT-coded allergy types</li>
+                            <li>Includes severity levels and reaction dates</li>
+                        </ul>
+                    </div>
+                    <div style="flex: 1;">
+                        <p><strong>Ontario (ON) Specific Fields</strong></p>
+                        <ul>
+                            <li>No allergy information in immunization records</li>
+                            <li>Allergy generation skipped for ON patients</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background-color: #f8f9fa; padding: 10px; border-radius: 8px;">
+                <h6><strong>Immunization Data Generation (FHIR Standard)</strong></h6>
+                <table style="width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid #ddd;">
+                    <thead style="background-color: #e9ecef;">
+                        <tr>
+                            <th style="text-align: left; padding: 10px;">Field</th>
+                            <th style="text-align: left; padding: 10px;">FHIR Path</th>
+                            <th style="text-align: left; padding: 10px;">Example Value</th>
+                            <th style="text-align: left; padding: 10px;">Logic</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Vaccine Type</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Immunization.vaccineCode</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">"MMR", "Influenza"</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Random selection</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Manufacturer</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Immunization.manufacturer</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">"Pfizer", "Moderna"</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Random assignment</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Dose Number</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Immunization.protocolApplied.doseNumber</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">1, 2, 3</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Based on vaccine type</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 8px;">Adverse Reactions</td>
+                            <td style="padding: 8px;">Immunization.reaction</td>
+                            <td style="padding: 8px;">"Fever", "Swelling"</td>
+                            <td style="padding: 8px;">Conditional generation</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        """
     },
     {
         "title": "GitHub Repository & Architecture",
@@ -464,7 +504,7 @@ collapsible_sections = [
                 The source code and related documentation for IIDI can be found in the official GitHub repository:
             </p>
             <ul>
-                <li><a href="https://github.com/PHACDataHub/iidi-tech" target="_blank"><strong>IIDI-Tech GitHub Repository</strong></a></li>
+                <li><a href="https://github.com/PHACDataHub/iidi-tech" target="_blank" style="color: #0066cc; text-decoration: underline;"><strong>IIDI-Tech GitHub Repository</strong></a></li>
             </ul>
 
             <h6>Technical Architecture</h6>
@@ -473,23 +513,22 @@ collapsible_sections = [
                 governance frameworks. Key architecture components are documented below:
             </p>
             <ul>
-                <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/GCP%20Architecture/GCP-Architecture.png" target="_blank"><strong>GCP Architecture Overview</strong></a> - High-level infrastructure design for deployment.</li>
+                <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/GCP%20Architecture/GCP-Architecture.png" target="_blank" style="color: #0066cc; text-decoration: underline;"><strong>GCP Architecture Overview</strong></a> - High-level infrastructure design for deployment.</li>
             </ul>
             <img src="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/GCP%20Architecture/GCP-Architecture.png?raw=true"
-                alt="GCP Architecture Diagram" style="max-width:100%;">
+                alt="GCP Architecture Diagram" style="max-width:100%; border:1px solid #ddd; padding:10px; border-radius:8px; margin-top:10px; margin-bottom:20px;">
 
             <h6>Architecture Review Board Documentation</h6>
             <p>
                 The architecture follows a federated data model to support two primary user journeys:
             </p>
             <ul>
-                <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/User-Journey-1.md" target="_blank"><strong>Interoperable Immunization Data Initiative (IIDI) – User Journey 1: PT-to-PT Transfer</strong></a></li>
-                <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/User-Journey-2.md" target="_blank"><strong>Interoperable Immunization Data Initiative (IIDI) – User Journey 2: PT-to-PHAC</strong></a></li>
+                <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/User-Journey-1.md" target="_blank" style="color: #0066cc; text-decoration: underline;"><strong>Interoperable Immunization Data Initiative (IIDI) – User Journey 1: PT-to-PT Transfer</strong></a></li>
+                <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/User-Journey-2.md" target="_blank" style="color: #0066cc; text-decoration: underline;"><strong>Interoperable Immunization Data Initiative (IIDI) – User Journey 2: Federated Architecture</strong></a></li>
             </ul>
-        """,
-    },
+        """
+    }
 ]
-
 
 @app.route("/")
 def index():
