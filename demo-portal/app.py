@@ -35,90 +35,70 @@ collapsible_sections = [
     {
         "title": "Foundation for Federated Data Architecture",
         "content": """
-        <h5><strong>Overview</strong></h5>
-        <p>
-            The Foundation for Federated Data Architecture outlines a secure and interoperable model for exchanging immunization data across Canada.
-            It allows real-time synchronisation, role-based access, and privacy-first data sharing — without centralising control or ownership.
-            The model consists of four domains: <strong>Data Emitters</strong>, <strong>Security and Governance</strong>,
-            <strong>Federated Infrastructure</strong>, and <strong>General Users</strong>. Together, these domains form the foundation of compliant,
-            distributed health data exchange.
-        </p>
+    <h5><strong>Overview</strong></h5>
+    <p>
+        The Foundation for Federated Data Architecture defines a secure, scalable, and policy-driven approach to sharing data across independent organizations, systems, or jurisdictions.
+        It enables real-time synchronization, role-based access, and privacy-first data exchange without requiring central control or ownership.
+        The model is built on four key domains: <strong>Data Emitters</strong>, <strong>Security and Governance</strong>, <strong>Federated Infrastructure</strong>, and <strong>General Users</strong>.
+    </p>
 
-        <h6><strong>Architecture Diagram</strong></h6>
-        <img src="/static/svg/foundation-for-federated-data-architecture.svg"
-            alt="Federated Data Architecture"
-            style="max-width: 100%; border: 1px solid #ccc; padding: 6px; border-radius: 6px; margin-top: 10px;">
+    <h6><strong>Architecture Diagram</strong></h6>
+    <img src="/static/svg/foundation-for-federated-data-architecture.svg"
+        alt="Federated Data Architecture"
+        style="max-width: 100%; border: 1px solid #ccc; padding: 6px; border-radius: 6px; margin-top: 10px;">
 
-        <h6 style="margin-top: 15px;"><strong>Data Emitters and Users</strong></h6>
-        <ul>
-            <li><strong style="background-color:#F3D8C9; padding:2px 6px; border-radius:4px;">Data Emitter Nodes:</strong>
-                The authoritative sources of immunization data within each province or territory. These nodes maintain full control
-                and apply governance policies before any data is shared externally.
-            </li>
-            <li><strong style="background-color:#F3D8C9; padding:2px 6px; border-radius:4px;">General Users:</strong>
-                Authorised systems or users who access governed outputs — not raw PT data — to generate insights, analytics,
-                or reports. Access is standardised, governed, and fully auditable.
-            </li>
-        </ul>
+    <h6 style="margin-top: 15px;"><strong>Data Emitters and Users</strong></h6>
+    <ul>
+        <li><strong style="background-color:#F3D8C9; padding:2px 6px; border-radius:4px;">Data Emitter Nodes:</strong>
+            Original sources of data operated by individual partners. These nodes retain full ownership and apply local governance policies before releasing data to others.
+        </li>
+        <li><strong style="background-color:#F3D8C9; padding:2px 6px; border-radius:4px;">General Users:</strong>
+            Authorized systems or users that access governed, aggregated outputs through standard interfaces. Data access is approved, compliant, and auditable by design.
+        </li>
+    </ul>
 
-        <h6 style="margin-top: 15px;"><strong>Security, Control, Governance and Enforcement</strong></h6>
-        <ul>
-            <li><strong style="background-color:#D3F0E8; padding:2px 6px; border-radius:4px;">Access Control Models:</strong>
-                Define who can access what data, under which conditions, and for what purpose. Tailored to each jurisdiction’s legal frameworks,
-                they enforce compliant, transparent, and auditable data usage.
-            </li>
+    <h6 style="margin-top: 15px;"><strong>Security, Control, Governance and Enforcement</strong></h6>
+    <ul>
+        <li><strong style="background-color:#D3F0E8; padding:2px 6px; border-radius:4px;">Access Control Models:</strong>
+            Define who can access which data, under what conditions, and for what purpose. These models are flexible and respect each partner’s legal and privacy frameworks.
+        </li>
+        <li><strong style="background-color:#D3F0E8; padding:2px 6px; border-radius:4px;">Data Governance Gateway:</strong>
+            Governs all data requests through a centralized decision engine. It checks for appropriate permissions, agreements, and compliance requirements before granting access.
+        </li>
+        <li><strong style="background-color:#D3F0E8; padding:2px 6px; border-radius:4px;">Policy Enforcement:</strong>
+            Applies runtime rules such as expiry windows, purpose-of-use restrictions, and consent checks. Ensures governance is enforced continuously and automatically.
+        </li>
+        <li><strong style="background-color:#D3F0E8; padding:2px 6px; border-radius:4px;">Security Protocols:</strong>
+            Enforces encryption, identity validation, and secure communication across all participants. Aligns with national privacy legislation and modern security practices.
+        </li>
+    </ul>
 
-            <li><strong style="background-color:#D3F0E8; padding:2px 6px; border-radius:4px;">Data Governance Gateway:</strong>
-                Validates all data requests by enforcing jurisdictional agreements, consent requirements, and access policies.
-                It serves as the central gatekeeper for safe and legal data exchange.
-            </li>
+    <h6 style="margin-top: 15px;"><strong>Infrastructure, Storage, Query and Standards</strong></h6>
+    <ul>
+        <li><strong style="background-color:#F1D4DC; padding:2px 6px; border-radius:4px;">Cloud Platforms:</strong>
+            Provide the infrastructure for deploying and operating federation components. Each partner manages its own environment while maintaining interoperability.
+        </li>
+        <li><strong style="background-color:#F1D4DC; padding:2px 6px; border-radius:4px;">API Management:</strong>
+            Facilitates secure data exchange through consistent APIs. Includes validation, rate limiting, authentication, and full traceability of all interactions.
+        </li>
+        <li><strong style="background-color:#F1D4DC; padding:2px 6px; border-radius:4px;">Data Storage Solutions:</strong>
+            Host datasets securely with encryption, audit trails, and access controls. Support both local data and aggregated, cross-jurisdictional information.
+        </li>
+        <li><strong style="background-color:#F1D4DC; padding:2px 6px; border-radius:4px;">Data Standards:</strong>
+            Use formats such as HL7 FHIR to ensure consistency and machine readability. Standards support seamless integration and shared understanding across systems.
+        </li>
+        <li><strong style="background-color:#F1D4DC; padding:2px 6px; border-radius:4px;">Real Time Data Sync:</strong>
+            Keeps systems aligned using event-driven updates and automated pipelines. Maintains data freshness without compromising autonomy or performance.
+        </li>
+    </ul>
 
-            <li><strong style="background-color:#D3F0E8; padding:2px 6px; border-radius:4px;">Policy Enforcement:</strong>
-                Executes real-time policy checks such as time-bound access, consent verification, and purpose-of-use restrictions.
-                These enforcement systems make governance actionable at runtime.
-            </li>
-
-            <li><strong style="background-color:#D3F0E8; padding:2px 6px; border-radius:4px;">Security Protocols:</strong>
-                Apply identity validation, encryption, and system hardening across the federation. These controls support compliance
-                with Canadian privacy legislation and prevent unauthorised access.
-            </li>
-        </ul>
-
-        <h6 style="margin-top: 15px;"><strong>Infrastructure, Storage, Query, Data Flow and Standards</strong></h6>
-        <ul>
-            <li><strong style="background-color:#F1D4DC; padding:2px 6px; border-radius:4px;">Cloud Platforms:</strong>
-                Scalable and secure environments for deploying workloads, sharing services, and running jurisdiction-specific applications.
-                These platforms enable a consistent operational foundation across jurisdictions.
-            </li>
-
-            <li><strong style="background-color:#F1D4DC; padding:2px 6px; border-radius:4px;">API Management:</strong>
-                Provides secure access points for system-to-system communication. Includes request validation, rate limiting,
-                authentication, and observability across federated APIs.
-            </li>
-
-            <li><strong style="background-color:#F1D4DC; padding:2px 6px; border-radius:4px;">Data Storage Solutions:</strong>
-                Stores both jurisdictional and aggregated datasets using encryption-at-rest and role-based access controls.
-                Designed for durability, auditability, and regional autonomy.
-            </li>
-
-            <li><strong style="background-color:#F1D4DC; padding:2px 6px; border-radius:4px;">Data Standards (HL7 FHIR):</strong>
-                HL7 FHIR enables structured, consistent, and machine-readable representation of health records.
-                It underpins semantic interoperability across different jurisdictions and systems.
-            </li>
-
-            <li><strong style="background-color:#F1D4DC; padding:2px 6px; border-radius:4px;">Real-Time Data Sync:</strong>
-                Asynchronous, event-driven pipelines that update immunization records across systems continuously.
-                These mechanisms ensure up-to-date views while preserving data sovereignty.
-            </li>
-        </ul>
-
-        <h6 style="margin-top: 15px;"><strong>Summary</strong></h6>
-        <p>
-            The federated data architecture is more than a technical blueprint — it’s a policy-aligned, security-conscious foundation for pan-Canadian health data sharing.
-            It enables real-time access without sacrificing local control, ensures interoperability through standards like HL7 FHIR, and reinforces public trust through strict governance and enforcement.
-            By aligning infrastructure, security, and data policies across jurisdictions, this model supports future-ready capabilities for immunization, public health analytics, and emergency response — while respecting the autonomy of every participating province and territory.
-        </p>
-    """,
+    <h6 style="margin-top: 15px;"><strong>Summary</strong></h6>
+    <p>
+        This architecture is not only a technical model but also a governance framework that respects local control, enforces compliance, and builds trust.
+        It enables real-time collaboration across distributed data environments by combining secure infrastructure, enforceable policy, and interoperable standards.
+        Whether applied in health, climate, finance, or public safety, it offers a flexible and future-ready foundation for secure data collaboration at scale.
+    </p>
+  """,
     },
     {
         "title": "Technical Architecture",
@@ -164,7 +144,7 @@ collapsible_sections = [
 
             <h6 style="margin-top: 15px;"><strong>Architecture Diagram</strong></h6>
             <p>Each technical component is shown in the cluster diagram below, with color-coded mappings to its corresponding foundational pillar.</p>
-            <img src="/static/images/k8s-architecture.png" alt="Kubernetes Infrastructure" style="max-width:100%; border:1px solid #ddd; padding:10px; border-radius:8px; margin-bottom:20px;">
+            <img src="/static/svg/k8s-architecture.svg" alt="Kubernetes Infrastructure" style="max-width:100%; border:1px solid #ddd; padding:10px; border-radius:8px; margin-bottom:20px;">
             <h6 style="margin-top: 15px;"><strong>Summary</strong></h6>
             <p>
                 The IIDI technical architecture translates high-level federation principles into a working, production-grade implementation.
