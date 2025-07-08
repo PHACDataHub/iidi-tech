@@ -46,146 +46,177 @@ collapsible_sections = [
 
         <h6><strong>Architecture Diagram</strong></h6>
         <img src="/static/svg/foundation-for-federated-data-architecture.svg"
-             alt="Federated Data Architecture"
-             style="max-width: 100%; border: 1px solid #ccc; padding: 6px; border-radius: 6px; margin-top: 10px;">
+            alt="Federated Data Architecture"
+            style="max-width: 100%; border: 1px solid #ccc; padding: 6px; border-radius: 6px; margin-top: 10px;">
 
-        <h6 style="margin-top: 20px;"><strong>Key Concepts</strong></h6>
-
-        <h6 style="margin-top: 16px; color: #155724;"><strong>Data Emitters and Users</strong></h6>
+        <h6 style="margin-top: 15px;"><strong>Data Emitters and Users</strong></h6>
         <ul>
-            <li><strong style="background-color:#d1e7dd; padding:2px 6px; border-radius:4px;">Data Emitter Nodes:</strong>
+            <li><strong style="background-color:#F3D8C9; padding:2px 6px; border-radius:4px;">Data Emitter Nodes:</strong>
                 The authoritative sources of immunization data within each province or territory. These nodes maintain full control
                 and apply governance policies before any data is shared externally.
             </li>
-            <li><strong style="background-color:#d1e7dd; padding:2px 6px; border-radius:4px;">General Users:</strong>
+            <li><strong style="background-color:#F3D8C9; padding:2px 6px; border-radius:4px;">General Users:</strong>
                 Authorised systems or users who access governed outputs — not raw PT data — to generate insights, analytics,
                 or reports. Access is standardised, governed, and fully auditable.
             </li>
         </ul>
 
-        <h6 style="margin-top: 16px; color: #856404;"><strong>Security, Control, Governance and Enforcement</strong></h6>
+        <h6 style="margin-top: 15px;"><strong>Security, Control, Governance and Enforcement</strong></h6>
         <ul>
-            <li><strong style="background-color:#fff3cd; padding:2px 6px; border-radius:4px;">Access Control Models:</strong>
+            <li><strong style="background-color:#D3F0E8; padding:2px 6px; border-radius:4px;">Access Control Models:</strong>
                 Define who can access what data, under which conditions, and for what purpose. Tailored to each jurisdiction’s legal frameworks,
                 they enforce compliant, transparent, and auditable data usage.
             </li>
 
-            <li><strong style="background-color:#fff3cd; padding:2px 6px; border-radius:4px;">Data Governance Gateway:</strong>
+            <li><strong style="background-color:#D3F0E8; padding:2px 6px; border-radius:4px;">Data Governance Gateway:</strong>
                 Validates all data requests by enforcing jurisdictional agreements, consent requirements, and access policies.
                 It serves as the central gatekeeper for safe and legal data exchange.
             </li>
 
-            <li><strong style="background-color:#fff3cd; padding:2px 6px; border-radius:4px;">Policy Enforcement:</strong>
+            <li><strong style="background-color:#D3F0E8; padding:2px 6px; border-radius:4px;">Policy Enforcement:</strong>
                 Executes real-time policy checks such as time-bound access, consent verification, and purpose-of-use restrictions.
                 These enforcement systems make governance actionable at runtime.
             </li>
 
-            <li><strong style="background-color:#fff3cd; padding:2px 6px; border-radius:4px;">Security Protocols:</strong>
+            <li><strong style="background-color:#D3F0E8; padding:2px 6px; border-radius:4px;">Security Protocols:</strong>
                 Apply identity validation, encryption, and system hardening across the federation. These controls support compliance
                 with Canadian privacy legislation and prevent unauthorised access.
             </li>
         </ul>
 
-        <h6 style="margin-top: 16px; color: #0c5460;"><strong>Infrastructure, Storage, Query, Data Flow and Standards</strong></h6>
+        <h6 style="margin-top: 15px;"><strong>Infrastructure, Storage, Query, Data Flow and Standards</strong></h6>
         <ul>
-            <li><strong style="background-color:#cfe2ff; padding:2px 6px; border-radius:4px;">Cloud Platforms:</strong>
+            <li><strong style="background-color:#F1D4DC; padding:2px 6px; border-radius:4px;">Cloud Platforms:</strong>
                 Scalable and secure environments for deploying workloads, sharing services, and running jurisdiction-specific applications.
                 These platforms enable a consistent operational foundation across jurisdictions.
             </li>
 
-            <li><strong style="background-color:#cfe2ff; padding:2px 6px; border-radius:4px;">API Management:</strong>
+            <li><strong style="background-color:#F1D4DC; padding:2px 6px; border-radius:4px;">API Management:</strong>
                 Provides secure access points for system-to-system communication. Includes request validation, rate limiting,
                 authentication, and observability across federated APIs.
             </li>
 
-            <li><strong style="background-color:#cfe2ff; padding:2px 6px; border-radius:4px;">Data Storage Solutions:</strong>
+            <li><strong style="background-color:#F1D4DC; padding:2px 6px; border-radius:4px;">Data Storage Solutions:</strong>
                 Stores both jurisdictional and aggregated datasets using encryption-at-rest and role-based access controls.
                 Designed for durability, auditability, and regional autonomy.
             </li>
 
-            <li><strong style="background-color:#cfe2ff; padding:2px 6px; border-radius:4px;">Data Standards (HL7 FHIR):</strong>
+            <li><strong style="background-color:#F1D4DC; padding:2px 6px; border-radius:4px;">Data Standards (HL7 FHIR):</strong>
                 HL7 FHIR enables structured, consistent, and machine-readable representation of health records.
                 It underpins semantic interoperability across different jurisdictions and systems.
             </li>
 
-            <li><strong style="background-color:#cfe2ff; padding:2px 6px; border-radius:4px;">Real-Time Data Sync:</strong>
+            <li><strong style="background-color:#F1D4DC; padding:2px 6px; border-radius:4px;">Real-Time Data Sync:</strong>
                 Asynchronous, event-driven pipelines that update immunization records across systems continuously.
                 These mechanisms ensure up-to-date views while preserving data sovereignty.
             </li>
         </ul>
-        """
+
+        <h6 style="margin-top: 15px;"><strong>Summary</strong></h6>
+        <p>
+            The federated data architecture is more than a technical blueprint — it’s a policy-aligned, security-conscious foundation for pan-Canadian health data sharing.
+            It enables real-time access without sacrificing local control, ensures interoperability through standards like HL7 FHIR, and reinforces public trust through strict governance and enforcement.
+            By aligning infrastructure, security, and data policies across jurisdictions, this model supports future-ready capabilities for immunization, public health analytics, and emergency response — while respecting the autonomy of every participating province and territory.
+        </p>
+    """,
     },
     {
         "title": "Technical Architecture",
         "content": """
             <h5>Overview</h5>
             <p>
-                The technical architecture enables secure, real-time immunization data exchange between jurisdictions while
-                ensuring that each province maintains full control over its data. It follows a federated model, using a
-                combination of API gateways, security layers, and standardized data exchange mechanisms.
+                The IIDI technical architecture operationalizes the foundational domains of the Federated Data Architecture model:
+                <strong style="background-color:#F3D8C9; padding:2px 6px; border-radius:4px;">Data Emitters & General Users</strong>,
+                <strong style="background-color:#D3F0E8; padding:2px 6px; border-radius:4px;">Security, Control, Governance & Enforcement</strong>, and
+                <strong style="background-color:#F1D4DC; padding:2px 6px; border-radius:4px;">Infrastructure, Storage, Query & Standards</strong>.
+                Each deployed component in the Kubernetes platform directly corresponds to one or more of these foundational domains.
             </p>
 
-            <p>
-                The platform is built on Kubernetes, providing a scalable and resilient foundation for our federated architecture.
-                Below is <a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/IIDI-Architecture-Diagram.png" target="_blank" style="color: #0066cc; text-decoration: underline;">
-                our Kubernetes cluster diagram</a>:
-            </p>
+            <h6 style="margin-top: 24px"><strong>Data Emitters & General Users</strong></h6>
+            <div style="background-color:#F3D8C9; padding:10px; border-radius:6px; margin-bottom:16px;">
+                <ul>
+                    <li><strong>FHIR Immunization Registries:</strong> Provincial HAPI FHIR Servers act as data emitter nodes, serving as authoritative sources of immunization records.</li>
+                    <li><strong>Synthesizer:</strong> Generates FHIR-compliant synthetic patient data to support system testing, demo flows, and validation.</li>
+                    <li><strong>SMART Patient Viewer:</strong> Enables healthcare providers (general users) to securely access immunization records through a standardized interface.</li>
+                </ul>
+            </div>
+
+            <h6 ><strong>Security, Control, Governance & Enforcement</strong></h6>
+            <div style="background-color:#D3F0E8; padding:10px; border-radius:6px; margin-bottom:16px;">
+                <ul>
+                    <li><strong>Istio with mTLS:</strong> Enforces secure, mutually authenticated communication between services. Ensures policy enforcement at runtime.</li>
+                    <li><strong>Transfer Services:</strong> Outbound and Inbound Transfer components apply FHIR validation, policy enforcement, and jurisdictional access control prior to any data exchange.</li>
+                    <li><strong>Redis:</strong> Provides asynchronous job queuing with backpressure and retry handling, ensuring fault-tolerant and governed data delivery.</li>
+                    <li><strong>Aggregator:</strong> Performs de-identification and summarization at the PT level, enforcing local governance rules before reporting to PHAC.</li>
+                </ul>
+            </div>
+
+            <h6 ><strong>Infrastructure, Storage, Query & Standards</strong></h6>
+            <div style="background-color:#F1D4DC; padding:10px; border-radius:6px; margin-bottom:16px;">
+                <ul>
+                    <li><strong>Kubernetes Namespaces (BC, ON, PHAC):</strong> Isolate workloads across jurisdictions and the federal level, ensuring multi-tenant security and operational autonomy.</li>
+                    <li><strong>Containerized Microservices:</strong> All components (FHIR servers, aggregators, dashboards, etc.) are deployed as containers for resilience and scalability.</li>
+                    <li><strong>Event-Driven Architecture:</strong> Supports real-time data sync and decoupling through Redis and asynchronous service communication.</li>
+                    <li><strong>HL7 FHIR:</strong> Data is exchanged using the HL7 FHIR standard, ensuring semantic interoperability and consistent representation across systems.</li>
+                    <li><strong>R Shiny Dashboard (PHAC):</strong> Hosts aggregated, de-identified data from PTs, enabling national immunization reporting and insight generation.</li>
+                </ul>
+            </div>
+
+            <h6 style="margin-top: 15px;"><strong>Architecture Diagram</strong></h6>
+            <p>Each technical component is shown in the cluster diagram below, with color-coded mappings to its corresponding foundational pillar.</p>
             <img src="/static/images/k8s-architecture.png" alt="Kubernetes Infrastructure" style="max-width:100%; border:1px solid #ddd; padding:10px; border-radius:8px; margin-bottom:20px;">
-            
-
-            <h6>Key Components</h6>
-            <ul>
-                <li><strong>Provincial Immunization Systems</strong>: Each province maintains its own immunization data repository.</li>
-                <li><strong>FHIR-Based Data Exchange</strong>: Standardized API interactions ensure compatibility between different systems.</li>
-                <li><strong>Interoperability Layer</strong>: Enables data transformation and validation to align different provincial data formats.</li>
-            </ul>
-
-            
-
-            <h6>Security & Compliance</h6>
-            <ul>
-                <li>End-to-end encryption is enforced for all data exchanges.</li>
-                <li>Mutual TLS authentication ensures secure API communication.</li>
-                <li>Audit logs are maintained to track all requests and access events.</li>
-                <li>Provincial data sovereignty is preserved by keeping raw data within jurisdictions.</li>
-            </ul>
-
-            <h6>Scalability & Infrastructure</h6>
-            <ul>
-                <li>Containerized microservices enable efficient scaling.</li>
-                <li>Event-driven architecture allows real-time data synchronization.</li>
-                <li>Cloud-hosted infrastructure supports high availability and fault tolerance.</li>
-            </ul>
-        """
+            <h6 style="margin-top: 15px;"><strong>Summary</strong></h6>
+            <p>
+                The IIDI technical architecture translates high-level federation principles into a working, production-grade implementation.
+                Each component — from secure data emitters to governed aggregation and federated APIs — has been deliberately mapped to the foundational pillars
+                of the federated model. Through Kubernetes, containerized services, Istio, Redis, and HL7 FHIR, the platform enables real-time,
+                standards-compliant immunization data sharing across jurisdictions, all while maintaining local autonomy and national coordination.
+                The architecture prioritizes security, resilience, and future scalability — laying the groundwork for broader public health applications beyond immunization.
+            </p>
+        """,
     },
     {
         "title": "User Journey 1: PT-to-PT Transfer",
         "content": """
-            <h5><strong>Overview: What is PT-to-PT Transfer?</strong></h5>
+            <h5><strong>Overview: Secure Movement of Immunization Records Across Jurisdictions</strong></h5>
             <p>
-                The PT-to-PT transfer mechanism enables secure, structured movement of immunization records when a patient relocates
-                between jurisdictions. This workflow ensures that records are securely exchanged without centralization. 
+                The PT-to-PT transfer capability represents a foundational pillar of the Interoperable Immunization Data Initiative (IIDI).
+                It enables the secure, structured, and standards-aligned movement of patient immunization records when individuals relocate
+                between provinces or territories. This journey reflects real-world clinical workflows, empowering jurisdictions to
+                preserve patient continuity of care while maintaining data sovereignty and regulatory compliance.
             </p>
+            <p>
+                Unlike centralized models, this federated approach avoids direct data aggregation. Instead, immunization records are
+                transmitted securely from one jurisdiction to another using modern interoperability protocols and runtime policy enforcement.
+                The model reinforces trust between jurisdictions by validating consent, applying consistent data standards,
+                and ensuring all transfers are fully auditable.
+            </p>
+
+            <h6 style="margin-top: 15px;"><strong>Key Federated Components Enabling PT-to-PT Transfer</strong></h6>
             <ul>
-                <li><strong>API Gateway</strong>: Facilitates secure and authenticated communication.</li>
-                <li><strong>FHIR Data Transfer</strong>: Ensures records are formatted correctly.</li>
-                <li><strong>Message Queue</strong>: Manages retries and queued requests.</li>
-                <li><strong>Outbound Transfer Service</strong>: Extracts and sends immunization data.</li>
-                <li><strong>Inbound Transfer Service</strong>: Receives and validates incoming records.</li>
+                <li><strong>API Gateway:</strong> Facilitates secure, authorized communication between the outbound and inbound services.</li>
+                <li><strong>FHIR Data Exchange:</strong> Immunization records are structured using HL7 FHIR standards, ensuring semantic interoperability.</li>
+                <li><strong>Redis Message Queue:</strong> Provides asynchronous job queuing with fault tolerance, enabling retry mechanisms and rate limiting.</li>
+                <li><strong>Transfer-Outbound Service:</strong> Authenticates, packages, and sends records from the origin jurisdiction after consent validation.</li>
+                <li><strong>Transfer-Inbound Service:</strong> Verifies integrity, enforces policy, and ingests records into the receiving jurisdiction’s FHIR registry.</li>
             </ul>
 
-            <h6><strong>Technical Flow of the Transfer</strong></h6>
+            <h6><strong>Technical Flow of a Cross-Jurisdiction Transfer</strong></h6>
             <ol>
-                <li>Patient relocates or seeks healthcare in another province</li>
-                <li>Originating province completes consent and authorization</li>
-                <li>Secure API request triggered by originating province</li>
-                <li>Receiving province ingests and processes immunization record</li>
-                <li>Record becomes available in receiving province's registry</li>
+                <li>The patient relocates to a new province or seeks care in a different jurisdiction.</li>
+                <li>The originating province completes consent checks and authorizes the outbound request.</li>
+                <li>The Transfer-Outbound service securely packages the FHIR-formatted payload and pushes it to Redis.</li>
+                <li>The Transfer-Inbound service at the receiving jurisdiction polls Redis, validates the request, and ensures compliance with HL7 FHIR.</li>
+                <li>Upon successful validation, the record is written into the receiving jurisdiction’s HAPI FHIR server and becomes queryable.</li>
             </ol>
 
-            <img src="/static/images/UJ-1.png" alt="PT-to-PT Data Transfer Workflow" style="max-width:100%; border:1px solid #ddd; padding:10px; border-radius:8px;">
-            
-            <h6><strong>Data Transferred Between Provinces</strong></h6>
+            <img src="/static/images/UJ-1.png" alt="PT-to-PT Data Transfer Workflow" style="max-width:100%; border:1px solid #ddd; padding:10px; border-radius:8px; margin-bottom:20px;">
+
+            <h6><strong>What Data Is Transferred?</strong></h6>
+            <p>
+                The PT-to-PT transfer includes only essential, structured information required for safe clinical continuity. All payloads are
+                formatted using HL7 FHIR and exclude unnecessary or non-consented details.
+            </p>
             <table style="width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid #ddd;">
                 <thead style="background-color: #e9ecef;">
                     <tr>
@@ -198,10 +229,10 @@ collapsible_sections = [
                         <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Patient Information</strong></td>
                         <td style="padding: 10px; border-bottom: 1px solid #ddd;">
                             <ul>
-                                <li>Unique patient identifier within the provincial system.</li>
-                                <li>Full name, birth date, gender</li>
+                                <li>Unique patient identifier (local to jurisdiction)</li>
+                                <li>Name, date of birth, and gender</li>
                                 <li>Address (city, province, postal code)</li>
-                                <li>Health card number (if applicable) for identity matching</li>
+                                <li>Health card number (if authorized)</li>
                             </ul>
                         </td>
                     </tr>
@@ -209,11 +240,10 @@ collapsible_sections = [
                         <td style="padding: 10px; border-bottom: 1px solid #ddd;"><strong>Immunization History</strong></td>
                         <td style="padding: 10px; border-bottom: 1px solid #ddd;">
                             <ul>
-                                <li>Vaccine type (CVX codes)</li>
-                                <li>Date of administration and dose number</li>
-                                <li>Manufacturer and lot number</li>
-                                <li>Site of administration (e.g., left arm, right arm)</li>
-                                <li>Adverse reactions and exemptions (if applicable)</li>
+                                <li>Vaccine type (e.g., MMR, COVID-19)</li>
+                                <li>Date administered, manufacturer, and lot number</li>
+                                <li>Dose number and administration site</li>
+                                <li>Any adverse reactions or exemptions recorded</li>
                             </ul>
                         </td>
                     </tr>
@@ -221,176 +251,184 @@ collapsible_sections = [
                         <td style="padding: 10px;"><strong>Metadata</strong></td>
                         <td style="padding: 10px;">
                             <ul>
-                                <li>Transfer origin marker indicating the source jurisdiction</li>
-                                <li>Receiving province acknowledgment confirming integration.</li>
+                                <li>Source province/territory of the transfer</li>
+                                <li>Destination province confirmation and ingest time</li>
                             </ul>
                         </td>
                     </tr>
                 </tbody>
             </table>
 
-            <h6><strong>Addressing Key Concerns and Clarificationsk</strong></h6>
+            <h6><strong>Safeguards, Scope, and Key Clarifications</strong></h6>
             <ul>
-                <li>Data is <strong>synthetically generated</strong> based on FHIR standards. PoC leverages FHIR repositories for secure data exchange validation</li>
-                <li>Consent management must be externally managed (out of PoC scope)</li>
-                <li>Push-based model ensures data is only transferred when authorized</li>
-                <li>Manual transfer requests (fax, email) remain possible but out of scope</li>
-                <li>Initial scope focused on MMR vaccine records, expandable in future phases</li>
-                <li>Optional UI demonstration to visualize transferred records.</li>
+                <li>All data is <strong>synthetic and anonymized</strong>, designed solely for demonstration and validation purposes.</li>
+                <li>Consent validation must occur externally and is assumed as a precondition for any data exchange.</li>
+                <li>This is a <strong>push-based model</strong> — receiving jurisdictions do not pull or request patient data independently.</li>
+                <li>Manual transfers (fax/email) are considered out of scope for this model.</li>
+                <li>The current proof of concept focuses on MMR vaccines but can support additional vaccine types in future iterations.</li>
+                <li>Optional user interface demos can visualize transferred records in real-time via SMART Viewer or API query.</li>
             </ul>
-        """
+
+            <h6 style="margin-top: 15px;"><strong>Summary</strong></h6>
+            <p>
+                PT-to-PT transfer is a critical step toward modernizing Canada’s immunization data ecosystem. It enables provinces to securely
+                exchange structured health records while maintaining autonomy and enforcing local governance. By combining FHIR standards,
+                secure message queues, consent-aware services, and runtime policy enforcement, IIDI delivers a highly portable and scalable
+                foundation for cross-jurisdictional data sharing.
+            </p>
+            <p>
+                This user journey shows that interoperable health data is possible without centralization. Instead, it highlights how a federated
+                model — backed by technical rigour, real-world workflows, and strong trust boundaries — can support secure, patient-centred
+                data exchange across Canada’s diverse health systems.
+            </p>
+        """,
     },
     {
         "title": "User Journey 2: Federated Immunization Data Architecture",
         "content": """
-            <h5><strong>Federated Architecture Overview</strong></h5>
-            <p>
-                This architecture ensures each province maintains local control over immunization records while supporting national-level 
-                aggregation for public health surveillance. The model consists of:
-            </p>
+        <h5><strong>Overview: Federated, Privacy-Preserving Public Health Surveillance</strong></h5>
+        <p>
+            This user journey demonstrates how immunization data from provincial and territorial registries can be securely
+            aggregated and reported to PHAC — without ever relinquishing patient-level control. Instead of centralizing health data,
+            the architecture follows a federated model, in which <strong>each jurisdiction governs its own data pipelines</strong>
+            and contributes only <em>structured, de-identified</em> insights for national surveillance. This design supports public trust,
+            legal compliance, and analytical consistency across Canada’s diverse health landscape.
+        </p>
 
-            <div style="display: flex; gap: 20px; margin-bottom: 20px;">
-                <div style="flex: 1; background-color: #f8f9fa; padding: 15px; border-radius: 8px;">
-                    <h6><strong>Provincial Components</strong></h6>
-                    <ul>
-                        <li><strong>FHIR Immunization Registries</strong>: Secure provincial databases</li>
-                        <li><strong>Synthetic Data Generator</strong>: Creates test data for validation</li>
-                        <li><strong>SMART Patient Viewer</strong>: Healthcare provider access to records</li>
-                        <li><strong>Aggregator</strong>: Summarizes/anonymizes records for PHAC</li>
-                    </ul>
-                </div>
-                <div style="flex: 1; background-color: #f8f9fa; padding: 15px; border-radius: 8px;">
-                    <h6><strong>Federal Components</strong></h6>
-                    <ul>
-                        <li><strong>Federator (PHAC)</strong>: Receives aggregated data</li>
-                        <li><strong>R-Shiny Dashboards</strong>: National analytics and insights</li>
-                    </ul>
-                </div>
-            </div>
-
-            
-            <img src="/static/images/UJ-2.png" alt="Federated Immunization Data Architecture" style="max-width:100%; border:1px solid #ddd; padding:10px; border-radius:8px; margin-bottom:20px;">
-
-            <h6><strong>Data Flow</strong></h6>
-            <ol>
-                <li>A request for immunization data is initiated by an authorized system.</li>
-                <li>The Access Control Gateway verifies authentication and consent requirements.</li>
-                <li>Once approved, data is retrieved from the provincial immunization system.</li>
-                <li>The interoperability layer processes and transforms the data to a standard format.</li>
-                <li>The response is securely delivered back to the requester.</li>
-            </ol>
-            
-            <h5><strong>Key Principles</strong></h5>
+        <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+            <div style="flex: 1; background-color: #f8f9fa; padding: 15px; border-radius: 8px;">
+                <h6><strong>Provincial Components</strong></h6>
                 <ul>
-                    <li>PTs maintain full control over their immunization data</li>
-                    <li>PHAC only receives pre-aggregated, anonymized datasets</li>
-                    <li>No patient-level data leaves provincial systems</li>
-                    <li>All de-identification occurs at source (PT level)</li>
+                    <li><strong>FHIR Immunization Registries:</strong> Source of truth for immunization records (e.g., BC, ON).</li>
+                    <li><strong>Synthetic Data Generator:</strong> Simulates realistic, FHIR-compliant records for safe validation and testing.</li>
+                    <li><strong>SMART Patient Viewer:</strong> Supports local user access to jurisdiction-governed records.</li>
+                    <li><strong>Aggregator:</strong> Performs summarization and de-identification at the provincial level before reporting to PHAC.</li>
                 </ul>
-            
-            <h5><strong>Aggregation & PHAC Data Access</strong></h5>
-            
-            <p>
-                PHAC does not require full patient-level data but instead needs structured, summarized reports for national immunization monitoring. 
-                Aggregation transforms raw immunization records into anonymized datasets, ensuring accuracy while protecting privacy. 
-                This process maintains consistency across provinces, even when different immunization tracking systems are used. 
-            </p>
-            
-            <p>
-                <b>PHAC does not access or process identifiable Personal Health Information (PHI) at any stage.</b> All de-identification is performed at 
-                the Provincial/Territorial (PT) level before any data is shared with PHAC. The information shared with PHAC is structured, anonymized, 
-                and formatted for public health reporting in compliance with privacy regulations. Aggregation ensures uniform national immunization 
-                reporting while aligning with PT-specific privacy frameworks.
-            </p>
-            
-            <h6><strong>How Data Aggregation Works</strong></h6>
-            <ol>
-                <li>Extract immunization records from FHIR repositories at the PT level</li>
-                <li>De-identify data by removing personally identifiable details (e.g., names, health card numbers) entirely at the PT level before aggregation</li>
-                <li>Categorize data by jurisdiction, age group, gender, and vaccine type</li>
-                <li>Summarize dose counts and calculate total vaccinated individuals</li>
-                <li>Format the final dataset into a structured, anonymized report in compliance with PHAC's reporting framework</li>
-            </ol>
-            
-            <h6><strong>Key Data Captured in Aggregation</strong></h6>
-            <table style="width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid #ddd;">
-                <thead style="background-color: #e9ecef;">
-                    <tr>
-                        <th style="text-align: left; padding: 10px;">Field</th>
-                        <th style="text-align: left; padding: 10px;">Description</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">Reference Date</td>
-                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">Date of immunization event (reported at an aggregate level)</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">Jurisdiction</td>
-                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">Province where immunization was recorded (e.g., BC, ON)</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">Age Group</td>
-                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">Categorized age ranges (e.g., 0-2 years, 3-5 years, etc.)</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">Gender</td>
-                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">Aggregate counts by gender category (Male, Female, Other)</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">Vaccine Type</td>
-                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">Type of vaccine administered (e.g., MMR, COVID-19)</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">Dose Count</td>
-                        <td style="padding: 10px; border-bottom: 1px solid #ddd;">Total number of doses administered in the reporting period</td>
-                    </tr>
-                    <tr>
-                        <td style="padding: 10px;">Total Patients Vaccinated</td>
-                        <td style="padding: 10px;">Unique number of individuals vaccinated within the reporting period</td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <h6 style="margin-top: 20px;"><strong>Benefits for Public Health and PHAC</strong></h6>
-            <ul>
-                <li>Reduces complexity by providing summarized, structured reports rather than raw data</li>
-                <li>Ensures privacy by removing personal identifiers and focusing on aggregate statistics</li>
-                <li>Standardizes immunization reporting across jurisdictions for consistency and interoperability</li>
-                <li>Scales efficiently to include new vaccines and evolving public health priorities</li>
-            </ul>
-            
-            <h6><strong>Addressing Key Concerns and Clarifications</strong></h6>
-            <ul>
-                <li>
-                    <strong>De-identification Responsibility:</strong> 
-                    The previous document incorrectly implied PHAC de-identifies data. 
-                    <strong>PTs are fully responsible for de-identification before sharing data, 
-                    and PHAC does not access raw patient-level data.</strong>
-                </li>
-                <li>
-                    <strong>Aggregation Process:</strong> 
-                    The document previously inaccurately suggested PHAC "fetches" patient data for aggregation. 
-                    <strong>Aggregation is conducted entirely at the PT level, 
-                    and PHAC only receives aggregated, anonymized data.</strong>
-                </li>
-            </ul>
-                
-        """
+            </div>
+            <div style="flex: 1; background-color: #f8f9fa; padding: 15px; border-radius: 8px;">
+                <h6><strong>Federal Components</strong></h6>
+                <ul>
+                    <li><strong>Federator (PHAC):</strong> Receives structured, anonymized data sets and enforces validation policies.</li>
+                    <li><strong>R Shiny Dashboards:</strong> Delivers visual insights to support national decision-making, coverage analysis, and vaccine equity.</li>
+                </ul>
+            </div>
+        </div>
+
+        <img src="/static/images/UJ-2.png" alt="Federated Immunization Data Architecture" style="max-width:100%; border:1px solid #ddd; padding:10px; border-radius:8px; margin-bottom:20px;">
+
+        <h6><strong>Data Flow and Governance</strong></h6>
+        <ol>
+            <li>An authorized request triggers the aggregation process at the provincial level.</li>
+            <li>Access control systems validate authentication, authorization, and jurisdictional policies.</li>
+            <li>The Aggregator extracts immunization records from the FHIR registry, applies de-identification, and formats data to a shared schema.</li>
+            <li>The anonymized payload is securely transmitted to PHAC’s Federator using mTLS encryption and audit logging.</li>
+            <li>PHAC validates and ingests the report for national analytics — without ever accessing identifiable PHI.</li>
+        </ol>
+
+        <h5><strong>Core Design Principles</strong></h5>
+        <ul>
+            <li><strong>Provincial Autonomy:</strong> Data never leaves a jurisdiction in raw form — PTs control aggregation and transmission.</li>
+            <li><strong>Privacy by Design:</strong> All de-identification occurs locally, before any report reaches PHAC.</li>
+            <li><strong>Analytical Integrity:</strong> Aggregation adheres to HL7 FHIR-based schemas, ensuring national consistency despite system diversity.</li>
+            <li><strong>PHAC Receives Only What Is Needed:</strong> Summarized, structured reports — not patient-level records — power national surveillance.</li>
+        </ul>
+
+        <h6><strong>How Aggregation Works at the PT Level</strong></h6>
+        <ol>
+            <li>FHIR immunization records are queried securely within each provincial registry.</li>
+            <li>All identifiers (e.g., names, health numbers, addresses) are stripped before aggregation.</li>
+            <li>Records are grouped by jurisdiction, age group, gender, and vaccine type.</li>
+            <li>Dose counts and patient totals are calculated per category.</li>
+            <li>The final report is formatted into a PHAC-compliant schema and transmitted securely.</li>
+        </ol>
+
+        <h6><strong>Key Data Fields in Aggregated Reports</strong></h6>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid #ddd;">
+            <thead style="background-color: #e9ecef;">
+                <tr>
+                    <th style="text-align: left; padding: 10px;">Field</th>
+                    <th style="text-align: left; padding: 10px;">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">Reference Date</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">When the immunization occurred (aggregated format)</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">Jurisdiction</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">Province or territory (e.g., BC, ON)</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">Age Group</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">Binned age ranges (e.g., 0–2, 3–5, etc.)</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">Gender</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">Aggregated by reported gender category</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">Vaccine Type</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">CVX or vaccine category (e.g., MMR)</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">Dose Count</td>
+                    <td style="padding: 10px; border-bottom: 1px solid #ddd;">Total doses administered in the reporting window</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px;">Total Patients Vaccinated</td>
+                    <td style="padding: 10px;">Unique individuals included in the report</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h6 style="margin-top: 15px;"><strong>Public Health Impact and National Value</strong></h6>
+        <ul>
+            <li>Minimizes risk by avoiding transmission of personal identifiers</li>
+            <li>Strengthens trust between provinces and PHAC through clear governance and auditability</li>
+            <li>Reduces manual reporting overhead by providing real-time, structured updates</li>
+            <li>Supports agile decision-making and cross-jurisdictional comparison via dashboards</li>
+        </ul>
+
+        <h6><strong>Clarifications and Assumptions</strong></h6>
+        <ul>
+            <li><strong>De-Identification Responsibility:</strong> PHAC never de-identifies data. This is strictly handled by PTs before aggregation.</li>
+            <li><strong>Aggregation Scope:</strong> PHAC does not fetch or query patient data. Only pre-aggregated summaries are accepted.</li>
+        </ul>
+
+        <h6 style="margin-top: 15px;"><strong>Summary</strong></h6>
+        <p>
+            The Federated Immunization Data Architecture redefines how public health intelligence can be gathered across Canada —
+            securely, respectfully, and efficiently. It proves that meaningful data aggregation does not require centralization or
+            compromise on privacy. Instead, it demonstrates a scalable trust model: one that allows PHAC to access timely insights
+            without ever touching raw personal data.
+        </p>
+        <p>
+            Through strong provincial ownership, secure interfaces, and structured standards like HL7 FHIR, this model balances local
+            autonomy with national accountability. It offers a replicable, privacy-preserving pattern for other public health domains
+            — from COVID surveillance to vaccine equity to broader disease analytics.
+        </p>
+    """,
     },
     {
         "title": "Synthetic Patient Data Generation",
         "content": """
-            <h5><strong>Overview: What is Being Generated?</strong></h5>
+            <h5><strong>Overview: Safe, Realistic, Standards-Compliant Data for Interoperability Testing</strong></h5>
             <p>
-                The synthetic data mimics real-world immunization records from provincial registries while ensuring
-                FHIR-compliant JSON format for interoperability. Differences between BC and ON data models are accounted for,
-                including variations in fields such as allergy tracking.
+                To enable safe experimentation and validation of cross-jurisdictional workflows, the IIDI platform generates
+                <strong>synthetic immunization data</strong> that mirrors real-world records without exposing personal health information (PHI).
+                These records are formatted using the <strong>HL7 FHIR standard</strong> and reflect variations in provincial data models —
+                ensuring both realism and jurisdictional fidelity.
+            </p>
+            <p>
+                Synthetic data is used to test FHIR endpoints, simulate patient movement between provinces, validate dashboard pipelines,
+                and support continuous development without compromising privacy. Each generated patient, immunization, and allergy record is
+                deterministic, governed, and fully traceable.
             </p>
 
             <div style="background-color: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 20px;">
                 <h6><strong>FHIR Patient Resource Structure</strong></h6>
-                <p>A FHIR Patient Resource consists of core fields and extensions, ensuring consistency across jurisdictions.</p>
+                <p>Each synthetic patient record follows the <strong>FHIR Patient resource</strong> schema, including core identifiers and demographic extensions:</p>
 
                 <table style="width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid #ddd;">
                     <thead style="background-color: #e9ecef;">
@@ -406,13 +444,13 @@ collapsible_sections = [
                             <td style="padding: 8px; border-bottom: 1px solid #ddd;">Patient ID</td>
                             <td style="padding: 8px; border-bottom: 1px solid #ddd;">Patient.id</td>
                             <td style="padding: 8px; border-bottom: 1px solid #ddd;">"patient-001"</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Unique identifier</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Unique, auto-generated UUID</td>
                         </tr>
                         <tr>
                             <td style="padding: 8px; border-bottom: 1px solid #ddd;">Name</td>
                             <td style="padding: 8px; border-bottom: 1px solid #ddd;">Patient.name</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">{ "family": "Singh", "given": ["Simar"] }</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Randomized names</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">{"family": "Singh", "given": ["Simar"]}</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Faker-generated name with diverse samples</td>
                         </tr>
                         <tr>
                             <td style="padding: 8px; border-bottom: 1px solid #ddd;">Gender</td>
@@ -424,41 +462,44 @@ collapsible_sections = [
                             <td style="padding: 8px; border-bottom: 1px solid #ddd;">Birth Date</td>
                             <td style="padding: 8px; border-bottom: 1px solid #ddd;">Patient.birthDate</td>
                             <td style="padding: 8px; border-bottom: 1px solid #ddd;">"2012-06-15"</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Randomized within age range</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Randomized within pediatric age cohorts</td>
                         </tr>
                         <tr>
                             <td style="padding: 8px;">Address</td>
                             <td style="padding: 8px;">Patient.address</td>
-                            <td style="padding: 8px;">{ "city": "Toronto", "state": "ON" }</td>
-                            <td style="padding: 8px;">Province-specific logic</td>
+                            <td style="padding: 8px;">{"city": "Toronto", "state": "ON"}</td>
+                            <td style="padding: 8px;">Province-specific logic to simulate local residency</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
             <div style="background-color: #f8f9fa; padding: 10px; border-radius: 8px; margin-bottom: 20px;">
-                <h6><strong>Provincial Differences in Data Generation</strong></h6>
+                <h6><strong>Provincial Variations in Data Generation</strong></h6>
+                <p>The generator accounts for jurisdictional rules by customizing fields per province:</p>
                 <div style="display: flex; gap: 20px;">
                     <div style="flex: 1;">
-                        <p><strong>British Columbia (BC) Specific Fields</strong></p>
+                        <p><strong>British Columbia (BC)</strong></p>
                         <ul>
-                            <li>Allergy information included using FHIR AllergyIntolerance resource</li>
-                            <li>Uses SNOMED CT-coded allergy types</li>
-                            <li>Includes severity levels and reaction dates</li>
+                            <li>Includes <strong>AllergyIntolerance</strong> resources</li>
+                            <li>Uses SNOMED-CT codes for allergy types</li>
+                            <li>Captures severity and onset date</li>
                         </ul>
                     </div>
                     <div style="flex: 1;">
-                        <p><strong>Ontario (ON) Specific Fields</strong></p>
+                        <p><strong>Ontario (ON)</strong></p>
                         <ul>
-                            <li>No allergy information in immunization records</li>
-                            <li>Allergy generation skipped for ON patients</li>
+                            <li>No allergy data is generated for ON patients</li>
+                            <li>FHIR bundles exclude the AllergyIntolerance resource</li>
                         </ul>
                     </div>
                 </div>
             </div>
 
             <div style="background-color: #f8f9fa; padding: 10px; border-radius: 8px;">
-                <h6><strong>Immunization Data Generation (FHIR Standard)</strong></h6>
+                <h6><strong>FHIR Immunization Resource Structure</strong></h6>
+                <p>Each synthetic patient is linked to multiple immunization records with the following structure:</p>
+
                 <table style="width: 100%; border-collapse: collapse; margin-top: 10px; border: 1px solid #ddd;">
                     <thead style="background-color: #e9ecef;">
                         <tr>
@@ -473,32 +514,35 @@ collapsible_sections = [
                             <td style="padding: 8px; border-bottom: 1px solid #ddd;">Vaccine Type</td>
                             <td style="padding: 8px; border-bottom: 1px solid #ddd;">Immunization.vaccineCode</td>
                             <td style="padding: 8px; border-bottom: 1px solid #ddd;">"MMR", "Influenza"</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Random selection</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Random draw from supported vaccine types</td>
                         </tr>
                         <tr>
                             <td style="padding: 8px; border-bottom: 1px solid #ddd;">Manufacturer</td>
                             <td style="padding: 8px; border-bottom: 1px solid #ddd;">Immunization.manufacturer</td>
                             <td style="padding: 8px; border-bottom: 1px solid #ddd;">"Pfizer", "Moderna"</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Random assignment</td>
+                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Randomly assigned from list of vendors</td>
                         </tr>
                         <tr>
-                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Dose Number</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Immunization.protocolApplied.doseNumber</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">1, 2</td>
-                            <td style="padding: 8px; border-bottom: 1px solid #ddd;">Random selection</td>
+                            <td style="padding: 8px;">Dose Number</td>
+                            <td style="padding: 8px;">Immunization.protocolApplied.doseNumber</td>
+                            <td style="padding: 8px;">1, 2</td>
+                            <td style="padding: 8px;">Sequential or randomized per patient profile</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
 
-            <h6><strong>Summary of Key Features</strong></h6>
-            <ul style="margin-top: 5px; margin-bottom: 5px;">
-                <li><strong>FHIR-Compliant</strong>: Structured to align with HL7 FHIR.</li>
-                <li><strong>Synthetic but Realistic</strong>: Uses Faker for realistic patient data.</li>
-                <li><strong>Handles Provincial Variations</strong>: BC and ON have different data models.</li>
-                <li><strong>Includes Adverse Reactions & Exemptions</strong>: Adds realism for testing.</li>
-            </ul>
-        """
+            <h6 style="margin-top: 15px;"><strong>Summary</strong></h6>
+            <p>
+                The synthetic data engine plays a foundational role in enabling rapid development, demonstration, and validation
+                of IIDI architecture components. It replicates real-world variability while preserving full privacy, allowing
+                provinces and the federal government to simulate end-to-end data flows without relying on production data.
+            </p>
+            <p>
+                Its strict alignment with FHIR standards and support for jurisdiction-specific nuances (e.g., BC vs. ON) ensures that
+                interoperability testing remains grounded in actual data behavior — preparing the system for real-world onboarding in the future.
+            </p>
+        """,
     },
     {
         "title": "GitHub Repository & Infrastructure",
@@ -537,9 +581,10 @@ collapsible_sections = [
                 <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/User-Journey-1/User-Journey-1.md" target="_blank" style="color: #0066cc; text-decoration: underline;"><strong>Interoperable Immunization Data Initiative (IIDI) – User Journey 1: PT-to-PT Transfer</strong></a></li>
                 <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/architecture/User-Journey-2/User-Journey-2.md" target="_blank" style="color: #0066cc; text-decoration: underline;"><strong>Interoperable Immunization Data Initiative (IIDI) – User Journey 2: Federated Architecture</strong></a></li>
             </ul>
-        """
-    }
+        """,
+    },
 ]
+
 
 @app.route("/")
 def index():
