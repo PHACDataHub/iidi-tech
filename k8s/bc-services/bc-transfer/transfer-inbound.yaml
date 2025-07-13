@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transfer-inbound-bc
+  labels:
+    app: transfer-inbound-bc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: transfer-inbound-bc
+  template:
+    metadata:
+      labels:
+        app: transfer-inbound-bc
+    spec:
+      containers:
+        - name: transfer-inbound-bc
+          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/iidi/iidi-transfer-inbound:main-d13bb88049d5b4ec3ce0b63f919a5bac86838390-1742323779
+          ports:
+            - containerPort: 3000
+          env:
+            - name: EXPRESS_PORT
+              value: "3000"
+            - name: DEV_IS_LOCAL_ENV
+              value: "false"
+            - name: FHIR_URL
+              value: "http://hapi-fhir-bc-svc.cobra.svc.cluster.local:8080/fhir"

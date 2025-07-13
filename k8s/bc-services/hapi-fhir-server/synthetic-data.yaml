@@ -1,0 +1,30 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: synthetic-data-job
+  annotations:
+    sidecar.istio.io/inject: "false"
+spec:
+  backoffLimit: 4
+  ttlSecondsAfterFinished: 600
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: synthetic-data
+          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/iidi/synthetic-data:main-01df63e5bec99369feefd606f28e4db267f7716c-1741382883
+          imagePullPolicy: Always
+          env:
+            - name: NUM_RECORDS
+              value: "500"
+            - name: PT
+              value: "bc"
+            - name: FHIR_URL
+              value: "http://hapi-fhir-bc-svc.bc.svc.cluster.local:8080/fhir"
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"

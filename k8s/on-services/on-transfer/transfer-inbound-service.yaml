@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: transfer-inbound-on-svc
+  labels:
+    app: transfer-inbound-on
+spec:
+  selector:
+    app: transfer-inbound-on
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+  type: ClusterIP

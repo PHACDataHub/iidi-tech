@@ -1,0 +1,152 @@
+# Network Policies for Cobra Tenant Zero-Trust Security
+# Default deny all ingress traffic
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  labels:
+    gc.ca/data-classification: unclassified
+    gc.ca/environment: dev
+    gc.ca/tier: tier3
+    tenant: cobra
+    app.kubernetes.io/part-of: iidi
+    app.kubernetes.io/component: network-policy
+  annotations:
+    config.sync.gke.io/sync-wave: "15"
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+
+---
+# Allow traffic from platform gateway
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-gateway-ingress
+  labels:
+    gc.ca/data-classification: unclassified
+    gc.ca/environment: dev
+    gc.ca/tier: tier3
+    tenant: cobra
+    app.kubernetes.io/part-of: iidi
+    app.kubernetes.io/component: network-policy
+  annotations:
+    config.sync.gke.io/sync-wave: "15"
+spec:
+  podSelector:
+    matchLabels:
+      expose-to-gateway: "true"
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: gateway-infra
+    ports:
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP  
+      port: 3000
+    - protocol: TCP
+      port: 3838
+    - protocol: TCP
+      port: 80
+
+---
+# Allow internal communication within cobra namespace
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-internal-cobra
+  labels:
+    gc.ca/data-classification: unclassified
+    gc.ca/environment: dev
+    gc.ca/tier: tier3
+    tenant: cobra
+    app.kubernetes.io/part-of: iidi
+    app.kubernetes.io/component: network-policy
+  annotations:
+    config.sync.gke.io/sync-wave: "15"
+spec:
+  podSelector: {}
+  ingress:
+  - from:
+    - podSelector: {}
+
+---
+# Allow access to platform services (CNPG PostgreSQL)
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-platform-services
+  labels:
+    gc.ca/data-classification: unclassified
+    gc.ca/environment: dev
+    gc.ca/tier: tier3
+    tenant: cobra
+    app.kubernetes.io/part-of: iidi
+    app.kubernetes.io/component: network-policy
+  annotations:
+    config.sync.gke.io/sync-wave: "15"
+spec:
+  podSelector: {}
+  egress:
+  # Allow DNS resolution
+  - to: []
+    ports:
+    - protocol: UDP
+      port: 53
+    - protocol: TCP
+      port: 53
+  # Allow PostgreSQL access
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 5432
+  # Allow HTTPS for external APIs
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 443
+  # Allow HTTP for internal services
+  - to: []
+    ports:
+    - protocol: TCP
+      port: 80
+    - protocol: TCP
+      port: 8080
+    - protocol: TCP
+      port: 3000
+    - protocol: TCP
+      port: 3838
+
+---
+# Allow monitoring and health checks
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-monitoring
+  labels:
+    gc.ca/data-classification: unclassified
+    gc.ca/environment: dev
+    gc.ca/tier: tier3
+    tenant: cobra
+    app.kubernetes.io/part-of: iidi
+    app.kubernetes.io/component: network-policy
+  annotations:
+    config.sync.gke.io/sync-wave: "15"
+spec:
+  podSelector: {}
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: istio-system
+    - namespaceSelector:
+        matchLabels:
+          name: monitoring
+    ports:
+    - protocol: TCP
+      port: 15090  # Istio sidecar admin port
+    - protocol: TCP
+      port: 9090   # Prometheus metrics

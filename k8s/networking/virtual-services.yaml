@@ -1,0 +1,163 @@
+# Consolidated Virtual Services for IIDI Application in Cobra Tenant
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: iidi-routes
+  labels:
+    gc.ca/data-classification: unclassified
+    gc.ca/environment: dev
+    gc.ca/tier: tier3
+    tenant: cobra
+    app.kubernetes.io/part-of: iidi
+    app.kubernetes.io/component: virtual-service
+  annotations:
+    config.sync.gke.io/sync-wave: "50"
+spec:
+  hosts:
+  - "*.iidi.cobra.dev.phac.gc.ca"
+  gateways:
+  - gateway-infra/gateway-global-external-https  # Platform gateway
+  http:
+  # BC Province Routes
+  - match:
+    - headers:
+        ":authority":
+          exact: "patient-browser-bc.iidi.cobra.dev.phac.gc.ca"
+    route:
+    - destination:
+        host: patient-browser-bc-svc
+        port:
+          number: 8080
+  
+  - match:
+    - headers:
+        ":authority":
+          exact: "fhir-bc.iidi.cobra.dev.phac.gc.ca"
+    route:
+    - destination:
+        host: hapi-fhir-bc-svc
+        port:
+          number: 8080
+
+  - match:
+    - headers:
+        ":authority":
+          exact: "aggregator-bc.iidi.cobra.dev.phac.gc.ca"
+    route:
+    - destination:
+        host: aggregation-server-bc-svc
+        port:
+          number: 80
+
+  - match:
+    - headers:
+        ":authority":
+          exact: "transfer-outbound-bc.iidi.cobra.dev.phac.gc.ca"
+    route:
+    - destination:
+        host: transfer-outbound-bc-svc
+        port:
+          number: 3000
+
+  - match:
+    - headers:
+        ":authority":
+          exact: "transfer-inbound-bc.iidi.cobra.dev.phac.gc.ca"
+    route:
+    - destination:
+        host: transfer-inbound-bc-svc
+        port:
+          number: 3000
+
+  # ON Province Routes
+  - match:
+    - headers:
+        ":authority":
+          exact: "patient-browser-on.iidi.cobra.dev.phac.gc.ca"
+    route:
+    - destination:
+        host: patient-browser-on-svc
+        port:
+          number: 8080
+  
+  - match:
+    - headers:
+        ":authority":
+          exact: "fhir-on.iidi.cobra.dev.phac.gc.ca"
+    route:
+    - destination:
+        host: hapi-fhir-on-svc
+        port:
+          number: 8080
+
+  - match:
+    - headers:
+        ":authority":
+          exact: "aggregator-on.iidi.cobra.dev.phac.gc.ca"
+    route:
+    - destination:
+        host: aggregation-server-on-svc
+        port:
+          number: 80
+
+  - match:
+    - headers:
+        ":authority":
+          exact: "transfer-outbound-on.iidi.cobra.dev.phac.gc.ca"
+    route:
+    - destination:
+        host: transfer-outbound-on-svc
+        port:
+          number: 3000
+
+  - match:
+    - headers:
+        ":authority":
+          exact: "transfer-inbound-on.iidi.cobra.dev.phac.gc.ca"
+    route:
+    - destination:
+        host: transfer-inbound-on-svc
+        port:
+          number: 3000
+
+  # Federal Routes
+  - match:
+    - headers:
+        ":authority":
+          exact: "federator.iidi.cobra.dev.phac.gc.ca"
+    route:
+    - destination:
+        host: federator-svc
+        port:
+          number: 80
+
+  - match:
+    - headers:
+        ":authority":
+          exact: "rshiny-dashboard.iidi.cobra.dev.phac.gc.ca"
+    route:
+    - destination:
+        host: rshiny-dashboard-svc
+        port:
+          number: 3838
+
+  # Demo Services Routes
+  - match:
+    - headers:
+        ":authority":
+          exact: "demo-portal.iidi.cobra.dev.phac.gc.ca"
+    route:
+    - destination:
+        host: demo-portal-svc
+        port:
+          number: 8080
+
+  - match:
+    - headers:
+        ":authority":
+          exact: "demo-transfer-dashboard.iidi.cobra.dev.phac.gc.ca"
+    route:
+    - destination:
+        host: demo-transfer-dashboard-svc
+        port:
+          number: 8080

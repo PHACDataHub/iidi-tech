@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-portal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-portal
+  template:
+    metadata:
+      labels:
+        app: demo-portal
+    spec:
+      containers:
+        - name: demo-portal
+          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/iidi/demo-portal:main-1e4b89985ca5c64882416cace9d5afa20b5f3fc6-1742913622
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: FLASK_APP
+              value: "app.py"
+            - name: FLASK_DEBUG
+              value: "0"
+            - name: FED_DASHBOARD_URL
+              value: https://rshiny-dashboard.federal.iidi.alpha.phac.gc.ca
+            - name: FED_FEDERATOR_URL
+              value: https://federator.federal.iidi.alpha.phac.gc.ca/aggregated-data
+            - name: BC_BROWSER_URL
+              value: https://patient-browser.bc.iidi.alpha.phac.gc.ca
+            - name: BC_FHIR_URL
+              value: https://fhir.bc.iidi.alpha.phac.gc.ca
+            - name: BC_AGGREGATOR_URL
+              value: https://aggregator.bc.iidi.alpha.phac.gc.ca/aggregated-data
+            - name: BC_DEMO_TRANSFER_DASHBOARD_URL
+              value: "https://demo-transfer-dashboard.iidi.alpha.phac.gc.ca?pt=BC"
+            - name: ON_BROWSER_URL
+              value: https://patient-browser.on.iidi.alpha.phac.gc.ca
+            - name: ON_FHIR_URL
+              value: https://fhir.on.iidi.alpha.phac.gc.ca
+            - name: ON_AGGREGATOR_URL
+              value: https://aggregator.on.iidi.alpha.phac.gc.ca/aggregated-data
+            - name: ON_DEMO_TRANSFER_DASHBOARD_URL
+              value: "https://demo-transfer-dashboard.iidi.alpha.phac.gc.ca?pt=ON"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 5

@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: federator-deployment
+  labels:
+    app: federator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: federator
+  template:
+    metadata:
+      labels:
+        app: federator
+    spec:
+      containers:
+        - name: federator
+          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/iidi/iidi-federator:main-13d5000112355bc91a9d121863bab403c5166859-1741799249
+          ports:
+            - containerPort: 3000
+          env:
+            - name: DEV_IS_LOCAL_ENV
+              value: "false"
+            - name: AGGREGATOR_URLS
+              value: "http://aggregation-server-on-svc.cobra.svc.cluster.local,http://aggregation-server-bc-svc.cobra.svc.cluster.local"
+            - name: PRIVATE_KEY_PATH
+              value: "/secrets/private_key.pem"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "200m"
+            limits:
+              memory: "1Gi"
+              cpu: "1"
+          readinessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 3
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /healthcheck
+              port: 3000
+            initialDelaySeconds: 30
+            periodSeconds: 20
+            timeoutSeconds: 3
+            failureThreshold: 3
+          volumeMounts:
+            - name: private-key-volume
+              mountPath: "/secrets"
+              readOnly: true
+      volumes:
+        - name: private-key-volume
+          secret:
+            secretName: federator-private-key

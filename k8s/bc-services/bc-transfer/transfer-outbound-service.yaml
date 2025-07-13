@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: transfer-outbound-bc-svc
+  labels:
+    app: transfer-outbound-bc
+spec:
+  selector:
+    app: transfer-outbound-bc
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+  type: ClusterIP

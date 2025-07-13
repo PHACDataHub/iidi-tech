@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hapi-fhir-server-bc
+  labels:
+    app: hapi-fhir-server-bc
+    gc.ca/data-classification: unclassified
+    gc.ca/environment: dev
+    gc.ca/tier: tier3
+    tenant: cobra
+    app.kubernetes.io/part-of: iidi
+    app.kubernetes.io/component: fhir-server
+    province: bc
+  annotations:
+    config.sync.gke.io/sync-wave: "30"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hapi-fhir-server-bc
+  template:
+    metadata:
+      labels:
+        app: hapi-fhir-server-bc
+        version: v1
+        gc.ca/data-classification: unclassified
+        gc.ca/environment: dev
+        gc.ca/tier: tier3
+        tenant: cobra
+        app.kubernetes.io/part-of: iidi
+        app.kubernetes.io/component: fhir-server
+        province: bc
+        expose-to-gateway: "true"
+    spec:
+      containers:
+      - name: hapi-fhir-server-bc
+        image: "hapiproject/hapi:v7.6.0"
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+          name: "container-port"
+        env:
+        - name: HAPI_DB_HOST
+          valueFrom:
+            secretKeyRef:
+              name: hapi-fhir-db-bc-app
+              key: host
+        - name: HAPI_DB_PORT
+          value: "5432"
+        - name: HAPI_DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: hapi-fhir-db-bc-app
+              key: dbname
+        - name: HAPI_DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: hapi-fhir-db-bc-app
+              key: username
+        - name: HAPI_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: hapi-fhir-db-bc-app
+              key: password
+        volumeMounts:
+        - mountPath: /app/config
+          name: hapi-fhir-configmap
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            cpu: 1000m
+            memory: 2Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          capabilities:
+            drop:
+            - ALL
+      restartPolicy: Always
+      volumes:
+      - name: hapi-fhir-configmap
+        configMap:
+          name: hapi-fhir-configmap-bc

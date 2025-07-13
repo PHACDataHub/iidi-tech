@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transfer-outbound-bc
+  labels:
+    app: transfer-outbound-bc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: transfer-outbound-bc
+  template:
+    metadata:
+      labels:
+        app: transfer-outbound-bc
+    spec:
+      containers:
+        - name: transfer-outbound-bc
+          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/iidi/iidi-transfer-outbound:main-d13bb88049d5b4ec3ce0b63f919a5bac86838390-1742323782
+          ports:
+            - containerPort: 3000
+          env:
+            - name: EXPRESS_PORT
+              value: "3000"
+            - name: DEV_IS_LOCAL_ENV
+              value: "false"
+            - name: REDIS_HOST
+              value: "redis-bc-svc.cobra.svc.cluster.local"
+            - name: FHIR_URL
+              value: "http://hapi-fhir-bc-svc.cobra.svc.cluster.local:8080/fhir"
+            - name: OWN_TRANSFER_CODE
+              value: "BC"
+            - name: INBOUND_TRANSFER_SERIVCES_BY_TRANSFER_CODE
+              value: '{ "ON": "http://transfer-inbound-on-svc.cobra.svc.cluster.local:3000" }'
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-bc-secret
+                  key: redis-password
+            - name: TRANSFER_DASHBOARD_ORIGINS
+              value: "https://demo-transfer-dashboard.iidi.alpha.phac.gc.ca,http://localhost:8080,http://localhost:3000,http://localhost:3005"

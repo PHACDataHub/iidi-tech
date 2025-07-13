@@ -1,10 +1,10 @@
 steps:
-  - name: 'gcr.io/cloud-builders/docker'
+  - name: "gcr.io/cloud-builders/docker"
     id: generate-image-name
-    entrypoint: 'bash'
+    entrypoint: "bash"
     dir: aggregator
     args:
-      - '-c'
+      - "-c"
       - |
         set -o errexit
         set -o pipefail
@@ -16,16 +16,16 @@ steps:
         # Also important to note that they depend on the trigger source, and won't be set by default
         # if the build is triggered via the cli (`gcloud builds submit`) UNLESS the `--substitutions`
         # flag is used to set them manually
-        image_name="northamerica-northeast1-docker.pkg.dev/$PROJECT_ID/paradire/${service}:$BRANCH_NAME-$COMMIT_SHA-$(date +%s)"
+        image_name="northamerica-northeast1-docker.pkg.dev/$PROJECT_ID/iidi/${service}:$BRANCH_NAME-$COMMIT_SHA-$(date +%s)"
         echo "Image name for this build (if pushed): ${image_name}"
         echo "${image_name}" > /workspace/imagename
 
-  - name: 'gcr.io/cloud-builders/docker'
+  - name: "gcr.io/cloud-builders/docker"
     id: build-if-main
-    entrypoint: 'bash'
+    entrypoint: "bash"
     dir: aggregator
     args:
-      - '-c'
+      - "-c"
       - |
         set -o errexit
         set -o pipefail
@@ -40,11 +40,11 @@ steps:
           exit 0
         fi
 
-  - name: 'gcr.io/cloud-builders/docker'
+  - name: "gcr.io/cloud-builders/docker"
     id: push-if-main
-    entrypoint: 'bash'
+    entrypoint: "bash"
     args:
-      - '-c'
+      - "-c"
       - |
         set -o errexit
         set -o pipefail

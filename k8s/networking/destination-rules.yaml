@@ -1,0 +1,101 @@
+# Destination Rules for IIDI Services in Cobra Tenant
+# BC Services Destination Rules
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: bc-services-destination-rule
+  labels:
+    gc.ca/data-classification: unclassified
+    gc.ca/environment: dev
+    gc.ca/tier: tier3
+    tenant: cobra
+    app.kubernetes.io/part-of: iidi
+    app.kubernetes.io/component: destination-rule
+    province: bc
+  annotations:
+    config.sync.gke.io/sync-wave: "45"
+spec:
+  host: "*.bc"
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+
+---
+# ON Services Destination Rules
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: on-services-destination-rule
+  labels:
+    gc.ca/data-classification: unclassified
+    gc.ca/environment: dev
+    gc.ca/tier: tier3
+    tenant: cobra
+    app.kubernetes.io/part-of: iidi
+    app.kubernetes.io/component: destination-rule
+    province: on
+  annotations:
+    config.sync.gke.io/sync-wave: "45"
+spec:
+  host: "*.on"
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+
+---
+# Federal Services Destination Rules
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: federal-services-destination-rule
+  labels:
+    gc.ca/data-classification: unclassified
+    gc.ca/environment: dev
+    gc.ca/tier: tier3
+    tenant: cobra
+    app.kubernetes.io/part-of: iidi
+    app.kubernetes.io/component: destination-rule
+  annotations:
+    config.sync.gke.io/sync-wave: "45"
+spec:
+  host: "*.federal"
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+  subsets:
+  - name: v1
+    labels:
+      version: v1
+
+---
+# Demo Services Destination Rules
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  name: demo-services-destination-rule
+  labels:
+    gc.ca/data-classification: unclassified
+    gc.ca/environment: dev
+    gc.ca/tier: tier3
+    tenant: cobra
+    app.kubernetes.io/part-of: iidi
+    app.kubernetes.io/component: destination-rule
+  annotations:
+    config.sync.gke.io/sync-wave: "45"
+spec:
+  host: "demo-*"
+  trafficPolicy:
+    tls:
+      mode: ISTIO_MUTUAL
+  subsets:
+  - name: v1
+    labels:
+      version: v1

@@ -1,0 +1,37 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - deployment.yaml
+  - service.yaml
+  - federator-key.yaml
+
+patches:
+  - patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: federator-deployment
+      spec:
+        template:
+          spec:
+            containers:
+              - name: federator
+                resources:
+                  requests:
+                    cpu: 250m
+                    memory: 512Mi
+                  limits:
+                    cpu: 1.5
+                    memory: 2Gi
+              - name: istio-proxy
+                image: auto
+                resources:
+                  requests:
+                    cpu: 50m
+                    memory: 56Mi
+                securityContext:
+                  allowPrivilegeEscalation: false
+    target:
+      kind: Deployment
+      name: federator-deployment

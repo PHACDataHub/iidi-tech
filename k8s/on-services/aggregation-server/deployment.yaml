@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aggregation-server-on-deployment
+  labels:
+    app: aggregation-server-on
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aggregation-server-on
+  template:
+    metadata:
+      labels:
+        app: aggregation-server-on
+    spec:
+      containers:
+        - name: aggregation-server-on
+          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/iidi/iidi-aggregator:main-e8cfd8306b4e4c2c55c3d532469fc7d18b7ba671-1741876097
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5000
+          env:
+            - name: FHIR_URL
+              value: "http://hapi-fhir-on-svc.cobra.svc.cluster.local:8080/fhir"
+            - name: AGGREGATION_INTERVAL
+              value: "60"
+            - name: PUBLIC_KEY_PATH
+              value: "/secrets/public_key.pem"
+            - name: IS_LOCAL_DEV
+              value: "false"
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            failureThreshold: 3
+          volumeMounts:
+            - name: public-key-volume
+              mountPath: "/secrets"
+              readOnly: true
+      volumes:
+        - name: public-key-volume
+          secret:
+            secretName: aggregation-server-on-public-key
