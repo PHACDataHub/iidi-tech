@@ -33,5 +33,5 @@ patches:
       kind: Deployment
       name: demo-portal
 images:
-  - name: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/iidi/demo-portal
+  - name: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/demo-portal
     newTag: main-77e5723b2c7aaea34295f69a6efced54d338965d-1751984985

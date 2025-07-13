@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: demo-transfer-dashboard
+  annotations:
+    argocd.argoproj.io/sync-wave: "42"
 spec:
   replicas: 1
   selector:
@@ -14,7 +16,7 @@ spec:
     spec:
       containers:
         - name: demo-transfer-dashboard
-          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/iidi/iidi-demo-transfer-dashboard:main-0c2fc2901f7023705c0272b126132fdf3eb4234d-1741880466
+          image: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-demo-transfer-dashboard:main-0c2fc2901f7023705c0272b126132fdf3eb4234d-1741880466
           imagePullPolicy: Always
           ports:
             - containerPort: 3000

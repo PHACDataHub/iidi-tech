@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: demo-portal
+  annotations:
+    argocd.argoproj.io/sync-wave: "42"
 spec:
   replicas: 1
   selector:
@@ -14,15 +16,15 @@ spec:
     spec:
       containers:
         - name: demo-portal
-          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/iidi/demo-portal:main-1e4b89985ca5c64882416cace9d5afa20b5f3fc6-1742913622
+          image: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/demo-portal:main-1e4b89985ca5c64882416cace9d5afa20b5f3fc6-1742913622
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
           env:
             - name: FLASK_APP
-              value: "app.py"
+              value: 'app.py'
             - name: FLASK_DEBUG
-              value: "0"
+              value: '0'
             - name: FED_DASHBOARD_URL
               value: https://rshiny-dashboard.federal.iidi.alpha.phac.gc.ca
             - name: FED_FEDERATOR_URL
@@ -34,7 +36,7 @@ spec:
             - name: BC_AGGREGATOR_URL
               value: https://aggregator.bc.iidi.alpha.phac.gc.ca/aggregated-data
             - name: BC_DEMO_TRANSFER_DASHBOARD_URL
-              value: "https://demo-transfer-dashboard.iidi.alpha.phac.gc.ca?pt=BC"
+              value: 'https://demo-transfer-dashboard.iidi.alpha.phac.gc.ca?pt=BC'
             - name: ON_BROWSER_URL
               value: https://patient-browser.on.iidi.alpha.phac.gc.ca
             - name: ON_FHIR_URL
@@ -42,7 +44,7 @@ spec:
             - name: ON_AGGREGATOR_URL
               value: https://aggregator.on.iidi.alpha.phac.gc.ca/aggregated-data
             - name: ON_DEMO_TRANSFER_DASHBOARD_URL
-              value: "https://demo-transfer-dashboard.iidi.alpha.phac.gc.ca?pt=ON"
+              value: 'https://demo-transfer-dashboard.iidi.alpha.phac.gc.ca?pt=ON'
           livenessProbe:
             httpGet:
               path: /health

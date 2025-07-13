@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: patient-browser-bc
+  annotations:
+    argocd.argoproj.io/sync-wave: "35"
 spec:
   replicas: 1
   selector:
@@ -14,11 +16,11 @@ spec:
         version: v1
     spec:
       containers:
-        - name: patient-browser-bc
-          image: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/iidi/patient-browser-iidi:main-153c34381ef0bca44116c9b7ccd9619934b93fc7-1739905750
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 8080
-          env:
-            - name: FHIR_URL
-              value: "http://hapi-fhir-bc-svc.cobra.svc.cluster.local:8080/fhir"
+      - name: patient-browser-bc
+        image: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/patient-browser-iidi:main-153c34381ef0bca44116c9b7ccd9619934b93fc7-1739905750
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8080
+        env:
+        - name: FHIR_URL
+          value: "http://hapi-fhir-bc-svc.cobra.svc.cluster.local:8080/fhir"

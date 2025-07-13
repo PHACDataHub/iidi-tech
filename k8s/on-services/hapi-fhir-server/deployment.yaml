@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: hapi-fhir-server-on
+  annotations:
+    argocd.argoproj.io/sync-wave: "30"
   labels:
     app: hapi-fhir-server-on
 spec:

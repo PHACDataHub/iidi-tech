@@ -2,6 +2,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: patient-browser-bc-svc
+  annotations:
+    argocd.argoproj.io/sync-wave: "35"
 spec:
   type: ClusterIP
   ports:

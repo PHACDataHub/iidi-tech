@@ -1,6 +1,8 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  annotations:
+    argocd.argoproj.io/sync-wave: "20"
   labels:
     app: hapi-fhir-on-configmap
   name: hapi-fhir-on-configmap
