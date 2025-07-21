@@ -479,6 +479,20 @@ services:
       EXPRESS_PORT: 3000
       DEV_IS_LOCAL_ENV: True
       FHIR_URL: http://on-fhir:8080/fhir # in this case, resolved inside the container, with container networking
+    develop:
+      watch:
+        # Sync code changes then restart the service
+        - action: sync+restart
+          path: ./transfer-inbound
+          target: /home/node-dev/project
+          ignore:
+            - node_modules/
+            - .env.node-dev-docker-env-overrides
+        # Rebuild if Dockerfile or dependencies change
+        - action: rebuild
+          path: node-dev-docker-env/Dockerfile.node-dev
+        - action: rebuild
+          path: node-dev-docker-env/package.json
   on-bullmq-redis: &bullmq-redis
     image: redis:7.4.1-alpine
     tty: ${DOCKER_TTY:-true}

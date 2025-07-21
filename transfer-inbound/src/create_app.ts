@@ -37,6 +37,16 @@ export const create_app = async () => {
 
     const transactionBundle = await set_bundle_type_to_transaction(bundle);
 
+    // The HAPI FHIR server attaches a meta object to each resource which contains information
+    // about the resource, such as its version, last updated time, and source.
+    // The source field is prepopulated by the HAPI FHIR server with the URL of the server itself.
+    // However, in our case the server sets a random value which does not correspond to the URL format (Reason: TODO).
+    // Docker image v8.2.0-1 onwards $validate calls to the HAPI FHIR server throws an error if the source 
+    // field is not in the correct format. Safest approach is to remove the source field from the resources.
+    transactionBundle.entry?.map(entry => {
+      delete entry.resource?.meta?.source; // remove meta.source information from resources
+    });
+
     await assert_bundle_follows_fhir_spec(transactionBundle);
 
     const new_patient_id = await write_bundle_to_fhir_api(transactionBundle);
