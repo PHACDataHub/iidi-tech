@@ -1,6 +1,5 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-
 resources:
   - namespace.yaml
   - ./redis-server
@@ -9,14 +8,13 @@ resources:
   - ./patient-browser
   - ./aggregation-server
   - ./on-transfer
-
 images:
   - name: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-aggregator
     newTag: main-e8cfd8306b4e4c2c55c3d532469fc7d18b7ba671-1741876097
   - name: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/patient-browser-iidi
     newTag: main-153c34381ef0bca44116c9b7ccd9619934b93fc7-1739905750
   - name: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-transfer-inbound
-    newTag: main-d13bb88049d5b4ec3ce0b63f919a5bac86838390-1742323779
+    newTag: main-de83b8386cf777cb0528d37216b1ada984774c54-1753064909
   - name: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/iidi-transfer-outbound
     newTag: main-d13bb88049d5b4ec3ce0b63f919a5bac86838390-1742323782
   - name: northamerica-northeast1-docker.pkg.dev/phx-01he5rx4wsv/paradire/synthetic-data
