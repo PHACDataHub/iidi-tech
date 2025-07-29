@@ -141,12 +141,7 @@ spec:
   - from:
     - namespaceSelector:
         matchLabels:
-          name: istio-system
-    - namespaceSelector:
-        matchLabels:
           name: monitoring
     ports:
-    - protocol: TCP
-      port: 15090  # Istio sidecar admin port
     - protocol: TCP
       port: 9090   # Prometheus metrics

@@ -8,11 +8,11 @@ resources:
   # Security - External Secrets (sync-wave: 20)
   - security/external-secrets.yaml
 
-  # Gateway Certificate (sync-wave: 25)
-  - gateway/certificate.yaml
+  # Gateway API - HTTPRoutes (sync-wave: 70)
+  - gateway/httproutes.yaml
+
 
   # BC Services
-  - bc-services/hapi-fhir-server/database.yaml # sync-wave: 10
   - bc-services/hapi-fhir-server/configmap.yaml # sync-wave: 20
   - bc-services/hapi-fhir-server/deployment.yaml # sync-wave: 30
   - bc-services/hapi-fhir-server/service.yaml # sync-wave: 30
@@ -24,7 +24,10 @@ resources:
   - bc-services/bc-transfer/
 
   # ON Services
-  - on-services/hapi-fhir-server/
+  - on-services/hapi-fhir-server/configmap.yaml
+  - on-services/hapi-fhir-server/deployment.yaml 
+  - on-services/hapi-fhir-server/service.yaml
+  - on-services/hapi-fhir-server/synthetic-data.yaml
   - on-services/redis-server/
   - on-services/patient-browser/
   - on-services/aggregation-server/
@@ -40,8 +43,6 @@ resources:
 
   # Networking (sync-wave: 45-50)
   - networking/network-policies.yaml
-  - networking/destination-rules.yaml
-  - networking/virtual-services.yaml
 
 # Common labels applied to all resources
 commonLabels:

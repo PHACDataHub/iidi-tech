@@ -26,26 +26,20 @@ spec:
           name: "container-port"
         env:
         - name: HAPI_DB_HOST
-          valueFrom:
-            secretKeyRef:
-              name: hapi-fhir-db-app
-              key: host
+          value: "cobra-postgres-ontario-rw.cobra.svc.cluster.local"
         - name: HAPI_DB_PORT
           value: "5432"
         - name: HAPI_DB_NAME
-          valueFrom:
-            secretKeyRef:
-              name: hapi-fhir-db-app
-              key: dbname
+          value: "cobra_ontario"
         - name: HAPI_DB_USERNAME
           valueFrom:
             secretKeyRef:
-              name: hapi-fhir-db-app
+              name: cobra-postgres-credentials
               key: username
         - name: HAPI_DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: hapi-fhir-db-app
+              name: cobra-postgres-credentials
               key: password
         volumeMounts:
         - mountPath: /app/config
