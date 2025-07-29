@@ -45,9 +45,10 @@ resources:
   - networking/network-policies.yaml
 
 # Common labels applied to all resources
-commonLabels:
-  tenant: cobra
-  app.kubernetes.io/managed-by: argocd
+labels:
+- pairs:
+    tenant: cobra
+    app.kubernetes.io/managed-by: argocd
 
 # Global annotations
 commonAnnotations:
