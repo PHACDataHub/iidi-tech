@@ -23,7 +23,7 @@ steps:
 
   # Step 2: Build the Docker image if the branch is 'main'
   - name: "gcr.io/cloud-builders/docker"
-    id: build-if-main
+    id: build-if-iidi-cobra
     entrypoint: "bash"
     dir: rshiny-dashboard
     args:
@@ -33,7 +33,7 @@ steps:
         set -o pipefail
         set -o nounset
 
-        if [[ "$BRANCH_NAME" == "main" ]]; then
+        if [[ "$BRANCH_NAME" == "iidi-cobra" ]]; then
           image=$(cat /workspace/imagename)
           echo "Building Docker image: ${image}"
           docker build -t "${image}" -f ./Dockerfile .
@@ -44,7 +44,7 @@ steps:
 
   # Step 3: Push the Docker image to the registry if the branch is 'main'
   - name: "gcr.io/cloud-builders/docker"
-    id: push-if-main
+    id: push-if-iidi-cobra
     entrypoint: "bash"
     args:
       - "-c"
@@ -53,7 +53,7 @@ steps:
         set -o pipefail
         set -o nounset
 
-        if [[ "$BRANCH_NAME" == "main" ]]; then
+        if [[ "$BRANCH_NAME" == "iidi-cobra" ]]; then
           image=$(cat /workspace/imagename)
           echo "Pushing Docker image: ${image}"
           docker push "${image}"
