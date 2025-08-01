@@ -1,7 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: cobra
   name: transfer-inbound-on-svc
+  annotations:
+    argocd.argoproj.io/sync-wave: "30"
   labels:
     app: transfer-inbound-on
 spec:

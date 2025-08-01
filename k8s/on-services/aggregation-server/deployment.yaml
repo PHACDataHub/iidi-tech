@@ -2,8 +2,14 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: aggregation-server-on-deployment
+  namespace: cobra
+  annotations:
+    argocd.argoproj.io/sync-wave: "40"
   labels:
     app: aggregation-server-on
+    app.kubernetes.io/name: aggregation-server-on
+    app.kubernetes.io/component: on-services
+    app.kubernetes.io/part-of: iidi-tech
 spec:
   replicas: 1
   selector:
@@ -13,6 +19,9 @@ spec:
     metadata:
       labels:
         app: aggregation-server-on
+        app.kubernetes.io/name: aggregation-server-on
+        app.kubernetes.io/component: on-services
+        app.kubernetes.io/part-of: iidi-tech
     spec:
       containers:
       - name: aggregation-server-on

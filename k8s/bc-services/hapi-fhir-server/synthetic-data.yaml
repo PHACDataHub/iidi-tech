@@ -19,7 +19,7 @@ spec:
         - name: PT
           value: "bc"
         - name: FHIR_URL
-          value: "http://hapi-fhir-bc-svc.bc.svc.cluster.local:8080/fhir"
+          value: "http://hapi-fhir-bc-svc.cobra.svc.cluster.local:8080/fhir"
         resources:
           requests:
             cpu: "500m"

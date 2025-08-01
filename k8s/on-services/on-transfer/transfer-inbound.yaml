@@ -2,8 +2,14 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: transfer-inbound-on
+  namespace: cobra
+  annotations:
+    argocd.argoproj.io/sync-wave: "40"
   labels:
     app: transfer-inbound-on
+    app.kubernetes.io/name: transfer-inbound-on
+    app.kubernetes.io/component: on-services
+    app.kubernetes.io/part-of: iidi-tech
 spec:
   replicas: 1
   selector:

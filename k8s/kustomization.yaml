@@ -4,6 +4,9 @@ kind: Kustomization
 # IIDI Application for Cobra Tenant
 # All resources deploy to cobra namespace managed by platform
 
+# Set namespace for all resources
+namespace: cobra
+
 resources:
   # Security - External Secrets (sync-wave: 20)
   - security/external-secrets.yaml
@@ -53,3 +56,30 @@ labels:
 # Global annotations
 commonAnnotations:
   app.kubernetes.io/version: "1.0.0"
+
+# Image transformations - update to use Artifact Registry
+images:
+  # HAPI FHIR Server
+  - name: hapiproject/hapi
+    newName: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/hapi
+    newTag: v7.6.0
+
+  # Redis
+  - name: redis
+    newName: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/redis
+    newTag: 7-alpine
+
+# Patches to apply
+patches:
+  # Add service account to all deployments
+  - target:
+      kind: Deployment
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: not-important
+      spec:
+        template:
+          spec:
+            serviceAccountName: cobra-app-sa

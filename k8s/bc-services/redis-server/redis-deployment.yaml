@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: redis-bc
+  namespace: cobra
   annotations:
     argocd.argoproj.io/sync-wave: "30"
 spec:
@@ -12,7 +13,7 @@ spec:
   template:
     metadata:
       labels:
-        app: redis-bc-bc
+        app: redis-bc
     spec:
       volumes:
         - name: redis-config-volume

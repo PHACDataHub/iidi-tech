@@ -1,6 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: cobra
   name: patient-browser-on
   annotations:
     argocd.argoproj.io/sync-wave: "35"

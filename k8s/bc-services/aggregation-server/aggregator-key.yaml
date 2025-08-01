@@ -1,11 +1,22 @@
-apiVersion: external-secrets.io/v1
+apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
 metadata:
   name: aggregation-server-bc-public-key
+  namespace: cobra
+  labels:
+    gc.ca/data-classification: unclassified
+    gc.ca/environment: dev
+    gc.ca/tier: tier3
+    tenant: cobra
+    app.kubernetes.io/part-of: iidi
+    app.kubernetes.io/component: external-secret
+    province: bc
+  annotations:
+    argocd.argoproj.io/sync-wave: "20"
 spec:
   refreshInterval: 1h
   secretStoreRef:
-    name: gcp-secret-store
+    name: cobra-secret-store
     kind: ClusterSecretStore
   target:
     name: aggregation-server-bc-public-key
@@ -13,5 +24,4 @@ spec:
   data:
     - secretKey: public_key.pem
       remoteRef:
-        key: aggregator-public-key-bc
-        version: latest
+        key: cobra-aggregator-bc-key

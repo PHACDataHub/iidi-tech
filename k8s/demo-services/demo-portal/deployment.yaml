@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: demo-portal
+  namespace: cobra
   annotations:
     argocd.argoproj.io/sync-wave: "42"
 spec:
@@ -26,25 +27,25 @@ spec:
             - name: FLASK_DEBUG
               value: '0'
             - name: FED_DASHBOARD_URL
-              value: https://rshiny-dashboard.federal.iidi.alpha.phac.gc.ca
+              value: https://federal.iidi.cobra.dev.gcdm022b.gc.ca/dashboard
             - name: FED_FEDERATOR_URL
-              value: https://federator.federal.iidi.alpha.phac.gc.ca/aggregated-data
+              value: https://federal.iidi.cobra.dev.gcdm022b.gc.ca/federator/aggregated-data
             - name: BC_BROWSER_URL
-              value: https://patient-browser.bc.iidi.alpha.phac.gc.ca
+              value: https://bc.iidi.cobra.dev.gcdm022b.gc.ca/patient-browser
             - name: BC_FHIR_URL
-              value: https://fhir.bc.iidi.alpha.phac.gc.ca
+              value: https://bc.iidi.cobra.dev.gcdm022b.gc.ca/fhir
             - name: BC_AGGREGATOR_URL
-              value: https://aggregator.bc.iidi.alpha.phac.gc.ca/aggregated-data
+              value: https://bc.iidi.cobra.dev.gcdm022b.gc.ca/aggregator/aggregated-data
             - name: BC_DEMO_TRANSFER_DASHBOARD_URL
-              value: 'https://demo-transfer-dashboard.iidi.alpha.phac.gc.ca?pt=BC'
+              value: 'https://demo.iidi.cobra.dev.gcdm022b.gc.ca/transfer-dashboard?pt=BC'
             - name: ON_BROWSER_URL
-              value: https://patient-browser.on.iidi.alpha.phac.gc.ca
+              value: https://on.iidi.cobra.dev.gcdm022b.gc.ca/patient-browser
             - name: ON_FHIR_URL
-              value: https://fhir.on.iidi.alpha.phac.gc.ca
+              value: https://on.iidi.cobra.dev.gcdm022b.gc.ca/fhir
             - name: ON_AGGREGATOR_URL
-              value: https://aggregator.on.iidi.alpha.phac.gc.ca/aggregated-data
+              value: https://on.iidi.cobra.dev.gcdm022b.gc.ca/aggregator/aggregated-data
             - name: ON_DEMO_TRANSFER_DASHBOARD_URL
-              value: 'https://demo-transfer-dashboard.iidi.alpha.phac.gc.ca?pt=ON'
+              value: 'https://demo.iidi.cobra.dev.gcdm022b.gc.ca/transfer-dashboard?pt=ON'
           livenessProbe:
             httpGet:
               path: /health

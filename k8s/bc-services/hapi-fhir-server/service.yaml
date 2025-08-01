@@ -12,7 +12,7 @@ metadata:
     province: bc
   name: hapi-fhir-bc-svc
   annotations:
-    config.sync.gke.io/sync-wave: "30"
+    argocd.argoproj.io/sync-wave: "30"
 spec:
   type: ClusterIP
   ports:

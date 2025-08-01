@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: hapi-fhir-server-on
+  namespace: cobra
   annotations:
     argocd.argoproj.io/sync-wave: "30"
   labels:
@@ -30,16 +31,16 @@ spec:
         - name: HAPI_DB_PORT
           value: "5432"
         - name: HAPI_DB_NAME
-          value: "cobra_ontario"
+          value: "app"
         - name: HAPI_DB_USERNAME
           valueFrom:
             secretKeyRef:
-              name: cobra-postgres-credentials
+              name: cobra-postgres-ontario-app
               key: username
         - name: HAPI_DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: cobra-postgres-credentials
+              name: cobra-postgres-ontario-app
               key: password
         volumeMounts:
         - mountPath: /app/config

@@ -1,11 +1,18 @@
-apiVersion: external-secrets.io/v1
+apiVersion: external-secrets.io/v1beta1
 kind: ExternalSecret
 metadata:
   name: federator-private-key
+  namespace: cobra
+  annotations:
+    argocd.argoproj.io/sync-wave: "20"
+  labels:
+    app.kubernetes.io/name: federator
+    app.kubernetes.io/component: federal-services
+    app.kubernetes.io/part-of: iidi-tech
 spec:
   refreshInterval: 1h
   secretStoreRef:
-    name: gcp-secret-store
+    name: cobra-secret-store
     kind: ClusterSecretStore
   target:
     name: federator-private-key

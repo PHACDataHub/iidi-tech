@@ -12,7 +12,7 @@ metadata:
     province: bc
   name: hapi-fhir-configmap-bc
   annotations:
-    config.sync.gke.io/sync-wave: "20"
+    argocd.argoproj.io/sync-wave: "20"
 data:
   application.yaml: |
     #Adds the option to go to eg. http://localhost:8080/actuator/health for seeing the running configuration

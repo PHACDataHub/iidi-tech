@@ -2,6 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: transfer-outbound-bc
+  namespace: cobra
+  annotations:
+    argocd.argoproj.io/sync-wave: "35"
   labels:
     app: transfer-outbound-bc
 spec:
@@ -40,4 +43,4 @@ spec:
                   name: redis-bc-secret
                   key: redis-password
             - name: TRANSFER_DASHBOARD_ORIGINS
-              value: "https://demo-transfer-dashboard.iidi.alpha.phac.gc.ca,http://localhost:8080,http://localhost:3000,http://localhost:3005"
+              value: "https://demo.iidi.cobra.dev.gcdm022b.gc.ca/transfer-dashboard,http://localhost:8080,http://localhost:3000,http://localhost:3005"

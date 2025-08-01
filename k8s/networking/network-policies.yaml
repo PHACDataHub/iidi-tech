@@ -4,6 +4,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: default-deny-ingress
+  namespace: cobra
   labels:
     gc.ca/data-classification: unclassified
     gc.ca/environment: dev
@@ -12,7 +13,7 @@ metadata:
     app.kubernetes.io/part-of: iidi
     app.kubernetes.io/component: network-policy
   annotations:
-    config.sync.gke.io/sync-wave: "15"
+    argocd.argoproj.io/sync-wave: "15"
 spec:
   podSelector: {}
   policyTypes:
@@ -24,6 +25,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-gateway-ingress
+  namespace: cobra
   labels:
     gc.ca/data-classification: unclassified
     gc.ca/environment: dev
@@ -32,7 +34,7 @@ metadata:
     app.kubernetes.io/part-of: iidi
     app.kubernetes.io/component: network-policy
   annotations:
-    config.sync.gke.io/sync-wave: "15"
+    argocd.argoproj.io/sync-wave: "15"
 spec:
   podSelector:
     matchLabels:
@@ -58,6 +60,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-internal-cobra
+  namespace: cobra
   labels:
     gc.ca/data-classification: unclassified
     gc.ca/environment: dev
@@ -66,7 +69,7 @@ metadata:
     app.kubernetes.io/part-of: iidi
     app.kubernetes.io/component: network-policy
   annotations:
-    config.sync.gke.io/sync-wave: "15"
+    argocd.argoproj.io/sync-wave: "15"
 spec:
   podSelector: {}
   ingress:
@@ -79,6 +82,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-platform-services
+  namespace: cobra
   labels:
     gc.ca/data-classification: unclassified
     gc.ca/environment: dev
@@ -87,7 +91,7 @@ metadata:
     app.kubernetes.io/part-of: iidi
     app.kubernetes.io/component: network-policy
   annotations:
-    config.sync.gke.io/sync-wave: "15"
+    argocd.argoproj.io/sync-wave: "15"
 spec:
   podSelector: {}
   egress:
@@ -126,6 +130,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-monitoring
+  namespace: cobra
   labels:
     gc.ca/data-classification: unclassified
     gc.ca/environment: dev
@@ -134,7 +139,7 @@ metadata:
     app.kubernetes.io/part-of: iidi
     app.kubernetes.io/component: network-policy
   annotations:
-    config.sync.gke.io/sync-wave: "15"
+    argocd.argoproj.io/sync-wave: "15"
 spec:
   podSelector: {}
   ingress:

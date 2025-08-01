@@ -4,7 +4,6 @@ kind: Kustomization
 resources:
   - redis-deployment.yaml
   - redis-service.yaml
-  - redis-secret.yaml
   - redis-config.yaml
 
 patches:
@@ -12,7 +11,7 @@ patches:
       apiVersion: apps/v1
       kind: Deployment
       metadata:
-        name: redis
+        name: redis-on
       spec:
         template:
           spec:
@@ -35,4 +34,4 @@ patches:
                   allowPrivilegeEscalation: false
     target:
       kind: Deployment
-      name: redis
+      name: redis-on

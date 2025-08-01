@@ -1,6 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
+  namespace: cobra
   name: redis-config-on
   annotations:
     argocd.argoproj.io/sync-wave: "20"

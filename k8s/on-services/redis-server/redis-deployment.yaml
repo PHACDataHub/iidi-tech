@@ -1,6 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: cobra
   name: redis-on
   annotations:
     argocd.argoproj.io/sync-wave: "30"

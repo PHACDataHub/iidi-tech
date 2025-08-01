@@ -2,10 +2,14 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: federator-deployment
+  namespace: cobra
   annotations:
     argocd.argoproj.io/sync-wave: "40"
   labels:
     app: federator
+    app.kubernetes.io/name: federator
+    app.kubernetes.io/component: federal-services
+    app.kubernetes.io/part-of: iidi-tech
 spec:
   replicas: 1
   selector:
@@ -15,6 +19,9 @@ spec:
     metadata:
       labels:
         app: federator
+        app.kubernetes.io/name: federator
+        app.kubernetes.io/component: federal-services
+        app.kubernetes.io/part-of: iidi-tech
     spec:
       containers:
       - name: federator

@@ -2,10 +2,14 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: rshiny-dashboard-deployment
+  namespace: cobra
   annotations:
     argocd.argoproj.io/sync-wave: "40"
   labels:
     app: rshiny-dashboard
+    app.kubernetes.io/name: rshiny-dashboard
+    app.kubernetes.io/component: federal-services
+    app.kubernetes.io/part-of: iidi-tech
 spec:
   replicas: 1
   selector:
@@ -15,6 +19,9 @@ spec:
     metadata:
       labels:
         app: rshiny-dashboard
+        app.kubernetes.io/name: rshiny-dashboard
+        app.kubernetes.io/component: federal-services
+        app.kubernetes.io/part-of: iidi-tech
     spec:
       containers:
       - name: rshiny-dashboard
@@ -24,7 +31,7 @@ spec:
         - containerPort: 3838
         env:
         - name: AGGREGATOR_URL
-          value: "http://federator-svc.federal.svc.cluster.local:80/aggregated-data"
+          value: "http://federator-svc.cobra.svc.cluster.local:80/aggregated-data"
         livenessProbe:
           httpGet:
             path: /
