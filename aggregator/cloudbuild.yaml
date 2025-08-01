@@ -35,7 +35,6 @@ steps:
         echo "Building Docker image: ${image}"
         docker build -t "${image}" -f ./Dockerfile .
 
-
   - name: 'gcr.io/cloud-builders/docker'
     id: push
     entrypoint: 'bash'
@@ -49,7 +48,6 @@ steps:
         image=$(cat /workspace/imagename)
         echo "Pushing Docker image: ${image}"
         docker push "${image}"
-
 
 options:
   defaultLogsBucketBehavior: REGIONAL_USER_OWNED_BUCKET
