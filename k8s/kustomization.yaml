@@ -8,12 +8,8 @@ kind: Kustomization
 namespace: cobra
 
 resources:
-  # Security - External Secrets (sync-wave: 20)
-  - security/external-secrets.yaml
-
   # Gateway API - HTTPRoutes (sync-wave: 70)
   - gateway/httproutes.yaml
-
 
   # BC Services
   - bc-services/hapi-fhir-server/configmap.yaml # sync-wave: 20
@@ -28,7 +24,7 @@ resources:
 
   # ON Services
   - on-services/hapi-fhir-server/configmap.yaml
-  - on-services/hapi-fhir-server/deployment.yaml 
+  - on-services/hapi-fhir-server/deployment.yaml
   - on-services/hapi-fhir-server/service.yaml
   - on-services/hapi-fhir-server/synthetic-data.yaml
   - on-services/redis-server/
@@ -49,9 +45,9 @@ resources:
 
 # Common labels applied to all resources
 labels:
-- pairs:
-    tenant: cobra
-    app.kubernetes.io/managed-by: argocd
+  - pairs:
+      tenant: cobra
+      app.kubernetes.io/managed-by: argocd
 
 # Global annotations
 commonAnnotations:
