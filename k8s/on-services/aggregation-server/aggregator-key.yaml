@@ -20,5 +20,4 @@ spec:
   data:
     - secretKey: public_key.pem
       remoteRef:
-        key: aggregator-public-key-on
-        version: latest
+        key: cobra-aggregator-on-key
