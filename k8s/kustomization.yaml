@@ -98,11 +98,6 @@ images:
     newName: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/synthetic-data
     digest: sha256:cd50afbbf33f1be554ce3aee71647f7868b885183bd0573935699aab7bf0b5d9
 
-  # Redis
-  - name: redis
-    newName: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/redis
-    newTag: 7-alpine
-
 # Patches to apply
 patches:
   # Add service account to all deployments
