@@ -24,7 +24,7 @@ spec:
 
       containers:
         - name: redis
-          image: redis:7.4.1-alpine
+          image: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/redis:7.4.1-alpine
           ports:
             - containerPort: 6379
           env:
