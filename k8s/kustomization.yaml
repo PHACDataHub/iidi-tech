@@ -12,21 +12,14 @@ resources:
   - gateway/httproutes.yaml
 
   # BC Services
-  - bc-services/hapi-fhir-server/configmap.yaml # sync-wave: 20
-  - bc-services/hapi-fhir-server/deployment.yaml # sync-wave: 30
-  - bc-services/hapi-fhir-server/service.yaml # sync-wave: 30
-  - bc-services/hapi-fhir-server/synthetic-data.yaml
-
+  - bc-services/hapi-fhir-server/
   - bc-services/redis-server/
   - bc-services/patient-browser/
   - bc-services/aggregation-server/
   - bc-services/bc-transfer/
 
   # ON Services
-  - on-services/hapi-fhir-server/configmap.yaml
-  - on-services/hapi-fhir-server/deployment.yaml
-  - on-services/hapi-fhir-server/service.yaml
-  - on-services/hapi-fhir-server/synthetic-data.yaml
+  - on-services/hapi-fhir-server/
   - on-services/redis-server/
   - on-services/patient-browser/
   - on-services/aggregation-server/
@@ -52,13 +45,58 @@ labels:
 # Global annotations
 commonAnnotations:
   app.kubernetes.io/version: "1.0.0"
+  argocd.argoproj.io/sync-options: "ServerSideApply=true"
 
 # Image transformations - update to use Artifact Registry
 images:
-  # HAPI FHIR Server
+  # Demo Portal
+  - name: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/demo-portal
+    newName: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/demo-portal
+    newTag: iidi-cobra-89d53d5feb2a4857284847e047cb66ec24ab2e96-1754014870
+
+  # HAPI FHIR Server - using new image
   - name: hapiproject/hapi
-    newName: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/hapi
-    newTag: v7.6.0
+    newName: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/hapi-fhir-server
+    newTag: iidi-cobra-bfaaeda934d8a8c2ade3bb5391d75420c550a8f9f4ac2fdb585cc78cf91d61a7-1754081774
+
+  # IIDI Aggregator
+  - name: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-aggregator
+    newName: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-aggregator
+    newTag: iidi-cobra-89d53d5feb2a4857284847e047cb66ec24ab2e96-1754014871
+
+  # IIDI Dashboard (digest-based)
+  - name: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-dashboard
+    newName: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-dashboard
+    digest: sha256:1d6e61770f6ba00712a9f1be5c6526b8628941f530cd4c321a022d8638a66d56
+
+  # IIDI Demo Transfer Dashboard (digest-based)
+  - name: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-demo-transfer-dashboard
+    newName: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-demo-transfer-dashboard
+    digest: sha256:23b5c1b76ab79f5ff8e84e3237d11421251d701643ed6f71bac4d6689a195a3a
+
+  # IIDI Federator (digest-based)
+  - name: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-federator
+    newName: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-federator
+    digest: sha256:02f49833bfee2a9b7bff9b5ff979ae5324972937d2fcf7937b39289c83d97204
+
+  # Transfer Services (digest-based)
+  - name: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-transfer-inbound
+    newName: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-transfer-inbound
+    digest: sha256:fc4bcd8c63c56bb9cd4dfc79e6e030c38fadcec20fbff1ab3044145766d3f795
+
+  - name: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-transfer-outbound
+    newName: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-transfer-outbound
+    digest: sha256:645d3854615b8ab882cc7f9847e8994df4d682fafd41bffd9f385598f8ef6565
+
+  # Patient Browser (digest-based)
+  - name: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/patient-browser-iidi
+    newName: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/patient-browser-iidi
+    digest: sha256:f8628df85dd76c8f59c2d31b03b2f08dc0d258fc1825e1b7459591410656076a
+
+  # Synthetic Data (digest-based)
+  - name: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/synthetic-data
+    newName: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/synthetic-data
+    digest: sha256:cd50afbbf33f1be554ce3aee71647f7868b885183bd0573935699aab7bf0b5d9
 
   # Redis
   - name: redis
@@ -79,3 +117,131 @@ patches:
         template:
           spec:
             serviceAccountName: cobra-app-sa
+
+  # Add default resources for containers without them (Autopilot requirement)
+  - target:
+      kind: Deployment
+      name: redis-bc
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: redis-bc
+      spec:
+        template:
+          spec:
+            containers:
+            - name: redis
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  cpu: 500m
+                  memory: 512Mi
+
+  - target:
+      kind: Deployment
+      name: redis-on
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: redis-on
+      spec:
+        template:
+          spec:
+            containers:
+            - name: redis
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  cpu: 500m
+                  memory: 512Mi
+
+  # Add resources for transfer services
+  - target:
+      kind: Deployment
+      name: transfer-inbound-bc
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: transfer-inbound-bc
+      spec:
+        template:
+          spec:
+            containers:
+            - name: transfer-inbound-bc
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  cpu: 500m
+                  memory: 512Mi
+
+  - target:
+      kind: Deployment
+      name: transfer-outbound-bc
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: transfer-outbound-bc
+      spec:
+        template:
+          spec:
+            containers:
+            - name: transfer-outbound-bc
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  cpu: 500m
+                  memory: 512Mi
+
+  - target:
+      kind: Deployment
+      name: transfer-inbound-on
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: transfer-inbound-on
+      spec:
+        template:
+          spec:
+            containers:
+            - name: transfer-inbound-on
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  cpu: 500m
+                  memory: 512Mi
+
+  - target:
+      kind: Deployment
+      name: transfer-outbound-on
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: transfer-outbound-on
+      spec:
+        template:
+          spec:
+            containers:
+            - name: transfer-outbound-on
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  cpu: 500m
+                  memory: 512Mi
