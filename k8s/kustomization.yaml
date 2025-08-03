@@ -177,15 +177,6 @@ patches:
                 limits:
                   cpu: 2000m
                   memory: 4Gi
-            initContainers:
-            - name: wait-for-db
-              resources:
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
-                limits:
-                  cpu: 200m
-                  memory: 256Mi
 
   - target:
       kind: Deployment
@@ -207,15 +198,6 @@ patches:
                 limits:
                   cpu: 2000m
                   memory: 4Gi
-            initContainers:
-            - name: wait-for-db
-              resources:
-                requests:
-                  cpu: 100m
-                  memory: 128Mi
-                limits:
-                  cpu: 200m
-                  memory: 256Mi
 
   # Add resources for transfer services
   - target:
