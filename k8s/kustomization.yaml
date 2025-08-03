@@ -156,6 +156,67 @@ patches:
                   cpu: 500m
                   memory: 512Mi
 
+  # Patch hapi-fhir-server resource limits to reasonable values
+  - target:
+      kind: Deployment
+      name: hapi-fhir-server-bc
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: hapi-fhir-server-bc
+      spec:
+        template:
+          spec:
+            containers:
+            - name: hapi-fhir-server-bc
+              resources:
+                requests:
+                  cpu: 500m
+                  memory: 2Gi
+                limits:
+                  cpu: 2000m
+                  memory: 4Gi
+            initContainers:
+            - name: wait-for-db
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  cpu: 200m
+                  memory: 256Mi
+
+  - target:
+      kind: Deployment
+      name: hapi-fhir-server-on
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: hapi-fhir-server-on
+      spec:
+        template:
+          spec:
+            containers:
+            - name: hapi-fhir-server-on
+              resources:
+                requests:
+                  cpu: 500m
+                  memory: 2Gi
+                limits:
+                  cpu: 2000m
+                  memory: 4Gi
+            initContainers:
+            - name: wait-for-db
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  cpu: 200m
+                  memory: 256Mi
+
   # Add resources for transfer services
   - target:
       kind: Deployment
@@ -240,3 +301,175 @@ patches:
                 limits:
                   cpu: 500m
                   memory: 512Mi
+
+  # Add resources for aggregation servers
+  - target:
+      kind: Deployment
+      name: aggregation-server-bc-deployment
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: aggregation-server-bc-deployment
+      spec:
+        template:
+          spec:
+            containers:
+            - name: aggregation-server-bc
+              resources:
+                requests:
+                  cpu: 200m
+                  memory: 512Mi
+                limits:
+                  cpu: 1000m
+                  memory: 2Gi
+
+  - target:
+      kind: Deployment
+      name: aggregation-server-on-deployment
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: aggregation-server-on-deployment
+      spec:
+        template:
+          spec:
+            containers:
+            - name: aggregation-server-on
+              resources:
+                requests:
+                  cpu: 200m
+                  memory: 512Mi
+                limits:
+                  cpu: 1000m
+                  memory: 2Gi
+
+  # Add resources for patient browsers
+  - target:
+      kind: Deployment
+      name: patient-browser-bc
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: patient-browser-bc
+      spec:
+        template:
+          spec:
+            containers:
+            - name: patient-browser-bc
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 256Mi
+                limits:
+                  cpu: 500m
+                  memory: 1Gi
+
+  - target:
+      kind: Deployment
+      name: patient-browser-on
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: patient-browser-on
+      spec:
+        template:
+          spec:
+            containers:
+            - name: patient-browser-on
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 256Mi
+                limits:
+                  cpu: 500m
+                  memory: 1Gi
+
+  # Add resources for demo services
+  - target:
+      kind: Deployment
+      name: demo-portal
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: demo-portal
+      spec:
+        template:
+          spec:
+            containers:
+            - name: demo-portal
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 256Mi
+                limits:
+                  cpu: 500m
+                  memory: 1Gi
+
+  - target:
+      kind: Deployment
+      name: demo-transfer-dashboard
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: demo-transfer-dashboard
+      spec:
+        template:
+          spec:
+            containers:
+            - name: demo-transfer-dashboard
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 256Mi
+                limits:
+                  cpu: 500m
+                  memory: 1Gi
+
+  # Add resources for federal services
+  - target:
+      kind: Deployment
+      name: federator-deployment
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: federator-deployment
+      spec:
+        template:
+          spec:
+            containers:
+            - name: federator
+              resources:
+                requests:
+                  cpu: 200m
+                  memory: 512Mi
+                limits:
+                  cpu: 1000m
+                  memory: 2Gi
+
+  - target:
+      kind: Deployment
+      name: rshiny-dashboard-deployment
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: rshiny-dashboard-deployment
+      spec:
+        template:
+          spec:
+            containers:
+            - name: rshiny-dashboard
+              resources:
+                requests:
+                  cpu: 200m
+                  memory: 512Mi
+                limits:
+                  cpu: 1000m
+                  memory: 2Gi
