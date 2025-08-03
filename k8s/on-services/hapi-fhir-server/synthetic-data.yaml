@@ -5,29 +5,28 @@ metadata:
   name: synthetic-data-job-on
   annotations:
     argocd.argoproj.io/sync-wave: "40"
-    argocd.argoproj.io/hook: PostSync
-    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
 spec:
   backoffLimit: 4
   ttlSecondsAfterFinished: 600
   template:
     spec:
+      serviceAccountName: cobra-app-sa
       restartPolicy: Never
       containers:
-      - name: synthetic-data
-        image: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/synthetic-data:main-01df63e5bec99369feefd606f28e4db267f7716c-1741382883
-        imagePullPolicy: Always
-        env:
-        - name: NUM_RECORDS
-          value: "500"
-        - name: PT
-          value: "on"
-        - name: FHIR_URL
-          value: "http://hapi-fhir-on-svc.cobra.svc.cluster.local:8080/fhir"
-        resources:
-          requests:
-            cpu: "500m"
-            memory: "512Mi"
-          limits:
-            cpu: "1"
-            memory: "1Gi"
+        - name: synthetic-data
+          image: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/synthetic-data:main-01df63e5bec99369feefd606f28e4db267f7716c-1741382883
+          imagePullPolicy: Always
+          env:
+            - name: NUM_RECORDS
+              value: "500"
+            - name: PT
+              value: "on"
+            - name: FHIR_URL
+              value: "http://hapi-fhir-on-svc.cobra.svc.cluster.local:8080/fhir"
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "1"
+              memory: "1Gi"

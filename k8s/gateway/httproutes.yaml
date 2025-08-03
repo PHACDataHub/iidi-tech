@@ -21,7 +21,7 @@ spec:
   - name: external-gateway1  # Platform gateway
     namespace: gateway-infra
   hostnames:
-  - "bc.iidi.cobra.dev.gcdm022b.gc.ca"
+  - "bc.iidi.alpha.phac.gc.ca"
   rules:
   # Patient Browser BC
   - matches:
@@ -84,7 +84,7 @@ spec:
   - name: external-gateway1  # Platform gateway
     namespace: gateway-infra
   hostnames:
-  - "on.iidi.cobra.dev.gcdm022b.gc.ca"
+  - "on.iidi.alpha.phac.gc.ca"
   rules:
   # Patient Browser ON
   - matches:
@@ -146,7 +146,7 @@ spec:
   - name: external-gateway1  # Platform gateway
     namespace: gateway-infra
   hostnames:
-  - "federal.iidi.cobra.dev.gcdm022b.gc.ca"
+  - "federal.iidi.alpha.phac.gc.ca"
   rules:
   # Federator Service
   - matches:
@@ -185,7 +185,7 @@ spec:
   - name: external-gateway1  # Platform gateway
     namespace: gateway-infra
   hostnames:
-  - "demo.iidi.cobra.dev.gcdm022b.gc.ca"
+  - "demo.iidi.alpha.phac.gc.ca"
   rules:
   # Demo Portal
   - matches:
@@ -200,6 +200,246 @@ spec:
     - path:
         type: PathPrefix
         value: /transfer-dashboard
+    backendRefs:
+    - name: demo-transfer-dashboard
+      port: 8080
+---
+# Subdomain-based Routes for Direct Service Access
+# ON Services - Individual Subdomains
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: cobra-on-patient-browser-subdomain
+  namespace: cobra
+  labels:
+    gc.ca/data-classification: unclassified
+    gc.ca/environment: dev
+    gc.ca/tier: tier3
+    tenant: cobra
+    app.kubernetes.io/part-of: iidi
+    app.kubernetes.io/component: httproute
+    province: on
+  annotations:
+    argocd.argoproj.io/sync-wave: "70"
+spec:
+  parentRefs:
+  - name: external-gateway1
+    namespace: gateway-infra
+  hostnames:
+  - "patient-browser.on.iidi.alpha.phac.gc.ca"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: patient-browser-on-svc
+      port: 8079
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: cobra-on-fhir-subdomain
+  namespace: cobra
+  labels:
+    gc.ca/data-classification: unclassified
+    gc.ca/environment: dev
+    gc.ca/tier: tier3
+    tenant: cobra
+    app.kubernetes.io/part-of: iidi
+    app.kubernetes.io/component: httproute
+    province: on
+  annotations:
+    argocd.argoproj.io/sync-wave: "70"
+spec:
+  parentRefs:
+  - name: external-gateway1
+    namespace: gateway-infra
+  hostnames:
+  - "fhir.on.iidi.alpha.phac.gc.ca"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: hapi-fhir-on-svc
+      port: 8080
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: cobra-on-aggregator-subdomain
+  namespace: cobra
+  labels:
+    gc.ca/data-classification: unclassified
+    gc.ca/environment: dev
+    gc.ca/tier: tier3
+    tenant: cobra
+    app.kubernetes.io/part-of: iidi
+    app.kubernetes.io/component: httproute
+    province: on
+  annotations:
+    argocd.argoproj.io/sync-wave: "70"
+spec:
+  parentRefs:
+  - name: external-gateway1
+    namespace: gateway-infra
+  hostnames:
+  - "aggregator.on.iidi.alpha.phac.gc.ca"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: aggregation-server-on-svc
+      port: 80
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: cobra-on-transfer-outbound-subdomain
+  namespace: cobra
+  labels:
+    gc.ca/data-classification: unclassified
+    gc.ca/environment: dev
+    gc.ca/tier: tier3
+    tenant: cobra
+    app.kubernetes.io/part-of: iidi
+    app.kubernetes.io/component: httproute
+    province: on
+  annotations:
+    argocd.argoproj.io/sync-wave: "70"
+spec:
+  parentRefs:
+  - name: external-gateway1
+    namespace: gateway-infra
+  hostnames:
+  - "transfer-outbound.on.iidi.alpha.phac.gc.ca"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: transfer-outbound-on-svc
+      port: 3000
+---
+# Federal Services - Individual Subdomains
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: cobra-federal-federator-subdomain
+  namespace: cobra
+  labels:
+    gc.ca/data-classification: unclassified
+    gc.ca/environment: dev
+    gc.ca/tier: tier3
+    tenant: cobra
+    app.kubernetes.io/part-of: iidi
+    app.kubernetes.io/component: httproute
+  annotations:
+    argocd.argoproj.io/sync-wave: "70"
+spec:
+  parentRefs:
+  - name: external-gateway1
+    namespace: gateway-infra
+  hostnames:
+  - "federator.federal.iidi.alpha.phac.gc.ca"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: federator-svc
+      port: 80
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: cobra-federal-rshiny-subdomain
+  namespace: cobra
+  labels:
+    gc.ca/data-classification: unclassified
+    gc.ca/environment: dev
+    gc.ca/tier: tier3
+    tenant: cobra
+    app.kubernetes.io/part-of: iidi
+    app.kubernetes.io/component: httproute
+  annotations:
+    argocd.argoproj.io/sync-wave: "70"
+spec:
+  parentRefs:
+  - name: external-gateway1
+    namespace: gateway-infra
+  hostnames:
+  - "rshiny-dashboard.federal.iidi.alpha.phac.gc.ca"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: rshiny-dashboard-svc
+      port: 80
+---
+# Demo Services - Individual Subdomains
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: cobra-demo-portal-subdomain
+  namespace: cobra
+  labels:
+    gc.ca/data-classification: unclassified
+    gc.ca/environment: dev
+    gc.ca/tier: tier3
+    tenant: cobra
+    app.kubernetes.io/part-of: iidi
+    app.kubernetes.io/component: httproute
+  annotations:
+    argocd.argoproj.io/sync-wave: "70"
+spec:
+  parentRefs:
+  - name: external-gateway1
+    namespace: gateway-infra
+  hostnames:
+  - "demo-portal.iidi.alpha.phac.gc.ca"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: demo-portal
+      port: 8080
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: cobra-demo-transfer-dashboard-subdomain
+  namespace: cobra
+  labels:
+    gc.ca/data-classification: unclassified
+    gc.ca/environment: dev
+    gc.ca/tier: tier3
+    tenant: cobra
+    app.kubernetes.io/part-of: iidi
+    app.kubernetes.io/component: httproute
+  annotations:
+    argocd.argoproj.io/sync-wave: "70"
+spec:
+  parentRefs:
+  - name: external-gateway1
+    namespace: gateway-infra
+  hostnames:
+  - "demo-transfer-dashboard.iidi.alpha.phac.gc.ca"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
     backendRefs:
     - name: demo-transfer-dashboard
       port: 8080
