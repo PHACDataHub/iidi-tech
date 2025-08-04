@@ -8,9 +8,6 @@ kind: Kustomization
 namespace: cobra
 
 resources:
-  # Gateway API - HTTPRoutes (sync-wave: 70)
-  - gateway/httproutes.yaml
-
   # BC Services
   - bc-services/hapi-fhir-server/
   - bc-services/redis-server/
@@ -32,9 +29,6 @@ resources:
   # Demo Services
   - demo-services/demo-portal/
   - demo-services/demo-transfer-dashboard/
-
-  # Networking (sync-wave: 45-50)
-  - networking/network-policies.yaml
 
 # Common labels applied to all resources
 labels:
