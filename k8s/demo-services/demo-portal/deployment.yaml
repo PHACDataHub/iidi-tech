@@ -15,6 +15,7 @@ spec:
       labels:
         app: demo-portal
     spec:
+      serviceAccountName: cobra-app-sa
       containers:
         - name: demo-portal
           image: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/demo-portal:main-1e4b89985ca5c64882416cace9d5afa20b5f3fc6-1742913622
@@ -27,25 +28,25 @@ spec:
             - name: FLASK_DEBUG
               value: '0'
             - name: FED_DASHBOARD_URL
-              value: https://federal.iidi.cobra.dev.gcdm022b.gc.ca/dashboard
+              value: https://federal.iidi.alpha.phac.gc.ca/dashboard
             - name: FED_FEDERATOR_URL
-              value: https://federal.iidi.cobra.dev.gcdm022b.gc.ca/federator/aggregated-data
+              value: https://federal.iidi.alpha.phac.gc.ca/federator/aggregated-data
             - name: BC_BROWSER_URL
-              value: https://bc.iidi.cobra.dev.gcdm022b.gc.ca/patient-browser
+              value: https://bc.iidi.alpha.phac.gc.ca/patient-browser
             - name: BC_FHIR_URL
-              value: https://bc.iidi.cobra.dev.gcdm022b.gc.ca/fhir
+              value: https://bc.iidi.alpha.phac.gc.ca/fhir
             - name: BC_AGGREGATOR_URL
-              value: https://bc.iidi.cobra.dev.gcdm022b.gc.ca/aggregator/aggregated-data
+              value: https://bc.iidi.alpha.phac.gc.ca/aggregator/aggregated-data
             - name: BC_DEMO_TRANSFER_DASHBOARD_URL
-              value: 'https://demo.iidi.cobra.dev.gcdm022b.gc.ca/transfer-dashboard?pt=BC'
+              value: 'https://demo.iidi.alpha.phac.gc.ca/transfer-dashboard?pt=BC'
             - name: ON_BROWSER_URL
-              value: https://on.iidi.cobra.dev.gcdm022b.gc.ca/patient-browser
+              value: https://on.iidi.alpha.phac.gc.ca/patient-browser
             - name: ON_FHIR_URL
-              value: https://on.iidi.cobra.dev.gcdm022b.gc.ca/fhir
+              value: https://on.iidi.alpha.phac.gc.ca/fhir
             - name: ON_AGGREGATOR_URL
-              value: https://on.iidi.cobra.dev.gcdm022b.gc.ca/aggregator/aggregated-data
+              value: https://on.iidi.alpha.phac.gc.ca/aggregator/aggregated-data
             - name: ON_DEMO_TRANSFER_DASHBOARD_URL
-              value: 'https://demo.iidi.cobra.dev.gcdm022b.gc.ca/transfer-dashboard?pt=ON'
+              value: 'https://demo.iidi.alpha.phac.gc.ca/transfer-dashboard?pt=ON'
           livenessProbe:
             httpGet:
               path: /health
