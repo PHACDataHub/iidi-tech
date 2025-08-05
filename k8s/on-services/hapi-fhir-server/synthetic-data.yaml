@@ -5,9 +5,10 @@ metadata:
   name: synthetic-data-job-on
   annotations:
     argocd.argoproj.io/sync-wave: "40"
+    argocd.argoproj.io/sync-options: "Replace=false"
 spec:
   backoffLimit: 4
-  ttlSecondsAfterFinished: 600
+  ttlSecondsAfterFinished: 60
   template:
     spec:
       serviceAccountName: cobra-app-sa
