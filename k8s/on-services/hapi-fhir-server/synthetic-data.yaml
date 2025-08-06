@@ -4,8 +4,9 @@ metadata:
   namespace: cobra
   name: synthetic-data-job-on
   annotations:
-    argocd.argoproj.io/sync-wave: "40"
-    argocd.argoproj.io/sync-options: "Replace=false"
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/hook-weight: "40"
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded
 spec:
   backoffLimit: 4
   ttlSecondsAfterFinished: 60
