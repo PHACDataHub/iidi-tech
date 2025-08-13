@@ -35,6 +35,11 @@ labels:
   - pairs:
       tenant: cobra
       app.kubernetes.io/managed-by: argocd
+      client-cost-centre: "280068"
+      client-vanity-name: "IIDI"
+      client-apm-id: ""
+    includeTemplates: true
+    includeSelectors: false
 
 # Global annotations
 commonAnnotations:
