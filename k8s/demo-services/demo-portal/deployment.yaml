@@ -24,29 +24,29 @@ spec:
             - containerPort: 8080
           env:
             - name: FLASK_APP
-              value: 'app.py'
+              value: "app.py"
             - name: FLASK_DEBUG
-              value: '0'
+              value: "0"
             - name: FED_DASHBOARD_URL
-              value: https://federal.iidi.alpha.phac.gc.ca/dashboard
+              value: https://federal.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca//dashboard
             - name: FED_FEDERATOR_URL
-              value: https://federal.iidi.alpha.phac.gc.ca/federator/aggregated-data
+              value: https://federal.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca//federator/aggregated-data
             - name: BC_BROWSER_URL
-              value: https://bc.iidi.alpha.phac.gc.ca/patient-browser
+              value: https://bc.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca//patient-browser
             - name: BC_FHIR_URL
-              value: https://bc.iidi.alpha.phac.gc.ca/fhir
+              value: https://bc.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca//fhir
             - name: BC_AGGREGATOR_URL
-              value: https://bc.iidi.alpha.phac.gc.ca/aggregator/aggregated-data
+              value: https://bc.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca//aggregator/aggregated-data
             - name: BC_DEMO_TRANSFER_DASHBOARD_URL
-              value: 'https://demo.iidi.alpha.phac.gc.ca/transfer-dashboard?pt=BC'
+              value: "https://demo.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca//transfer-dashboard?pt=BC"
             - name: ON_BROWSER_URL
-              value: https://on.iidi.alpha.phac.gc.ca/patient-browser
+              value: https://on.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca//patient-browser
             - name: ON_FHIR_URL
-              value: https://on.iidi.alpha.phac.gc.ca/fhir
+              value: https://on.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca//fhir
             - name: ON_AGGREGATOR_URL
-              value: https://on.iidi.alpha.phac.gc.ca/aggregator/aggregated-data
+              value: https://on.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca//aggregator/aggregated-data
             - name: ON_DEMO_TRANSFER_DASHBOARD_URL
-              value: 'https://demo.iidi.alpha.phac.gc.ca/transfer-dashboard?pt=ON'
+              value: "https://demo.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca//transfer-dashboard?pt=ON"
           livenessProbe:
             httpGet:
               path: /health

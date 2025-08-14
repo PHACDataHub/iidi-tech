@@ -11,15 +11,15 @@ COPY . /app
 
 # These env vars need to exist at build-time, setting them on the container at run-time doesn't change
 # the values in the static content generated here and served when the container is run
-ARG ON_OUTBOUND_URL="https://transfer-outbound.on.iidi.alpha.phac.gc.ca"
-ARG BC_OUTBOUND_URL="https://transfer-outbound.bc.iidi.alpha.phac.gc.ca"
+ARG ON_OUTBOUND_URL="https://transfer-outbound.on.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca/"
+ARG BC_OUTBOUND_URL="https://transfer-outbound.bc.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca/"
 
 RUN npm run build
 
 # 2. Serve static app via nginx
 FROM docker.io/library/nginx:1.27.3
 
-RUN chown -R 1000:1000 /var/cache/nginx /var/run/ 
+RUN chown -R 1000:1000 /var/cache/nginx /var/run/
 
 # Copy config nginx
 COPY --from=build /app/.nginx/nginx.conf /etc/nginx/conf.d/default.conf

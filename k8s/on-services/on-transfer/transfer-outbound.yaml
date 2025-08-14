@@ -46,4 +46,4 @@ spec:
                   name: redis-on-secret
                   key: redis-password
             - name: TRANSFER_DASHBOARD_ORIGIN
-              value: "https://demo-transfer-dashboard.iidi.alpha.phac.gc.ca,http://localhost:8080,http://localhost:3000,http://localhost:3005"
+              value: "https://demo-transfer-dashboard.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca/,http://localhost:8080,http://localhost:3000,http://localhost:3005"
