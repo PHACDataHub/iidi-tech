@@ -5,15 +5,28 @@ metadata:
   namespace: cobra
   annotations:
     argocd.argoproj.io/hook: PostSync
-    argocd.argoproj.io/hook-weight: "40"
-    argocd.argoproj.io/hook-delete-policy: HookSucceeded
+    argocd.argoproj.io/hook-weight: "50" # Run after FHIR services
+    argocd.argoproj.io/hook-delete-policy: HookSucceeded,HookFailed
 spec:
-  backoffLimit: 4
-  ttlSecondsAfterFinished: 60
+  backoffLimit: 3 # Reduced retries
+  ttlSecondsAfterFinished: 300 # Keep for 5 minutes for debugging
+  activeDeadlineSeconds: 600 # Kill job after 10 minutes
   template:
     spec:
       serviceAccountName: cobra-app-sa
       restartPolicy: Never
+      initContainers:
+        - name: wait-for-fhir
+          image: busybox:1.35
+          command: ["sh", "-c"]
+          args:
+            - |
+              echo "Waiting for FHIR service to be ready..."
+              until wget --quiet --spider http://hapi-fhir-bc-svc.cobra.svc.cluster.local:8080/fhir/metadata; do
+                echo "FHIR service not ready, waiting 10 seconds..."
+                sleep 10
+              done
+              echo "FHIR service is ready!"
       containers:
         - name: synthetic-data
           image: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/synthetic-data:main-01df63e5bec99369feefd606f28e4db267f7716c-1741382883
@@ -25,6 +38,10 @@ spec:
               value: "bc"
             - name: FHIR_URL
               value: "http://hapi-fhir-bc-svc.cobra.svc.cluster.local:8080/fhir"
+            - name: RETRY_ATTEMPTS
+              value: "3"
+            - name: TIMEOUT_SECONDS
+              value: "300"
           resources:
             requests:
               cpu: "500m"
@@ -32,3 +49,16 @@ spec:
             limits:
               cpu: "1"
               memory: "1Gi"
+          # Add health check
+          livenessProbe:
+            exec:
+              command:
+                [
+                  "/bin/sh",
+                  "-c",
+                  "ps aux | grep -v grep | grep python || exit 1",
+                ]
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
