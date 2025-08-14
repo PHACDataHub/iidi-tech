@@ -115,10 +115,33 @@ patches:
   # Redis deployments - Small resource profile
   - target:
       kind: Deployment
-      labelSelector: "app in (redis-bc, redis-on)"
+      name: redis-bc
     patch: |-
       apiVersion: apps/v1
       kind: Deployment
+      metadata:
+        name: redis-bc
+      spec:
+        template:
+          spec:
+            containers:
+            - name: redis
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  cpu: 500m
+                  memory: 512Mi
+
+  - target:
+      kind: Deployment
+      name: redis-on
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: redis-on
       spec:
         template:
           spec:
@@ -135,15 +158,81 @@ patches:
   # Transfer services - Small resource profile
   - target:
       kind: Deployment
-      labelSelector: "app in (transfer-inbound-bc, transfer-outbound-bc, transfer-inbound-on, transfer-outbound-on)"
+      name: transfer-inbound-bc
     patch: |-
       apiVersion: apps/v1
       kind: Deployment
+      metadata:
+        name: transfer-inbound-bc
       spec:
         template:
           spec:
             containers:
-            - resources:
+            - name: transfer-inbound-bc
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  cpu: 500m
+                  memory: 512Mi
+
+  - target:
+      kind: Deployment
+      name: transfer-outbound-bc
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: transfer-outbound-bc
+      spec:
+        template:
+          spec:
+            containers:
+            - name: transfer-outbound-bc
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  cpu: 500m
+                  memory: 512Mi
+
+  - target:
+      kind: Deployment
+      name: transfer-inbound-on
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: transfer-inbound-on
+      spec:
+        template:
+          spec:
+            containers:
+            - name: transfer-inbound-on
+              resources:
+                requests:
+                  cpu: 100m
+                  memory: 128Mi
+                limits:
+                  cpu: 500m
+                  memory: 512Mi
+
+  - target:
+      kind: Deployment
+      name: transfer-outbound-on
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: transfer-outbound-on
+      spec:
+        template:
+          spec:
+            containers:
+            - name: transfer-outbound-on
+              resources:
                 requests:
                   cpu: 100m
                   memory: 128Mi
