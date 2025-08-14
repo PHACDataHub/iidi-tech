@@ -378,18 +378,22 @@ patches:
       kind: Deployment
       metadata:
         name: demo-portal
+        namespace: cobra
       spec:
+        replicas: 3
         template:
+          metadata:
+            labels:
+              expose-to-gateway: "true"
           spec:
-            containers:
-            - name: demo-portal
-              resources:
-                requests:
-                  cpu: 100m
-                  memory: 256Mi
-                limits:
-                  cpu: 500m
-                  memory: 1Gi
+            # Keep NEGs healthy across all zones
+            topologySpreadConstraints:
+              - maxSkew: 1
+                topologyKey: topology.kubernetes.io/zone
+                whenUnsatisfiable: ScheduleAnyway
+                labelSelector:
+                  matchLabels:
+                    app: demo-portal
 
   - target:
       kind: Deployment
