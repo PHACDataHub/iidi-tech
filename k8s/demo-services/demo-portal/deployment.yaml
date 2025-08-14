@@ -28,25 +28,25 @@ spec:
             - name: FLASK_DEBUG
               value: "0"
             - name: FED_DASHBOARD_URL
-              value: https://federal.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca/dashboard
+              value: https://rshiny-dashboard.federal.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca
             - name: FED_FEDERATOR_URL
               value: https://federal.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca/federator/aggregated-data
             - name: BC_BROWSER_URL
-              value: https://bc.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca/patient-browser
+              value: https://patient-browser.bc.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca
             - name: BC_FHIR_URL
-              value: https://bc.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca/fhir
+              value: https://fhir.bc.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca
             - name: BC_AGGREGATOR_URL
-              value: https://bc.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca/aggregator/aggregated-data
+              value: https://aggregator.bc.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca
             - name: BC_DEMO_TRANSFER_DASHBOARD_URL
-              value: "https://demo.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca/transfer-dashboard?pt=BC"
+              value: "https://demo-transfer-dashboard.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca?pt=BC"
             - name: ON_BROWSER_URL
-              value: https://on.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca/patient-browser
+              value: https://patient-browser.on.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca
             - name: ON_FHIR_URL
-              value: https://on.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca/fhir
+              value: https://fhir.on.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca
             - name: ON_AGGREGATOR_URL
-              value: https://on.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca/aggregator/aggregated-data
+              value: https://aggregator.on.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca
             - name: ON_DEMO_TRANSFER_DASHBOARD_URL
-              value: "https://demo.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca/transfer-dashboard?pt=ON"
+              value: "https://demo-transfer-dashboard.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca/?pt=ON"
           livenessProbe:
             httpGet:
               path: /health
