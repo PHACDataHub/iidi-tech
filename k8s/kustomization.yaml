@@ -187,13 +187,6 @@ patches:
           spec:
             containers:
             - name: hapi-fhir-server-bc
-              securityContext:
-                allowPrivilegeEscalation: false
-                readOnlyRootFilesystem: false
-                runAsNonRoot: true
-                runAsUser: 1000
-                capabilities:
-                  drop: ["ALL"]
               resources:
                 requests:
                   cpu: 500m
@@ -257,13 +250,6 @@ patches:
                 limits:
                   cpu: 2000m
                   memory: 4Gi
-              securityContext:
-                allowPrivilegeEscalation: false
-                readOnlyRootFilesystem: false
-                runAsNonRoot: true
-                runAsUser: 1000
-                capabilities:
-                  drop: ["ALL"]
               readinessProbe:
                 httpGet:
                   path: /
