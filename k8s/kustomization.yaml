@@ -228,8 +228,8 @@ patches:
                   path: /
                   port: 8080
                 periodSeconds: 5
-                timeoutSeconds: 3
-                failureThreshold: 3
+                timeoutSeconds: 5
+                failureThreshold: 5
             topologySpreadConstraints:
               - maxSkew: 1
                 topologyKey: topology.kubernetes.io/zone
