@@ -194,16 +194,24 @@ patches:
                 limits:
                   cpu: 2000m
                   memory: 4Gi
+              startupProbe:
+                httpGet:
+                  path: /fhir/metadata
+                  port: 8080
+                initialDelaySeconds: 60
+                periodSeconds: 10
+                timeoutSeconds: 5
+                failureThreshold: 30
               readinessProbe:
                 httpGet:
-                  path: /
+                  path: /fhir/metadata
                   port: 8080
                 periodSeconds: 5
                 timeoutSeconds: 3
                 failureThreshold: 3
               livenessProbe:
                 httpGet:
-                  path: /
+                  path: /fhir/metadata
                   port: 8080
                 initialDelaySeconds: 15
                 periodSeconds: 10
