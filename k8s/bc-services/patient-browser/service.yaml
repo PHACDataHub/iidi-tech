@@ -10,7 +10,7 @@ spec:
   ports:
   - name: http-patient
     port: 8080
-    targetPort: 8080
+    targetPort: 80
     protocol: TCP
   selector:
     app: patient-browser-bc

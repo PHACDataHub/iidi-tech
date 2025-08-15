@@ -184,7 +184,7 @@ patches:
                   memory: 4Gi
               readinessProbe:
                 httpGet:
-                  path: /actuator/health
+                  path: /
                   port: 8080
                 periodSeconds: 5
                 timeoutSeconds: 3
@@ -225,7 +225,7 @@ patches:
                   memory: 4Gi
               readinessProbe:
                 httpGet:
-                  path: /actuator/health
+                  path: /
                   port: 8080
                 periodSeconds: 5
                 timeoutSeconds: 3
@@ -263,8 +263,7 @@ patches:
                   cpu: 500m
                   memory: 512Mi
               readinessProbe:
-                httpGet:
-                  path: /
+                tcpSocket:
                   port: 3000
                 periodSeconds: 5
                 timeoutSeconds: 3
@@ -294,8 +293,7 @@ patches:
                   cpu: 500m
                   memory: 512Mi
               readinessProbe:
-                httpGet:
-                  path: /
+                tcpSocket:
                   port: 3000
                 periodSeconds: 5
                 timeoutSeconds: 3
@@ -325,8 +323,7 @@ patches:
                   cpu: 500m
                   memory: 512Mi
               readinessProbe:
-                httpGet:
-                  path: /
+                tcpSocket:
                   port: 3000
                 periodSeconds: 5
                 timeoutSeconds: 3
@@ -356,8 +353,7 @@ patches:
                   cpu: 500m
                   memory: 512Mi
               readinessProbe:
-                httpGet:
-                  path: /
+                tcpSocket:
                   port: 3000
                 periodSeconds: 5
                 timeoutSeconds: 3
@@ -474,7 +470,7 @@ patches:
               readinessProbe:
                 httpGet:
                   path: /
-                  port: 8080
+                  port: 80
                 periodSeconds: 5
                 timeoutSeconds: 3
                 failureThreshold: 3
