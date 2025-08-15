@@ -182,6 +182,13 @@ patches:
                 limits:
                   cpu: 2000m
                   memory: 4Gi
+              readinessProbe:
+                httpGet:
+                  path: /actuator/health
+                  port: 8080
+                periodSeconds: 5
+                timeoutSeconds: 3
+                failureThreshold: 3
             topologySpreadConstraints:
               - maxSkew: 1
                 topologyKey: topology.kubernetes.io/zone
@@ -216,6 +223,13 @@ patches:
                 limits:
                   cpu: 2000m
                   memory: 4Gi
+              readinessProbe:
+                httpGet:
+                  path: /actuator/health
+                  port: 8080
+                periodSeconds: 5
+                timeoutSeconds: 3
+                failureThreshold: 3
             topologySpreadConstraints:
               - maxSkew: 1
                 topologyKey: topology.kubernetes.io/zone
@@ -375,6 +389,13 @@ patches:
                 limits:
                   cpu: 1000m
                   memory: 2Gi
+              readinessProbe:
+                httpGet:
+                  path: /health
+                  port: 5000
+                periodSeconds: 5
+                timeoutSeconds: 3
+                failureThreshold: 3
             topologySpreadConstraints:
               - maxSkew: 1
                 topologyKey: topology.kubernetes.io/zone
@@ -409,6 +430,13 @@ patches:
                 limits:
                   cpu: 1000m
                   memory: 2Gi
+              readinessProbe:
+                httpGet:
+                  path: /health
+                  port: 5000
+                periodSeconds: 5
+                timeoutSeconds: 3
+                failureThreshold: 3
             topologySpreadConstraints:
               - maxSkew: 1
                 topologyKey: topology.kubernetes.io/zone
@@ -487,7 +515,7 @@ patches:
               readinessProbe:
                 httpGet:
                   path: /
-                  port: 8080
+                  port: 8079
                 periodSeconds: 5
                 timeoutSeconds: 3
                 failureThreshold: 3
