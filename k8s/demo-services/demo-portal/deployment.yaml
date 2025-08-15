@@ -46,7 +46,7 @@ spec:
             - name: ON_AGGREGATOR_URL
               value: https://aggregator.on.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca
             - name: ON_DEMO_TRANSFER_DASHBOARD_URL
-              value: "https://demo-transfer-dashboard.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca/?pt=ON"
+              value: "https://demo-transfer-dashboard.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca?pt=ON"
           livenessProbe:
             httpGet:
               path: /health

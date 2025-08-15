@@ -224,7 +224,7 @@ patches:
                   matchLabels:
                     app: hapi-fhir-server-on
 
-  # Transfer services - Resources only (no gateway exposure or scaling)
+  # Transfer services - Resources + readiness probes + gateway exposure
   - target:
       kind: Deployment
       name: transfer-inbound-bc
@@ -235,6 +235,9 @@ patches:
         name: transfer-inbound-bc
       spec:
         template:
+          metadata:
+            labels:
+              expose-to-gateway: "true"
           spec:
             containers:
             - name: transfer-inbound-bc
@@ -245,6 +248,13 @@ patches:
                 limits:
                   cpu: 500m
                   memory: 512Mi
+              readinessProbe:
+                httpGet:
+                  path: /
+                  port: 3000
+                periodSeconds: 5
+                timeoutSeconds: 3
+                failureThreshold: 3
 
   - target:
       kind: Deployment
@@ -256,6 +266,9 @@ patches:
         name: transfer-outbound-bc
       spec:
         template:
+          metadata:
+            labels:
+              expose-to-gateway: "true"
           spec:
             containers:
             - name: transfer-outbound-bc
@@ -266,6 +279,13 @@ patches:
                 limits:
                   cpu: 500m
                   memory: 512Mi
+              readinessProbe:
+                httpGet:
+                  path: /
+                  port: 3000
+                periodSeconds: 5
+                timeoutSeconds: 3
+                failureThreshold: 3
 
   - target:
       kind: Deployment
@@ -277,6 +297,9 @@ patches:
         name: transfer-inbound-on
       spec:
         template:
+          metadata:
+            labels:
+              expose-to-gateway: "true"
           spec:
             containers:
             - name: transfer-inbound-on
@@ -287,6 +310,13 @@ patches:
                 limits:
                   cpu: 500m
                   memory: 512Mi
+              readinessProbe:
+                httpGet:
+                  path: /
+                  port: 3000
+                periodSeconds: 5
+                timeoutSeconds: 3
+                failureThreshold: 3
 
   - target:
       kind: Deployment
@@ -298,6 +328,9 @@ patches:
         name: transfer-outbound-on
       spec:
         template:
+          metadata:
+            labels:
+              expose-to-gateway: "true"
           spec:
             containers:
             - name: transfer-outbound-on
@@ -308,6 +341,13 @@ patches:
                 limits:
                   cpu: 500m
                   memory: 512Mi
+              readinessProbe:
+                httpGet:
+                  path: /
+                  port: 3000
+                periodSeconds: 5
+                timeoutSeconds: 3
+                failureThreshold: 3
 
   # Aggregation BC - Combined: resources + gateway + scaling + topology
   - target:
@@ -377,7 +417,7 @@ patches:
                   matchLabels:
                     app: aggregation-server-on
 
-  # Patient Browser BC - Combined: resources + gateway + scaling + topology
+  # Patient Browser BC - Combined: resources + gateway + scaling + topology + readiness probe
   - target:
       kind: Deployment
       name: patient-browser-bc
@@ -403,6 +443,13 @@ patches:
                 limits:
                   cpu: 500m
                   memory: 1Gi
+              readinessProbe:
+                httpGet:
+                  path: /
+                  port: 8080
+                periodSeconds: 5
+                timeoutSeconds: 3
+                failureThreshold: 3
             topologySpreadConstraints:
               - maxSkew: 1
                 topologyKey: topology.kubernetes.io/zone
@@ -411,7 +458,7 @@ patches:
                   matchLabels:
                     app: patient-browser-bc
 
-  # Patient Browser ON - Combined: resources + gateway + scaling + topology
+  # Patient Browser ON - Combined: resources + gateway + scaling + topology + readiness probe
   - target:
       kind: Deployment
       name: patient-browser-on
@@ -437,6 +484,13 @@ patches:
                 limits:
                   cpu: 500m
                   memory: 1Gi
+              readinessProbe:
+                httpGet:
+                  path: /
+                  port: 8080
+                periodSeconds: 5
+                timeoutSeconds: 3
+                failureThreshold: 3
             topologySpreadConstraints:
               - maxSkew: 1
                 topologyKey: topology.kubernetes.io/zone
