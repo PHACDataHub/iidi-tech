@@ -4,7 +4,7 @@ metadata:
   name: transfer-outbound-bc-svc
   namespace: cobra
   annotations:
-    argocd.argoproj.io/sync-wave: "35"
+    argocd.argoproj.io/sync-wave: "40"
   labels:
     app: transfer-outbound-bc
 spec:

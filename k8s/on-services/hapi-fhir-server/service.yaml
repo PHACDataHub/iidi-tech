@@ -3,7 +3,7 @@ kind: Service
 metadata:
   namespace: cobra
   annotations:
-    argocd.argoproj.io/sync-wave: "30"
+    argocd.argoproj.io/sync-wave: "40"
   labels:
     app: hapi-fhir-on-svc
   name: hapi-fhir-on-svc
@@ -12,8 +12,6 @@ spec:
   ports:
     - port: 8080
       targetPort: 8080
-      name: http-server 
+      name: http 
   selector:
     app: hapi-fhir-server-on
-status:
-  loadBalancer: {}

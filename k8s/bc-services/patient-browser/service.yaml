@@ -4,13 +4,13 @@ metadata:
   name: patient-browser-bc-svc
   namespace: cobra
   annotations:
-    argocd.argoproj.io/sync-wave: "35"
+    argocd.argoproj.io/sync-wave: "40"
 spec:
   type: ClusterIP
   ports:
   - name: http-patient
     port: 8080
-    targetPort: 80
+    targetPort: 8080
     protocol: TCP
   selector:
     app: patient-browser-bc

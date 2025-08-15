@@ -33,7 +33,7 @@ spec:
               value: "http://hapi-fhir-bc-svc.cobra.svc.cluster.local:8080/fhir"
             - name: OWN_TRANSFER_CODE
               value: "BC"
-            - name: INBOUND_TRANSFER_SERIVCES_BY_TRANSFER_CODE
+            - name: INBOUND_TRANSFER_SERVICES_BY_TRANSFER_CODE
               value: '{ "ON": "http://transfer-inbound-on-svc.cobra.svc.cluster.local:3000" }'
             - name: REDIS_PORT
               value: "6379"

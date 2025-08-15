@@ -58,6 +58,11 @@ images:
     newName: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/hapi-fhir-server
     newTag: iidi-cobra-bfaaeda934d8a8c2ade3bb5391d75420c550a8f9f4ac2fdb585cc78cf91d61a7-1754081774
 
+  # HAPI FHIR Server - also handle Artifact Registry references
+  - name: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/hapi-fhir-server
+    newName: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/hapi-fhir-server
+    newTag: iidi-cobra-bfaaeda934d8a8c2ade3bb5391d75420c550a8f9f4ac2fdb585cc78cf91d61a7-1754081774
+
   # IIDI Aggregator
   - name: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-aggregator
     newName: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-aggregator
@@ -165,16 +170,30 @@ patches:
       kind: Deployment
       metadata:
         name: hapi-fhir-server-bc
-        namespace: cobra
       spec:
         replicas: 1
+        revisionHistoryLimit: 2
+        strategy:
+          type: RollingUpdate
+          rollingUpdate:
+            maxSurge: 25%
+            maxUnavailable: 0
+        minReadySeconds: 5
         template:
           metadata:
             labels:
               expose-to-gateway: "true"
+              app.kubernetes.io/name: hapi-fhir-server
           spec:
             containers:
             - name: hapi-fhir-server-bc
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: false
+                runAsNonRoot: true
+                runAsUser: 1000
+                capabilities:
+                  drop: ["ALL"]
               resources:
                 requests:
                   cpu: 500m
@@ -189,13 +208,21 @@ patches:
                 periodSeconds: 5
                 timeoutSeconds: 3
                 failureThreshold: 3
+              livenessProbe:
+                httpGet:
+                  path: /
+                  port: 8080
+                initialDelaySeconds: 15
+                periodSeconds: 10
+                timeoutSeconds: 3
+                failureThreshold: 3
             topologySpreadConstraints:
               - maxSkew: 1
                 topologyKey: topology.kubernetes.io/zone
                 whenUnsatisfiable: ScheduleAnyway
                 labelSelector:
                   matchLabels:
-                    app: hapi-fhir-server-bc
+                    app.kubernetes.io/name: hapi-fhir-server
 
   # HAPI FHIR ON - Combined: resources + gateway + scaling + topology
   - target:
@@ -206,13 +233,20 @@ patches:
       kind: Deployment
       metadata:
         name: hapi-fhir-server-on
-        namespace: cobra
       spec:
         replicas: 1
+        revisionHistoryLimit: 2
+        strategy:
+          type: RollingUpdate
+          rollingUpdate:
+            maxSurge: 25%
+            maxUnavailable: 0
+        minReadySeconds: 5
         template:
           metadata:
             labels:
               expose-to-gateway: "true"
+              app.kubernetes.io/name: hapi-fhir-server
           spec:
             containers:
             - name: hapi-fhir-server-on
@@ -223,6 +257,13 @@ patches:
                 limits:
                   cpu: 2000m
                   memory: 4Gi
+              securityContext:
+                allowPrivilegeEscalation: false
+                readOnlyRootFilesystem: false
+                runAsNonRoot: true
+                runAsUser: 1000
+                capabilities:
+                  drop: ["ALL"]
               readinessProbe:
                 httpGet:
                   path: /
@@ -230,13 +271,21 @@ patches:
                 periodSeconds: 5
                 timeoutSeconds: 5
                 failureThreshold: 5
+              livenessProbe:
+                httpGet:
+                  path: /
+                  port: 8080
+                initialDelaySeconds: 15
+                periodSeconds: 10
+                timeoutSeconds: 3
+                failureThreshold: 3
             topologySpreadConstraints:
               - maxSkew: 1
                 topologyKey: topology.kubernetes.io/zone
                 whenUnsatisfiable: ScheduleAnyway
                 labelSelector:
                   matchLabels:
-                    app: hapi-fhir-server-on
+                    app.kubernetes.io/name: hapi-fhir-server
 
   # Transfer services - Resources + readiness probes + gateway exposure
   - target:
@@ -368,13 +417,13 @@ patches:
       kind: Deployment
       metadata:
         name: aggregation-server-bc-deployment
-        namespace: cobra
       spec:
         replicas: 1
         template:
           metadata:
             labels:
               expose-to-gateway: "true"
+              app.kubernetes.io/name: aggregation-server
           spec:
             containers:
             - name: aggregation-server-bc
@@ -398,7 +447,7 @@ patches:
                 whenUnsatisfiable: ScheduleAnyway
                 labelSelector:
                   matchLabels:
-                    app: aggregation-server-bc
+                    app.kubernetes.io/name: aggregation-server
 
   # Aggregation ON - Combined: resources + gateway + scaling + topology
   - target:
@@ -409,13 +458,13 @@ patches:
       kind: Deployment
       metadata:
         name: aggregation-server-on-deployment
-        namespace: cobra
       spec:
         replicas: 1
         template:
           metadata:
             labels:
               expose-to-gateway: "true"
+              app.kubernetes.io/name: aggregation-server
           spec:
             containers:
             - name: aggregation-server-on
@@ -439,7 +488,7 @@ patches:
                 whenUnsatisfiable: ScheduleAnyway
                 labelSelector:
                   matchLabels:
-                    app: aggregation-server-on
+                    app.kubernetes.io/name: aggregation-server
 
   # Patient Browser BC - Combined: resources + gateway + scaling + topology + readiness probe
   - target:
@@ -450,13 +499,20 @@ patches:
       kind: Deployment
       metadata:
         name: patient-browser-bc
-        namespace: cobra
       spec:
         replicas: 1
+        revisionHistoryLimit: 2
+        strategy:
+          type: RollingUpdate
+          rollingUpdate:
+            maxSurge: 25%
+            maxUnavailable: 0
+        minReadySeconds: 5
         template:
           metadata:
             labels:
               expose-to-gateway: "true"
+              app.kubernetes.io/name: patient-browser
           spec:
             containers:
             - name: patient-browser-bc
@@ -470,8 +526,16 @@ patches:
               readinessProbe:
                 httpGet:
                   path: /
-                  port: 80
+                  port: 8080
                 periodSeconds: 5
+                timeoutSeconds: 3
+                failureThreshold: 3
+              livenessProbe:
+                httpGet:
+                  path: /
+                  port: 8080
+                initialDelaySeconds: 15
+                periodSeconds: 10
                 timeoutSeconds: 3
                 failureThreshold: 3
             topologySpreadConstraints:
@@ -480,7 +544,7 @@ patches:
                 whenUnsatisfiable: ScheduleAnyway
                 labelSelector:
                   matchLabels:
-                    app: patient-browser-bc
+                    app.kubernetes.io/name: patient-browser
 
   # Patient Browser ON - Combined: resources + gateway + scaling + topology + readiness probe
   - target:
@@ -491,13 +555,20 @@ patches:
       kind: Deployment
       metadata:
         name: patient-browser-on
-        namespace: cobra
       spec:
         replicas: 1
+        revisionHistoryLimit: 2
+        strategy:
+          type: RollingUpdate
+          rollingUpdate:
+            maxSurge: 25%
+            maxUnavailable: 0
+        minReadySeconds: 5
         template:
           metadata:
             labels:
               expose-to-gateway: "true"
+              app.kubernetes.io/name: patient-browser
           spec:
             containers:
             - name: patient-browser-on
@@ -511,8 +582,16 @@ patches:
               readinessProbe:
                 httpGet:
                   path: /
-                  port: 8079
+                  port: 8080
                 periodSeconds: 5
+                timeoutSeconds: 3
+                failureThreshold: 3
+              livenessProbe:
+                httpGet:
+                  path: /
+                  port: 8080
+                initialDelaySeconds: 15
+                periodSeconds: 10
                 timeoutSeconds: 3
                 failureThreshold: 3
             topologySpreadConstraints:
@@ -521,7 +600,7 @@ patches:
                 whenUnsatisfiable: ScheduleAnyway
                 labelSelector:
                   matchLabels:
-                    app: patient-browser-on
+                    app.kubernetes.io/name: patient-browser
 
   # Demo Portal - Combined: resources + gateway + scaling + topology
   - target:
@@ -532,13 +611,13 @@ patches:
       kind: Deployment
       metadata:
         name: demo-portal
-        namespace: cobra
       spec:
         replicas: 1
         template:
           metadata:
             labels:
               expose-to-gateway: "true"
+              app.kubernetes.io/name: demo-portal
           spec:
             containers:
             - name: demo-portal
@@ -555,7 +634,7 @@ patches:
                 whenUnsatisfiable: ScheduleAnyway
                 labelSelector:
                   matchLabels:
-                    app: demo-portal
+                    app.kubernetes.io/name: demo-portal
 
   # Demo Transfer Dashboard - Combined: resources + gateway + scaling + topology
   - target:
@@ -566,13 +645,13 @@ patches:
       kind: Deployment
       metadata:
         name: demo-transfer-dashboard
-        namespace: cobra
       spec:
         replicas: 1
         template:
           metadata:
             labels:
               expose-to-gateway: "true"
+              app.kubernetes.io/name: demo-transfer-dashboard
           spec:
             containers:
             - name: demo-transfer-dashboard
@@ -589,7 +668,7 @@ patches:
                 whenUnsatisfiable: ScheduleAnyway
                 labelSelector:
                   matchLabels:
-                    app: demo-transfer-dashboard
+                    app.kubernetes.io/name: demo-transfer-dashboard
 
   # Federator - Combined: resources + gateway + scaling + topology
   - target:
@@ -600,13 +679,13 @@ patches:
       kind: Deployment
       metadata:
         name: federator-deployment
-        namespace: cobra
       spec:
         replicas: 1
         template:
           metadata:
             labels:
               expose-to-gateway: "true"
+              app.kubernetes.io/name: federator
           spec:
             containers:
             - name: federator
@@ -623,7 +702,7 @@ patches:
                 whenUnsatisfiable: ScheduleAnyway
                 labelSelector:
                   matchLabels:
-                    app: federator
+                    app.kubernetes.io/name: federator
 
   # RShiny Dashboard - Combined: resources + gateway + scaling + topology
   - target:
@@ -634,13 +713,13 @@ patches:
       kind: Deployment
       metadata:
         name: rshiny-dashboard-deployment
-        namespace: cobra
       spec:
         replicas: 1
         template:
           metadata:
             labels:
               expose-to-gateway: "true"
+              app.kubernetes.io/name: rshiny-dashboard
           spec:
             containers:
             - name: rshiny-dashboard
@@ -657,4 +736,216 @@ patches:
                 whenUnsatisfiable: ScheduleAnyway
                 labelSelector:
                   matchLabels:
-                    app: rshiny-dashboard
+                    app.kubernetes.io/name: rshiny-dashboard
+
+  # CRITICAL PORT FIXES - Patient Browser Services must target port 8080
+  - target:
+      kind: Service
+      name: patient-browser-bc-svc
+    patch: |-
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: patient-browser-bc-svc
+        annotations:
+          argocd.argoproj.io/sync-wave: "40"
+      spec:
+        ports:
+        - name: http
+          port: 8080
+          targetPort: 8080
+          protocol: TCP
+
+  - target:
+      kind: Service
+      name: patient-browser-on-svc
+    patch: |-
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: patient-browser-on-svc
+        annotations:
+          argocd.argoproj.io/sync-wave: "40"
+      spec:
+        ports:
+        - name: http
+          port: 8080
+          targetPort: 8080
+          protocol: TCP
+
+  # SYNC-WAVE CONSISTENCY - Transfer Services
+  - target:
+      kind: Service
+      name: transfer-inbound-on-svc
+    patch: |-
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: transfer-inbound-on-svc
+        annotations:
+          argocd.argoproj.io/sync-wave: "40"
+
+  - target:
+      kind: Service
+      name: transfer-outbound-on-svc
+    patch: |-
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: transfer-outbound-on-svc
+        annotations:
+          argocd.argoproj.io/sync-wave: "40"
+
+  # ENVIRONMENT VARIABLE CONSISTENCY - Transfer Outbound ON
+  - target:
+      kind: Deployment
+      name: transfer-outbound-on
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: transfer-outbound-on
+      spec:
+        template:
+          spec:
+            containers:
+            - name: transfer-outbound-on
+              env:
+              - name: EXPRESS_PORT
+                value: "3000"
+              - name: DEV_IS_LOCAL_ENV
+                value: "false"
+              - name: REDIS_HOST
+                value: "redis-on-svc.cobra.svc.cluster.local"
+              - name: FHIR_URL
+                value: "http://hapi-fhir-on-svc.cobra.svc.cluster.local:8080/fhir"
+              - name: OWN_TRANSFER_CODE
+                value: "ON"
+              - name: INBOUND_TRANSFER_SERVICES_BY_TRANSFER_CODE
+                value: '{ "BC": "http://transfer-inbound-bc-svc.cobra.svc.cluster.local:3000" }'
+              - name: REDIS_PORT
+                value: "6379"
+              - name: TRANSFER_DASHBOARD_ORIGINS
+                value: "https://demo-transfer-dashboard.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca/,http://localhost:8080,http://localhost:3000,http://localhost:3005"
+
+  # STANDARDIZED LABELS - Aggregation BC
+  - target:
+      kind: Deployment
+      name: aggregation-server-bc-deployment
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: aggregation-server-bc-deployment
+        labels:
+          app.kubernetes.io/name: aggregation-server-bc
+          app.kubernetes.io/component: bc-services
+          app.kubernetes.io/part-of: iidi-tech
+
+  - target:
+      kind: Service
+      name: aggregation-server-bc-svc
+    patch: |-
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: aggregation-server-bc-svc
+        labels:
+          app.kubernetes.io/name: aggregation-server-bc
+          app.kubernetes.io/component: bc-services
+          app.kubernetes.io/part-of: iidi-tech
+
+  # GOVERNANCE LABELS - HAPI FHIR ON
+  - target:
+      kind: Deployment
+      name: hapi-fhir-server-on
+    patch: |-
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: hapi-fhir-server-on
+        labels:
+          gc.ca/data-classification: unclassified
+          gc.ca/environment: dev
+          gc.ca/tier: tier3
+          tenant: cobra
+          app.kubernetes.io/part-of: iidi
+          app.kubernetes.io/component: fhir-server
+          province: on
+          expose-to-gateway: "true"
+
+  - target:
+      kind: Service
+      name: hapi-fhir-on-svc
+    patch: |-
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: hapi-fhir-on-svc
+        labels:
+          gc.ca/data-classification: unclassified
+          gc.ca/environment: dev
+          gc.ca/tier: tier3
+          tenant: cobra
+          app.kubernetes.io/part-of: iidi
+          app.kubernetes.io/component: fhir-server
+          province: on
+          expose-to-gateway: "true"
+
+  # HAPI FHIR Services: enforce port 8080 consistency
+  - target:
+      kind: Service
+      name: hapi-fhir-bc-svc
+    patch: |-
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: hapi-fhir-bc-svc
+        annotations:
+          argocd.argoproj.io/sync-wave: "40"
+      spec:
+        ports:
+        - name: http
+          port: 8080
+          targetPort: 8080
+          protocol: TCP
+
+  - target:
+      kind: Service
+      name: hapi-fhir-on-svc
+    patch: |-
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: hapi-fhir-on-svc
+        annotations:
+          argocd.argoproj.io/sync-wave: "40"
+      spec:
+        ports:
+        - name: http
+          port: 8080
+          targetPort: 8080
+          protocol: TCP
+
+  # Transfer Services: BC sync-wave consistency
+  - target:
+      kind: Service
+      name: transfer-inbound-bc-svc
+    patch: |-
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: transfer-inbound-bc-svc
+        annotations:
+          argocd.argoproj.io/sync-wave: "40"
+
+  - target:
+      kind: Service
+      name: transfer-outbound-bc-svc
+    patch: |-
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: transfer-outbound-bc-svc
+        annotations:
+          argocd.argoproj.io/sync-wave: "40"
