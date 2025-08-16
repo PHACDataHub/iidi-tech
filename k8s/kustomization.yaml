@@ -90,7 +90,7 @@ images:
 
   - name: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-transfer-outbound
     newName: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-transfer-outbound
-    digest: sha256:645d3854615b8ab882cc7f9847e8994df4d682fafd41bffd9f385598f8ef6565
+    digest: sha256:6bcc8e118116669db9b9d9ae9a97f3c99b4aac031fc7eff03f236d6342bfca68
 
   # Patient Browser (digest-based)
   - name: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/patient-browser-iidi
