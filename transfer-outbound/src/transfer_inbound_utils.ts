@@ -7,10 +7,10 @@ export const post_bundle_to_inbound_transfer_service = async (
   bundle: bundle,
   transfer_to: transferCode,
 ) => {
-  const { INBOUND_TRANSFER_SERIVCES_BY_TRANSFER_CODE } = get_env();
+  const { INBOUND_TRANSFER_SERVICES_BY_TRANSFER_CODE } = get_env();
 
   return fetch(
-    `${INBOUND_TRANSFER_SERIVCES_BY_TRANSFER_CODE[transfer_to]}/inbound-transfer`,
+    `${INBOUND_TRANSFER_SERVICES_BY_TRANSFER_CODE[transfer_to]}/inbound-transfer`,
     {
       method: 'POST',
       headers: {

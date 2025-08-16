@@ -73,7 +73,7 @@ export const get_env = () => {
     FHIR_URL: url(),
 
     OWN_TRANSFER_CODE: transferCode(),
-    INBOUND_TRANSFER_SERIVCES_BY_TRANSFER_CODE: urlByTransferCode(),
+    INBOUND_TRANSFER_SERVICES_BY_TRANSFER_CODE: urlByTransferCode(),
 
     // Only for configuring CORS for PoC demo purposes, in reality this is expected to be an
     // internal server-to-server API, with no direct frontend access

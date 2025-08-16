@@ -19,7 +19,7 @@ The API can be configured using the following environment variables:
 | `REDIS_HOST`                                 | Host address for the Redis server                                       | `0.0.0.0`            |
 | `FHIR_URL`                                   | URL of the FHIR server to retrieve patient bundles                      | Required, no default |
 | `OWN_TRANSFER_CODE`                          | Province/Territory code of this service (e.g., 'ON', 'BC')              | Required, no default |
-| `INBOUND_TRANSFER_SERIVCES_BY_TRANSFER_CODE` | JSON mapping of PT codes to their inbound transfer service URLs         | Required, no default |
+| `INBOUND_TRANSFER_SERVICES_BY_TRANSFER_CODE` | JSON mapping of PT codes to their inbound transfer service URLs         | Required, no default |
 | `TRANSFER_DASHBOARD_ORIGINS`                 | Comma-separated list of allowed CORS origins for the transfer dashboard | `*`                  |
 | `DEV_IS_LOCAL_ENV`                           | Flag to indicate local development environment                          | `false`              |
 | `DEV_IS_TEST_ENV`                            | Flag to indicate test environment                                       | `false`              |
