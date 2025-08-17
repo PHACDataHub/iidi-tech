@@ -118,29 +118,30 @@ patches:
             serviceAccountName: cobra-app-sa
 
   # Add busybox sidecar to all deployments for debugging
-  - target:
-      kind: Deployment
-    patch: |-
-      apiVersion: apps/v1
-      kind: Deployment
-      metadata:
-        name: not-important
-      spec:
-        template:
-          spec:
-            containers:
-              - name: busybox-sidecar
-                image: radial/busyboxplus:curl
-                command: ["tail", "-f", "/dev/null"]
-                stdin: true
-                tty: true
-                resources:
-                  requests:
-                    cpu: 50m
-                    memory: 50Mi
-                  limits:
-                    cpu: 200m
-                    memory: 200Mi
+  # - target:
+  #     kind: Deployment
+  #   patch: |-
+  #     apiVersion: apps/v1
+  #     kind: Deployment
+  #     metadata:
+  #       name: not-important
+  #     spec:
+  #       template:
+  #         spec:
+  #           containers:
+  #             - name: busybox-sidecar
+  #               image: radial/busyboxplus:curl
+  #               command: ["tail", "-f", "/dev/null"]
+  #               stdin: true
+  #               tty: true
+  #               resources:
+  #                 requests:
+  #                   cpu: 50m
+  #                   memory: 50Mi
+  #                 limits:
+  #                   cpu: 200m
+  #                   memory: 200Mi
+
   # Redis BC - Resources only
   - target:
       kind: Deployment
