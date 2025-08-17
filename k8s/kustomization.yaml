@@ -131,7 +131,7 @@ patches:
             containers:
               - name: busybox-sidecar
                 image: radial/busyboxplus:curl
-                command: ["sleep", "infinity"]
+                command: ["tail", "-f", "/dev/null"]
                 stdin: true
                 tty: true
 
