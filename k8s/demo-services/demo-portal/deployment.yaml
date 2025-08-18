@@ -28,25 +28,25 @@ spec:
             - name: FLASK_DEBUG
               value: "0"
             - name: FED_DASHBOARD_URL
-              value: https://rshiny-dashboard.federal.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca
+              value: https://rshiny-dashboard.federal.iidi.beta.phac.gc.ca
             - name: FED_FEDERATOR_URL
-              value: https://federal.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca/federator/aggregated-data
+              value: https://federal.iidi.beta.phac.gc.ca/federator/aggregated-data
             - name: BC_BROWSER_URL
-              value: https://patient-browser.bc.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca
+              value: https://patient-browser.bc.iidi.beta.phac.gc.ca
             - name: BC_FHIR_URL
-              value: https://fhir.bc.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca
+              value: https://fhir.bc.iidi.beta.phac.gc.ca
             - name: BC_AGGREGATOR_URL
-              value: https://aggregator.bc.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca
+              value: https://aggregator.bc.iidi.beta.phac.gc.ca
             - name: BC_DEMO_TRANSFER_DASHBOARD_URL
-              value: "https://demo-transfer-dashboard.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca?pt=BC"
+              value: "https://demo-transfer-dashboard.iidi.beta.phac.gc.ca?pt=BC"
             - name: ON_BROWSER_URL
-              value: https://patient-browser.on.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca
+              value: https://patient-browser.on.iidi.beta.phac.gc.ca
             - name: ON_FHIR_URL
-              value: https://fhir.on.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca
+              value: https://fhir.on.iidi.beta.phac.gc.ca
             - name: ON_AGGREGATOR_URL
-              value: https://aggregator.on.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca
+              value: https://aggregator.on.iidi.beta.phac.gc.ca
             - name: ON_DEMO_TRANSFER_DASHBOARD_URL
-              value: "https://demo-transfer-dashboard.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca?pt=ON"
+              value: "https://demo-transfer-dashboard.iidi.beta.phac.gc.ca?pt=ON"
           livenessProbe:
             httpGet:
               path: /health

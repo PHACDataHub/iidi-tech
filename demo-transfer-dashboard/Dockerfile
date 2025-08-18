@@ -11,8 +11,8 @@ COPY . /app
 
 # These env vars need to exist at build-time, setting them on the container at run-time doesn't change
 # the values in the static content generated here and served when the container is run
-ARG ON_OUTBOUND_URL="https://transfer-outbound.on.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca/"
-ARG BC_OUTBOUND_URL="https://transfer-outbound.bc.iidi.hc-sc.dev.m.ent.cloud-nuage.canada.ca/"
+ARG ON_OUTBOUND_URL="https://transfer-outbound.on.iidi.beta.phac.gc.ca/"
+ARG BC_OUTBOUND_URL="https://transfer-outbound.bc.iidi.beta.phac.gc.ca/"
 
 RUN npm run build
 
