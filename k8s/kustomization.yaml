@@ -796,7 +796,7 @@ patches:
         ports:
         - name: http
           port: 8080
-          targetPort: 8080
+          targetPort: 80
           protocol: TCP
 
   - target:
@@ -813,7 +813,7 @@ patches:
         ports:
         - name: http
           port: 8080
-          targetPort: 8080
+          targetPort: 80
           protocol: TCP
 
   # SYNC-WAVE CONSISTENCY - Transfer Services
