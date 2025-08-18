@@ -76,7 +76,7 @@ images:
   # IIDI Demo Transfer Dashboard (digest-based)
   - name: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-demo-transfer-dashboard
     newName: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-demo-transfer-dashboard
-    digest: sha256:23b5c1b76ab79f5ff8e84e3237d11421251d701643ed6f71bac4d6689a195a3a
+    digest: sha256:87ff53bed89d13633c8ae88032f1ab6fd67eb37ae46d8a04bbd03db6eefa03a8
 
   # IIDI Federator (digest-based)
   - name: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-federator
