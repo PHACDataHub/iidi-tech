@@ -24,4 +24,4 @@ spec:
         - containerPort: 80
         env:
         - name: FHIR_URL
-          value: "http://hapi-fhir-on-svc.cobra.svc.cluster.local:8080/fhir"
+          value: "https://fhir.on.iidi.beta.phac.gc.ca/fhir"
