@@ -55,36 +55,49 @@ ui <- dashboardPage(
 
 # Server
 server <- function(input, output, session) {
-  
+
   # Fetch data from API with error handling
   get_data <- reactive({
+    # Try GET up to 3 times with exponential backoff
     response <- tryCatch({
-      GET(api_url, timeout(10))
+      RETRY(
+        verb = "GET",
+        url = api_url,
+        times = 3,                 # max retries
+        pause_base = 2,            # backoff: 2, 4, 8 sec
+        pause_cap = 10,            # cap max wait between retries
+        terminate_on = c(400, 401, 403, 404),  # don't retry on client errors
+        timeout(60)                # allow slow API (up to 60s)
+      )
     }, error = function(e) {
+      message(":x: API request failed: ", e$message)
       return(NULL)
     })
-    
+    # Bail out if no response or wrong content-type
     if (is.null(response) || http_type(response) != "application/json") {
-      return(data.frame(Age=character(), Count=numeric(), Dose=numeric(),
-                        Jurisdiction=character(), OccurrenceYear=numeric(), 
-                        ReferenceDate=character(), Sex=character()))
+      message(":warning: Invalid or missing response from API")
+      return(data.frame(Age = character(), Count = numeric(), Dose = numeric(),
+                        Jurisdiction = character(), OccurrenceYear = numeric(),
+                        ReferenceDate = character(), Sex = character()))
     }
-
+    # Parse JSON safely
     data <- tryCatch({
       fromJSON(rawToChar(response$content))$data
     }, error = function(e) {
+      message(":x: JSON parse failed: ", e$message)
       return(NULL)
     })
-
+    # Return empty df if no data
     if (is.null(data) || length(data) == 0) {
+      message(":warning: API returned empty dataset")
       return(data.frame())
     }
-    
+    # Convert to dataframe
     df <- as.data.frame(data)
     df$OccurrenceYear <- as.numeric(df$OccurrenceYear)
     return(df)
   })
-  
+
   # Dynamic select inputs with validation
   output$jurisdictionSelect <- renderUI({
     df <- get_data()
@@ -92,11 +105,11 @@ server <- function(input, output, session) {
     selectInput("jurisdiction", "Select Jurisdiction", 
                 choices = c("All", choices), selected = "All")
   })
-  
+
   output$ageSelect <- renderUI({
     df <- get_data()
     if (nrow(df) == 0) return(selectInput("Age", "Select Age Group", choices = c("All")))
-    
+
     ages <- unique(na.omit(df$Age))
     if (length(ages) > 0) {
       age_numbers <- as.numeric(gsub("\\D+", "", ages))
