@@ -869,7 +869,7 @@ patches:
               - name: REDIS_PORT
                 value: "6379"
               - name: TRANSFER_DASHBOARD_ORIGINS
-                value: "https://demo-transfer-dashboard.iidi.beta.phac.gc.ca/,http://localhost:8080,http://localhost:3000,http://localhost:3005"
+                value: "https://demo-transfer-dashboard.iidi.beta.phac.gc.ca,http://localhost:8080,http://localhost:3000,http://localhost:3005"
 
   # STANDARDIZED LABELS - Aggregation BC
   - target:
