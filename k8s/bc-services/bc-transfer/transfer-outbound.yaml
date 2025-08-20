@@ -43,4 +43,4 @@ spec:
                   name: redis-bc-secret
                   key: redis-password
             - name: TRANSFER_DASHBOARD_ORIGINS
-              value: "https://demo.iidi.cobra.dev.gcdm022b.gc.ca/transfer-dashboard,http://localhost:8080,http://localhost:3000,http://localhost:3005"
+              value: "https://demo-transfer-dashboard.iidi.beta.phac.gc.ca,http://localhost:8080,http://localhost:3000,http://localhost:3005"
