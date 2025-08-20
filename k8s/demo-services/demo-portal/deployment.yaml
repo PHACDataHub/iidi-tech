@@ -30,7 +30,7 @@ spec:
             - name: FED_DASHBOARD_URL
               value: https://rshiny-dashboard.federal.iidi.beta.phac.gc.ca
             - name: FED_FEDERATOR_URL
-              value: https://federal.iidi.beta.phac.gc.ca/federator/aggregated-data
+              value: https://federator.federal.iidi.beta.phac.gc.ca/aggregated-data
             - name: BC_BROWSER_URL
               value: https://patient-browser.bc.iidi.beta.phac.gc.ca
             - name: BC_FHIR_URL
