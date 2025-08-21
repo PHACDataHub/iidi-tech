@@ -66,7 +66,7 @@ images:
   # IIDI Aggregator
   - name: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-aggregator
     newName: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-aggregator
-    newTag: iidi-cobra-b9d7e1d9ac143894fab996f0d5297d037886d57a-1755742711
+    newTag: iidi-cobra-ef8ea64c8e4f516cdd6d07451c89c2652cd35c50-1755744396
 
   # IIDI Dashboard (digest-based)
   - name: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-dashboard
