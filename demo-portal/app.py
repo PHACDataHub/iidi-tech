@@ -582,25 +582,6 @@ def check_health(url):
         return None  # Any exception means service is unreachable
 
 
-@app.route("/health-check/<province_name>")
-def health_check(province_name):
-    """Endpoint to check the health of services per province."""
-    province_name = province_name.replace("%20", " ")
-
-    if province_name in entities:
-        province_health_status = {}
-        for service in entities[province_name]:
-            result = check_health(service["url"])
-            health_status = (
-                "healthy" if result else "error" if result is None else "unhealthy"
-            )
-            province_health_status[service["name"]] = health_status
-
-        return jsonify({province_name: province_health_status})
-
-    return jsonify({"error": "Province not found"}), 404
-
-
 @app.route("/health", methods=["GET"])
 def health():
     """Simple health check for Kubernetes probes."""

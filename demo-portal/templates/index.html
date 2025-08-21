@@ -147,31 +147,46 @@
     <script>
       function updateHealthStatus() {
         const provinces = document.querySelectorAll('.card');
-        provinces.forEach((province, index) => {
-          const provinceName = province
-            .querySelector('.province')
-            .textContent.trim();
-          const indicator = province.querySelector('.health-indicator circle');
 
-          fetch(`/health-check/${provinceName}`)
-            .then((response) => response.json())
-            .then((data) => {
-              let isProvinceHealthy = true;
-              for (let service in data[provinceName]) {
-                if (data[provinceName][service] !== 'healthy') {
-                  isProvinceHealthy = false;
-                  break;
-                }
-              }
-              if (isProvinceHealthy) {
-                indicator.setAttribute('fill', '#008000');
+        provinces.forEach((province) => {
+          const buttons = province.querySelectorAll('gcds-button[href]');
+          const promises = [];
+
+          // Create a promise for each service URL
+          buttons.forEach((button) => {
+            const url = button.getAttribute('href');
+            promises.push(
+              fetch(url, {
+                method: 'HEAD', // Use HEAD to avoid downloading full content
+                mode: 'no-cors', // Bypass CORS issues (but won't get status codes)
+                cache: 'no-cache',
+              })
+                .then(() => 'healthy')
+                .catch(() => 'error'),
+            );
+          });
+
+          // Check all services for this province
+          Promise.all(promises)
+            .then((results) => {
+              const indicator = province.querySelector(
+                '.health-indicator circle',
+              );
+              const allHealthy = results.every(
+                (status) => status === 'healthy',
+              );
+
+              if (allHealthy) {
+                indicator.setAttribute('fill', '#008000'); // Green
               } else {
-                indicator.setAttribute('fill', '#FF0000');
+                indicator.setAttribute('fill', '#FF0000'); // Red
               }
             })
-            .catch((error) => {
-              console.error('Error:', error);
-              indicator.setAttribute('fill', '#FF0000');
+            .catch(() => {
+              const indicator = province.querySelector(
+                '.health-indicator circle',
+              );
+              indicator.setAttribute('fill', '#FF0000'); // Red on error
             });
         });
       }
