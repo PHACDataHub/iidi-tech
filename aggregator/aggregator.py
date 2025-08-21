@@ -152,6 +152,9 @@ def fetch_fhir_resources(resource_type):
             if "entry" in data:
                 results.extend(data["entry"])
             url = next((link["url"] for link in data.get("link", []) if link.get("relation") == "next"), None)
+            # NOTE: Remove break , only a tempporary fix to avoid excessive processing
+            # Records will be capped to 1000
+            break
             if url:
                 if "https://fhir.bc.iidi.beta.phac.gc.ca/fhir" in url:
                     url = url.replace("https://fhir.bc.iidi.beta.phac.gc.ca/fhir", FHIR_URL)  # Remove base URL for next request
@@ -229,11 +232,8 @@ def aggregate_data():
     logging.info("Fetching Immunization resources...")
     immunizations = fetch_fhir_resources("Immunization")
 
-    # TODO: Gunicorn workers hitting TIMEOUT, investigate further
-
-    # Temporary Fix : cap off immunizations to 1500 avoid excessive processing
-    immunizations = immunizations[:1500]
-
+    # TODO : Optimizations, either gunicorn workers timeout API caller 
+    #        receives upstream timeout error. To be investigated.
     if not immunizations:
         logging.warning("No Immunization records found.")
         return []
