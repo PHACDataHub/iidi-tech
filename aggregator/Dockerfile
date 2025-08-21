@@ -41,4 +41,4 @@ ENV FHIR_URL=$FHIR_URL \
 EXPOSE 5000
 
 # Default command for running the Flask app with Gunicorn
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "aggregator:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "--timeout", "180", "aggregator:app"]
