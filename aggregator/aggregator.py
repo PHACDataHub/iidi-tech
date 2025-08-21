@@ -229,6 +229,11 @@ def aggregate_data():
     logging.info("Fetching Immunization resources...")
     immunizations = fetch_fhir_resources("Immunization")
 
+    # TODO: Gunicorn workers hitting TIMEOUT, investigate further
+
+    # Temporary Fix : cap off immunizations to 1500 avoid excessive processing
+    immunizations = immunizations[:1500]
+
     if not immunizations:
         logging.warning("No Immunization records found.")
         return []
@@ -283,6 +288,9 @@ def get_aggregated_data():
     
     logging.info("Calculating new aggregated data...")
     cached_data = aggregate_data()
+    
+
+
     last_aggregation_time = current_time
     return jsonify(cached_data)
 
