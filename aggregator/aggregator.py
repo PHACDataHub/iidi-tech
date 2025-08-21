@@ -152,6 +152,8 @@ def fetch_fhir_resources(resource_type):
             if "entry" in data:
                 results.extend(data["entry"])
             url = next((link["url"] for link in data.get("link", []) if link.get("relation") == "next"), None)
+            if url:
+             url = url.replace("https://fhir.bc.iidi.beta.phac.gc.ca/fhir", FHIR_URL)  # Remove base URL for next request
         except requests.RequestException as e:
             logging.error(f"Error fetching {resource_type} data from FHIR server: {e}")
             break
