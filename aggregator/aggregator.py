@@ -141,7 +141,7 @@ def verify_jwt(token):
 
 def fetch_fhir_resources(resource_type):
     """Fetch resources of the specified type from the FHIR server, handling pagination."""
-    url = f"{FHIR_URL}/{resource_type}?_count=1000"
+    url = f"{FHIR_URL}/{resource_type}?_count=500"
     results = []
     
     while url:
@@ -153,7 +153,7 @@ def fetch_fhir_resources(resource_type):
                 results.extend(data["entry"])
             url = next((link["url"] for link in data.get("link", []) if link.get("relation") == "next"), None)
             # NOTE: Remove break , only a tempporary fix to avoid excessive processing
-            # Records will be capped to 1000
+            # Records will be capped to 500
             break
             if url:
                 if "https://fhir.bc.iidi.beta.phac.gc.ca/fhir" in url:
