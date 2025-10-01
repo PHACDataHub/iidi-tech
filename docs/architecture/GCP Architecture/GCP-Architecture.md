@@ -4,7 +4,7 @@
 
 ## Explaining the Network Architecture for PHAC’s Google Cloud Project
 
-This architecture represents a **secure and scalable cloud-based infrastructure** deployed on **Google Cloud Platform (GCP)** by **PHAC (Public Health Agency of Canada)**. It is designed to ensure **secure communication, automated certificate management, and robust protection** against cyber threats. Let’s walk through how a user interacts with the system and how their request moves through various components while maintaining security and efficiency.
+This architecture represents a **secure and scalable cloud-based infrastructure** deployed on **Google Cloud Platform (GCP)** by **PHAC (Public Health Agency of Canada)**. It is designed to ensure **secure communication, fully automated certificate management, and robust protection** against cyber threats. Let’s walk through how a user interacts with the system and how their request moves through various components while maintaining security and efficiency.
 
 ---
 
@@ -18,7 +18,10 @@ Once the domain name is resolved, the browser sends an **HTTPS request** to the 
 
 ## Traffic Handling with Load Balancer and Security Protection
 
-The request is then routed to **Google Cloud’s HTTPS Load Balancer**, which plays a crucial role in managing and securing incoming traffic. One of its primary responsibilities is **terminating TLS (SSL)**—essentially, it decrypts the request, allowing the system to process it efficiently before re-encrypting it as needed. Additionally, if a user accidentally accesses the application via **HTTP** instead of **HTTPS**, the Load Balancer automatically redirects the request to **HTTPS**, ensuring that all traffic remains securely encrypted.
+The request is then routed to **Google Cloud’s External HTTPS Load Balancer**, which plays a crucial role in managing and securing incoming traffic. Its primary responsibilities are:
+
+1.  **TLS Termination**: It uses a **Google-managed SSL certificate** to decrypt the incoming HTTPS request, allowing for inspection and efficient routing.
+2.  **HTTP-to-HTTPS Redirection**: If a user accidentally accesses the application via **HTTP**, the Load Balancer automatically redirects the request to **HTTPS**, ensuring all traffic remains securely encrypted.
 
 To further protect against cyber threats, the request is passed through **Cloud Armor**, Google’s **Web Application Firewall (WAF)**. This layer helps detect and block malicious activities, such as **DDoS attacks, SQL injection, and cross-site scripting (XSS)**. By filtering out harmful requests, **Cloud Armor** ensures that only legitimate traffic reaches the application.
 
@@ -28,25 +31,28 @@ To further protect against cyber threats, the request is passed through **Cloud 
 
 Once the request has been validated and secured, it enters **Google Cloud’s Virtual Private Cloud (VPC)** within the **northamerica-northeast1 (Montreal) region**. Here, **VPC firewall rules** are enforced to control access, ensuring that only authorized traffic is allowed to pass through.
 
-The request is then forwarded to a **Google Kubernetes Engine (GKE) Autopilot cluster**, which is running **Anthos Service Mesh**. This cluster hosts the application and ensures seamless scaling, allowing the system to handle varying traffic loads efficiently.
+The request is then forwarded to a **Google Kubernetes Engine (GKE) Autopilot cluster**. This cluster hosts the application and ensures seamless scaling, allowing the system to handle varying traffic loads efficiently.
 
 ---
 
 ## Automated SSL/TLS Certificate Management
 
-A key part of this architecture is **automated certificate management**, which ensures that all communication remains secure. This is achieved using **cert-manager**, an open-source tool that handles the **provisioning, renewal, and application of SSL/TLS certificates**.
+A key part of this architecture is **fully automated certificate management**, which is handled directly by Google Cloud. This approach simplifies security and eliminates the operational overhead of manual renewals.
 
-These certificates are issued by **Let’s Encrypt**, a widely trusted **Certificate Authority (CA)**.
+Instead of using in-cluster tools, this architecture uses **Google-managed certificates**. These certificates are provisioned, deployed, and renewed automatically by Google.
 
-With **cert-manager**, the system can automatically request, renew, and apply **TLS certificates** and enforce **mTLS (mutual TLS)** authentication between services. This allows the system to establish **encrypted connections between microservices**, reducing the risk of expired certificates causing security vulnerabilities. The certificates are stored securely as **Kubernetes Secrets**.
+The certificate is attached directly to the **Google Cloud HTTPS Load Balancer**, which means:
+-   **No Manual Intervention**: Google handles the entire lifecycle, from issuance to renewal, preventing outages from expired certificates.
+-   **Enhanced Security**: The certificate and its private key are managed securely by Google, never exposed within the GKE cluster.
+-   **Simplified Operations**: There is no need to run or maintain tools like `cert-manager` inside the cluster for public-facing endpoints.
 
 ---
 
-## Ingress and End-to-End Service Security with Istio
+## Ingress and Routing to Application Services
 
-After passing through the network layers, the request is routed to the **Istio Ingress Gateway**, which serves as a **secure entry point into the Kubernetes cluster**. This component ensures that all incoming traffic is routed **correctly** to the appropriate application services.
+After passing through the network layers, the request is routed into the Kubernetes cluster using the **GKE Gateway API**.
 
-To further enhance security, the architecture enforces **mutual TLS (mTLS)** for internal service-to-service communication. This means that every interaction between different services within the cluster is **both encrypted and authenticated**, preventing unauthorized access and ensuring that remote attackers **cannot impersonate** a service.
+The `Gateway` resource defines the external load balancer, and `HTTPRoute` resources define how traffic for specific hostnames and paths is directed to the correct backend services inside the cluster. This provides a flexible and standardized way to manage ingress traffic without needing a separate service mesh for basic routing.
 
 ---
 
@@ -54,7 +60,7 @@ To further enhance security, the architecture enforces **mutual TLS (mTLS)** for
 
 At this stage, the request finally reaches the **Application Codebase**, where it is processed. Whether it’s retrieving data, performing an action, or responding to a user request, the application ensures that **all operations follow strict security policies**.
 
-Once the application has processed the request, the response is securely sent back through the same **protected path**—first through the **Istio Ingress Gateway**, then back to the **Load Balancer**, and finally to the **user’s browser over an encrypted HTTPS connection**.
+Once the application has processed the request, the response is securely sent back through the same **protected path**—from the application service to the **Load Balancer**, and finally to the **user’s browser over an encrypted HTTPS connection**.
 
 ---
 
@@ -62,8 +68,8 @@ Once the application has processed the request, the response is securely sent ba
 
 This system is built with **security, automation, and scalability** in mind. **Every step ensures that:**
 
-- **All data is protected** using encryption.
-- **Malicious traffic is blocked** before it reaches the application.
-- **Services communicate securely** using **mTLS authentication**.
+-   **All data is protected** using encryption.
+-   **Malicious traffic is blocked** before it reaches the application.
+-   **Certificate management is fully automated** by Google, reducing operational risk.
 
-By using **Google Cloud’s Load Balancer, Cloud Armor, and Anthos Service Mesh**, along with **automated SSL certificate management via Let’s Encrypt**, this system guarantees a **modern, cloud-native, and highly secure** infrastructure.
+By using **Google Cloud’s managed services like the External HTTPS Load Balancer, Cloud Armor, and Google-managed certificates**, this system provides a modern, cloud-native, and highly secure infrastructure.
