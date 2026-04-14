@@ -33,6 +33,22 @@ entities = {
 # Define collapsible sections dynamically instead of hardcoding them in HTML
 collapsible_sections = [
     {
+        "title": "References and Materials",
+        "content": """
+    <h5><strong>References and Materials</strong></h5>
+    <p>
+                A walkthrough of the Proof of Concept and the presentation can be found in:
+            </p>
+            <ul>
+                <li><a href="https://youtu.be/W8fnE7wnHh4" target="_blank" style="color: #0066cc; text-decoration: underline;"><strong>Walkthrough of Phase 1 PoC</strong></a></li>
+            </ul>
+            <ul>
+                <li><a href="https://github.com/PHACDataHub/iidi-tech/blob/main/docs/IIDI_Phase%201%20PoC%20demo1%20revisited%202026.pdf" target="_blank" style="color: #0066cc; text-decoration: underline;"><strong>Demo Presentation</strong></a></li>
+            </ul>
+    <p>
+        """
+    },
+    {
         "title": "Foundation for Federated Data Architecture",
         "content": """
     <h5><strong>Overview</strong></h5>
