@@ -51,7 +51,7 @@ images:
   # Demo Portal
   - name: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/demo-portal
     newName: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/demo-portal
-    newTag: iidi-cobra-7f3d9e613c4985236a23509774b7c87b8b868f6c-1755803296
+    newTag: iidi-cobra-0cc3cb53ca9b57c665f9998b4dcc6fe6922bc7f9-1776195254
 
   # HAPI FHIR Server - using new image
   - name: hapiproject/hapi
