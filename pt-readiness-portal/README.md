@@ -25,7 +25,7 @@ A scatter plot with DCC on the x-axis and OC on the y-axis. Each bubble is one j
 
 Scores are calculated from a subset of the survey questions. The full rubric is documented on SharePoint — **accessible on the HC network with an HC account only:**
 
-> 📄 **Scoring Rubric:** `[SharePoint link here](https://022gc-my.sharepoint.com/:x:/r/personal/william_brierley_hc-sc_gc_ca/Documents/PT%20Readiness%20Measurement%20Methodology.xlsx?d=w8305050ab0914c87a5345d6434fc0063&csf=1&web=1&e=lazo8u)`
+> 📄 **Scoring Rubric:** [SharePoint link here](https://022gc-my.sharepoint.com/:x:/r/personal/william_brierley_hc-sc_gc_ca/Documents/PT%20Readiness%20Measurement%20Methodology.xlsx?d=w8305050ab0914c87a5345d6434fc0063&csf=1&web=1&e=lazo8u)
 >
 > 📓 **Additional analysis diagrams and notebooks:** [Colab version to run](https://colab.research.google.com/drive/1ID9StC9CFHDHXyDAd2q8rU92D7EvHp5h?usp=sharing) and [Github hosted version](https://github.com/PHACDataHub/iidi-tech/blob/iidi-cobra/pt-readiness-portal/PT%20Readiness.ipynb)
 
