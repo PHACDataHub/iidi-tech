@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pt-readiness-portal-svc
+  namespace: cobra
+  annotations:
+    argocd.argoproj.io/sync-wave: "40"
+  labels:
+    app: pt-readiness-portal
+    app.kubernetes.io/name: pt-readiness-portal
+    app.kubernetes.io/component: federal-services
+    app.kubernetes.io/part-of: iidi-tech
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 8050
+    protocol: TCP
+  selector:
+    app: pt-readiness-portal

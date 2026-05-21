@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  dash-app:
+    build: .
+    ports:
+      - '8050:8050'
+    volumes:
+      - ./data.csv:/app/data.csv # mount your CSV here
+    environment:
+      - CSV_PATH=/app/data.csv # optional, default is 'data.csv'
