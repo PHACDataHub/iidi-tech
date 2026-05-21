@@ -29,6 +29,24 @@ WHITE  = '#FFFFFF'
 PALETTE = ['#1F4E79','#C55A11','#375623','#7030A0','#1f6b4e',
            '#8B3A3A','#2E6B8A','#5C4A1E','#4A235A','#1A5276','#888888']
 
+# ─────────────────────────── SCORE NORMALIZATION ─────────────────────────────
+# Raw DCC range: -8 to +14  |  Raw OC range: -12 to +18
+# Normalize each independently to [-1, +1] using their respective bounds.
+DCC_MIN, DCC_MAX = -8,  14
+OC_MIN,  OC_MAX  = -12, 18
+
+def normalize_dcc(raw):
+    """Map raw DCC score → [-1, 1]."""
+    mid  = (DCC_MAX + DCC_MIN) / 2          # 3.0
+    half = (DCC_MAX - DCC_MIN) / 2          # 11.0
+    return round((raw - mid) / half, 4)
+
+def normalize_oc(raw):
+    """Map raw OC score → [-1, 1]."""
+    mid  = (OC_MAX + OC_MIN) / 2            # 3.0
+    half = (OC_MAX - OC_MIN) / 2            # 15.0
+    return round((raw - mid) / half, 4)
+
 # ─────────────────────────── SCORING ───────────────────────────
 def score_api_protocol(rest, soap, amqp, other):
     if pd.notna(rest)  and rest  == 1: return 2
@@ -102,6 +120,116 @@ def score_row(row):
     oc_s  = q2_oc +q3_oc +q5_oc +q6_oc +q7_oc +q10_oc +q14_oc +q14a_oc +q16_oc
     return dcc_s, oc_s
 
+
+def score_row_breakdown(row):
+    """
+    Returns a dict mapping each scored section to its (dcc_raw, oc_raw, signal) where
+    signal is 'positive' | 'negative' | 'neutral'.
+    Used to annotate the viewer with per-question scoring impact.
+    """
+    results = {}
+
+    def _sig(dcc_v, oc_v):
+        avg = (dcc_v + oc_v) / 2 if (dcc_v is not None and oc_v is not None) else (dcc_v or oc_v or 0)
+        if avg > 0:  return 'positive'
+        if avg < 0:  return 'negative'
+        return 'neutral'
+
+    # Q2
+    q2 = str(row.get('4: 2. Does your jurisdiction have an official provincial/territorial immunization registry/repository?','')).strip()
+    v = 2 if q2 == 'Yes' else -2
+    results['q2'] = (v, v, _sig(v, v))
+
+    # Q3
+    q3 = str(row.get('5: 3. Is your registry/repository implemented using Panorama?','')).strip()
+    v = 2 if q3=='Yes' else (-2 if q3=='No' else 0)
+    results['q3'] = (v, v, _sig(v, v))
+
+    # Q5
+    q5 = str(row.get('9: 5. Where is your immunization registry/repository hosted?','')).strip()
+    v = 2 if q5=='Cloud' else (-2 if q5.lower() in ['on-premise','hybrid'] else 0)
+    results['q5'] = (v, v, _sig(v, v))
+
+    # Q6 – OC only
+    audit   = row.get('10: 6a. Is there Auditing of Logins in place for all registry/repository access?','')
+    logging = row.get('11: 6b. Is there logging of user activities in place for all registry/repository transactions?','')
+    oc_v = 2 if (str(audit).strip()=='Yes' and str(logging).strip()=='Yes') else -2
+    results['q6'] = (0, oc_v, _sig(None, oc_v))
+
+    # Q7 – OC only
+    q7 = str(row.get('12: 7. To ensure reliability and availability of data in the registry/repository, are there backups and mechanisms for disaster recovery?','')).strip()
+    oc_v = 2 if q7=='Yes' else -2
+    results['q7'] = (0, oc_v, _sig(None, oc_v))
+
+    # Q10
+    q10 = str(row.get('15: 9. Does your registry/repository have externally accessible Application Programming Interfaces (API) covering functionality needed to access and exchange immunization data?','')).strip()
+    if q10 == 'No':
+        v = -2
+    elif q10 == 'Yes':
+        s10a = score_api_protocol(row.get('16: REST'), row.get('16: SOAP'), row.get('16: AMQP'), row.get('16: Other, please specify'))
+        s10b = score_auth(row.get('17: SAML'), row.get('17: OAuth'), row.get('17: Other, please specify'))
+        s10c = score_10c(row.get('18: No '), row.get('18: No sure'), row.get('18: Yes'))
+        v = min(s10a, s10b, s10c)
+    else:
+        v = 0
+    results['q10'] = (v, v, _sig(v, v))
+
+    # Q14 / Q14a
+    q14  = str(row.get('24: 14. Are you currently upgrading or replacing any components of your immunization registry/repository or its technical ecosystem? (e.g., hosting environment, data exchange standards, interfaces with EMRs/EHRs, or other major system changes that will impact immunization data collection and sharing)','')).strip()
+    q14a = str(row.get('25: 14a. If not, have any decisions or plans being made towards future upgrading or replacing of any components of your immunization registry/repository or its technical ecosystem?','')).strip()
+    if q14 == 'Yes':
+        results['q14']  = (2, 2, 'positive')
+        results['q14a'] = (0, 0, 'neutral')
+    elif q14a == 'Yes':
+        results['q14']  = (0, 0, 'neutral')
+        results['q14a'] = (2, 2, 'positive')
+    else:
+        results['q14']  = (0, 0, 'neutral')
+        results['q14a'] = (0, 0, 'neutral')
+
+    # Q16
+    any_yes = any([
+        pd.notna(row.get('26: Yes: PS-CA')) and row.get('26: Yes: PS-CA')==1,
+        pd.notna(row.get('26: Yes: Pan-Canadian Health Data Content Framework')) and row.get('26: Yes: Pan-Canadian Health Data Content Framework')==1,
+        pd.notna(row.get('26: Yes: CA:FeX ')) and row.get('26: Yes: CA:FeX ')==1,
+    ])
+    v = 2 if any_yes else 0
+    results['q16'] = (v, v, _sig(v, v))
+
+    return results
+
+
+# Column prefix → which scored question key it belongs to (for badge display)
+# None means it contributes to scoring indirectly (sub-question of q10, etc.)
+PREFIX_TO_SCORE_KEY = {
+    '4':  'q2',
+    '5':  'q3',
+    '9':  'q5',
+    '10': 'q6',
+    '11': 'q6',
+    '12': 'q7',
+    '15': 'q10',
+    '16': 'q10',
+    '17': 'q10',
+    '18': 'q10',
+    '24': 'q14',
+    '25': 'q14a',
+    '26': 'q16',
+}
+
+SCORE_KEY_LABELS = {
+    'q2':   'Registry existence',
+    'q3':   'Panorama usage',
+    'q5':   'Hosting model',
+    'q6':   'Security & logging',
+    'q7':   'Backup & DR',
+    'q10':  'API readiness',
+    'q14':  'Active upgrades',
+    'q14a': 'Upgrade plans',
+    'q16':  'Interop roadmap',
+}
+
+
 def readiness_band(dcc_s, oc_s):
     avg = (dcc_s + oc_s) / 2
     if avg >= 8: return 'High'
@@ -128,7 +256,9 @@ def calculate_scores(df):
         jur = str(row.get(JUR_COL, UNKNOWN_JUR)).strip()
         if jur == UNKNOWN_JUR:
             continue
-        dcc_val, oc_val = score_row(row)
+        dcc_raw, oc_raw = score_row(row)
+        dcc_norm = normalize_dcc(dcc_raw)
+        oc_norm  = normalize_oc(oc_raw)
         respondent = str(row.get('Respondent', '')).strip()
         if jur not in jur_color_idx:
             jur_color_idx[jur] = color_counter[0]
@@ -137,9 +267,11 @@ def calculate_scores(df):
             'Jurisdiction': jur,
             'Short': short(jur),
             'Respondent': respondent,
-            'Data Connection Complexity': dcc_val,
-            'Operational Complexity': oc_val,
-            'Readiness Band': readiness_band(dcc_val, oc_val),
+            'Data Connection Complexity': dcc_raw,        # raw integer — for table & hover
+            'Operational Complexity': oc_raw,             # raw integer — for table & hover
+            '_dcc_norm': dcc_norm,                        # normalized — for chart axes only
+            '_oc_norm': oc_norm,                          # normalized — for chart axes only
+            'Readiness Band': readiness_band(dcc_raw, oc_raw),
             '_color_idx': jur_color_idx[jur],
         })
 
@@ -151,14 +283,14 @@ def calculate_scores(df):
 
 def apply_jitter(scores):
     scores = scores.copy()
-    scores['_x'] = scores['Data Connection Complexity'].astype(float)
-    scores['_y'] = scores['Operational Complexity'].astype(float)
+    scores['_x'] = scores['_dcc_norm'].astype(float)
+    scores['_y'] = scores['_oc_norm'].astype(float)
     coord_groups = scores.groupby(['_x', '_y'])
     for (x, y), idx in coord_groups.groups.items():
         n = len(idx)
         if n == 1:
             continue
-        radius = 0.35
+        radius = 0.05   # Scaled down since axis is now [-1, 1]
         for i, row_idx in enumerate(idx):
             angle = (2 * np.pi * i) / n
             scores.at[row_idx, '_x'] = x + radius * np.cos(angle)
@@ -171,6 +303,43 @@ def _lighten(hex_color, factor=0.45):
     r, g, b = int(h[0:2],16), int(h[2:4],16), int(h[4:6],16)
     return f'#{int(r+(255-r)*factor):02x}{int(g+(255-g)*factor):02x}{int(b+(255-b)*factor):02x}'
 
+# ─────────────────────────── SCORE BADGE ─────────────────────────────
+_SIGNAL_CFG = {
+    'positive': {'icon': '▲', 'label': 'Positive impact',  'color': '#375623', 'bg': '#D5E8D4', 'border': '#A9C9A0'},
+    'negative': {'icon': '▼', 'label': 'Negative impact',  'color': '#C00000', 'bg': '#FFDCE1', 'border': '#F4A0A0'},
+    'neutral':  {'icon': '●', 'label': 'Neutral','color': '#7F6B00', 'bg': '#FFF8DC', 'border': '#E0D080'},
+}
+
+def _single_pill(label, signal):
+    """One DCC or OC signal pill."""
+    cfg = _SIGNAL_CFG.get(signal, _SIGNAL_CFG['neutral'])
+    return html.Span(
+        [
+            html.Span(cfg['icon'], style={'marginRight': 3, 'fontSize': 9}),
+            html.Span(label, style={'fontSize': 10}),
+        ],
+        title=cfg['label'],
+        style={
+            'display': 'inline-flex', 'alignItems': 'center',
+            'padding': '1px 6px', 'borderRadius': 10,
+            'border': f"1px solid {cfg['border']}",
+            'backgroundColor': cfg['bg'],
+            'color': cfg['color'],
+            'fontWeight': '700',
+            'whiteSpace': 'nowrap',
+        }
+    )
+
+def score_badges(dcc_signal, oc_signal):
+    """Return a span with two pills: one for DCC signal, one for OC signal."""
+    return html.Span(
+        [
+            _single_pill('DCC', dcc_signal),
+            _single_pill('OC',  oc_signal),
+        ],
+        style={'display': 'inline-flex', 'gap': 4, 'marginLeft': 8, 'verticalAlign': 'middle'}
+    )
+
 # ─────────────────────────── BUBBLE CHART ───────────────────────────
 def create_bubble_chart(scores):
     fig = go.Figure()
@@ -181,14 +350,14 @@ def create_bubble_chart(scores):
         fig.update_layout(plot_bgcolor=WHITE, paper_bgcolor=WHITE, height=560)
         return fig
 
-    max_abs_x = max(np.ceil(scores['Data Connection Complexity'].abs().max() * 1.3), 5)
-    max_abs_y = max(np.ceil(scores['Operational Complexity'].abs().max() * 1.3), 5)
+    # Normalized axes are always [-1, 1] with a small margin
+    axis_range = [-1.15, 1.15]
 
     for x0, y0, x1, y1, color in [
-        (-max_abs_x, 0,          0,         max_abs_y, 'rgba(255,242,204,0.22)'),
-        (0,          0,          max_abs_x, max_abs_y, 'rgba(213,232,212,0.22)'),
-        (-max_abs_x, -max_abs_y, 0,         0,         'rgba(252,228,214,0.22)'),
-        (0,          -max_abs_y, max_abs_x, 0,         'rgba(244,204,204,0.22)'),
+        (-1.15, 0,    0,    1.15, 'rgba(255,242,204,0.22)'),
+        (0,     0,    1.15, 1.15, 'rgba(213,232,212,0.22)'),
+        (-1.15,-1.15, 0,    0,    'rgba(252,228,214,0.22)'),
+        (0,    -1.15, 1.15, 0,    'rgba(244,204,204,0.22)'),
     ]:
         fig.add_shape(type='rect', x0=x0, y0=y0, x1=x1, y1=y1,
                       fillcolor=color, line_width=0, layer='below')
@@ -198,19 +367,21 @@ def create_bubble_chart(scores):
 
     for _, row in scores.iterrows():
         color = PALETTE[int(row['_color_idx']) % len(PALETTE)]
-        x_pos = row.get('_x', row['Data Connection Complexity'])
-        y_pos = row.get('_y', row['Operational Complexity'])
-        true_x = row['Data Connection Complexity']
-        true_y = row['Operational Complexity']
+        x_pos  = row.get('_x', row['_dcc_norm'])   # jittered normalized position
+        y_pos  = row.get('_y', row['_oc_norm'])     # jittered normalized position
+        true_x = row['_dcc_norm']                   # un-jittered normalized (for jitter line)
+        true_y = row['_oc_norm']
+        raw_dcc = int(row['Data Connection Complexity'])
+        raw_oc  = int(row['Operational Complexity'])
 
-        if abs(x_pos - true_x) > 0.01 or abs(y_pos - true_y) > 0.01:
+        if abs(x_pos - true_x) > 0.001 or abs(y_pos - true_y) > 0.001:
             fig.add_shape(type='line',
                 x0=true_x, y0=true_y, x1=x_pos, y1=y_pos,
                 line=dict(color=color, width=1, dash='dot'), layer='below')
 
         hover = (
             f"<b>{row['Jurisdiction']}</b><br>"
-            f"DCC: {true_x:.0f} &nbsp; OC: {true_y:.0f}<br>"
+            f"DCC: {raw_dcc} &nbsp; OC: {raw_oc}<br>"
             f"Readiness: {row['Readiness Band']}<br>"
             f"Respondent: {row.get('Respondent','')}"
             "<extra></extra>"
@@ -229,13 +400,25 @@ def create_bubble_chart(scores):
             showlegend=True,
         ))
 
+    # Tick marks at meaningful positions on the normalized scale
+    tick_vals  = [-1, -0.5, 0, 0.5, 1]
+    tick_texts = ['-1', '-0.5', '0', '+0.5', '+1']
+
     fig.update_layout(
-        xaxis=dict(title='Data Connection Complexity →', zeroline=False,
-                   gridcolor='#EEEEEE', range=[-max_abs_x, max_abs_x],
-                   title_font=dict(size=12), tickfont=dict(size=11)),
-        yaxis=dict(title='Operational Complexity →', zeroline=False,
-                   gridcolor='#EEEEEE', range=[-max_abs_y, max_abs_y],
-                   title_font=dict(size=12), tickfont=dict(size=11)),
+        xaxis=dict(
+            title='Data Connection Complexity (normalized) →',
+            zeroline=False, gridcolor='#EEEEEE',
+            range=axis_range,
+            tickvals=tick_vals, ticktext=tick_texts,
+            title_font=dict(size=12), tickfont=dict(size=11),
+        ),
+        yaxis=dict(
+            title='Operational Complexity (normalized) →',
+            zeroline=False, gridcolor='#EEEEEE',
+            range=axis_range,
+            tickvals=tick_vals, ticktext=tick_texts,
+            title_font=dict(size=12), tickfont=dict(size=11),
+        ),
         plot_bgcolor=WHITE, paper_bgcolor=WHITE,
         legend=dict(title='Jurisdiction', font=dict(size=11),
                     bgcolor='rgba(255,255,255,0.9)', bordercolor=LIGHT, borderwidth=1,
@@ -247,119 +430,112 @@ def create_bubble_chart(scores):
     return fig
 
 # ─────────────────────────── SECTION / COLUMN METADATA ──────────────
-# Maps column prefix → (section_label, field_label)
-# field_label = None means it's handled with special rendering (e.g. Q4 matrix)
 COL_META = {
     'Respondent': ('Respondent & Jurisdiction', 'Respondent ID'),
     'Date':       ('Respondent & Jurisdiction', 'Submission Date'),
     '1':          ('Respondent & Jurisdiction', 'Name / Email'),
     '2.0':        ('Respondent & Jurisdiction', 'Jurisdiction'),
 
-    '3':    ('Q1 – Information Systems',
+    '3':    ('Information Systems',
              'What types of information systems capture immunization data?'),
 
-    '4':    ('Q2 – Registry',
+    '4':    ('Registry',
              'Does your jurisdiction have an official immunization registry/repository?'),
 
-    '5':    ('Q3 – Panorama', 'Is your registry implemented using Panorama?'),
-    '6':    ('Q3 – Panorama', 'Panorama version'),
-    '7':    ('Q3 – Panorama', 'Non-Panorama system name(s) and version(s)'),
+    '5':    ('Panorama', 'Is your registry implemented using Panorama?'),
+    '6':    ('Panorama', 'Panorama version'),
+    '7':    ('Panorama', 'Non-Panorama system name(s) and version(s)'),
 
-    # 8.1 columns rendered as a matrix — field_label=None flags special handling
-    '8.1':  ('Q4 – Immunization Capture by Care Setting', None),
-    '8.2.1':('Q4 – Immunization Capture by Care Setting', 'Public Health – additional notes'),
-    '8.2.2':('Q4 – Immunization Capture by Care Setting', 'Primary Care – additional notes'),
-    '8.2.3':('Q4 – Immunization Capture by Care Setting', 'Pharmacy – additional notes'),
-    '8.2.4':('Q4 – Immunization Capture by Care Setting', 'Hospital – additional notes'),
-    '8.2.5':('Q4 – Immunization Capture by Care Setting', 'Other – additional notes'),
+    '8.1':  ('Immunization Capture by Care Setting', None),
+    '8.2.1':('Immunization Capture by Care Setting', 'Public Health – additional notes'),
+    '8.2.2':('Immunization Capture by Care Setting', 'Primary Care – additional notes'),
+    '8.2.3':('Immunization Capture by Care Setting', 'Pharmacy – additional notes'),
+    '8.2.4':('Immunization Capture by Care Setting', 'Hospital – additional notes'),
+    '8.2.5':('Immunization Capture by Care Setting', 'Other – additional notes'),
 
-    '9':    ('Q5 – Hosting', 'Where is the registry/repository hosted?'),
+    '9':    ('Hosting', 'Where is the registry/repository hosted?'),
 
-    '10':   ('Q6 – Security & Logging', 'Auditing of logins in place?'),
-    '11':   ('Q6 – Security & Logging', 'Logging of user activities in place?'),
+    '10':   ('Security & Logging', 'Auditing of logins in place?'),
+    '11':   ('Security & Logging', 'Logging of user activities in place?'),
 
-    '12':   ('Q7 – Backup & Disaster Recovery',
+    '12':   ('Backup & Disaster Recovery',
              'Backups and disaster recovery mechanisms in place?'),
 
-    '13':   ('Q8 – Citizen Access',
+    '13':   ('Citizen Access',
              'Digital tool for citizens to access their immunization records?'),
-    '14':   ('Q8 – Citizen Access', 'Alternative citizen access methods'),
+    '14':   ('Citizen Access', 'Alternative citizen access methods'),
 
-    '15':   ('Q9 – API & Data Exchange',
+    '15':   ('API & Data Exchange',
              'Does the registry have externally accessible APIs?'),
-    '16':   ('Q9 – API & Data Exchange', 'API protocol(s) used'),
-    '17':   ('Q9 – API & Data Exchange', 'API authentication method(s)'),
-    '18':   ('Q9 – API & Data Exchange',
+    '16':   ('API & Data Exchange', 'API protocol(s) used'),
+    '17':   ('API & Data Exchange', 'API authentication method(s)'),
+    '18':   ('API & Data Exchange',
              'If no APIs, other data exchange interfaces/protocols supported?'),
 
-    '19':   ('Q10 – System Integration',
+    '19':   ('System Integration',
              'Which systems report immunization data to the registry?'),
-    '20':   ('Q10 – System Integration', 'Reporting mechanism(s)'),
-    '21':   ('Q10 – System Integration', 'Data exchange formats/standards used'),
+    '20':   ('System Integration', 'Reporting mechanism(s)'),
+    '21':   ('System Integration', 'Data exchange formats/standards used'),
 
-    '22':   ('Q11 – Terminology & Standards',
+    '22':   ('Terminology & Standards',
              'Terminology and data exchange standards used'),
 
-    '23':   ('Q12 – Data Sharing Processes',
+    '23':   ('Data Sharing Processes',
              'Immunization data sharing/transfer processes in place'),
 
-    '24':   ('Q13 – Upgrades & Roadmap',
+    '24':   ('Upgrades & Roadmap',
              'Currently upgrading or replacing registry components?'),
-    '25':   ('Q13 – Upgrades & Roadmap',
+    '25':   ('Upgrades & Roadmap',
              'Plans to upgrade or replace registry components in future?'),
-    '26':   ('Q13 – Upgrades & Roadmap',
+    '26':   ('Upgrades & Roadmap',
              'Participating in Interoperability Roadmap (PS-CA / Pan-Canadian HDCF / CA:FeX)?'),
 
-    '27':   ('Q14 – Data Quality', 'How is registry data quality assessed?'),
-    '28':   ('Q14 – Data Quality',
+    '27':   ('Data Quality', 'How is registry data quality assessed?'),
+    '28':   ('Data Quality',
              'How are provider-identified data quality issues remediated?'),
 
-    '29':   ('Q15 – Patient Data Updates',
+    '29':   ('Patient Data Updates',
              'How can patients update or correct their immunization record?'),
 
-    '30':   ('Q16 – Archiving', 'Is immunization data ever archived?'),
-    '31':   ('Q16 – Archiving', 'When and how is data archived?'),
+    '30':   ('Archiving', 'Is immunization data ever archived?'),
+    '31':   ('Archiving', 'When and how is data archived?'),
 
-    '32':   ('Q17 – Governance & Custodianship',
+    '32':   ('Governance & Custodianship',
              'Who is the custodian/business owner of immunization data?'),
 
-    '33.1': ('Q18 – Who Administers Immunizations', 'Public Health Office'),
-    '33.2': ('Q18 – Who Administers Immunizations', 'Primary Care'),
-    '33.3': ('Q18 – Who Administers Immunizations', 'Community Health Centre'),
-    '33.4': ('Q18 – Who Administers Immunizations', 'School'),
-    '33.5': ('Q18 – Who Administers Immunizations', 'Pharmacy'),
-    '33.6': ('Q18 – Who Administers Immunizations', 'Acute Care Facilities'),
-    '33.7': ('Q18 – Who Administers Immunizations', 'Long Term Care Facilities'),
-    '33.8': ('Q18 – Who Administers Immunizations', 'Other'),
+    '33.1': ('Who Administers Immunizations', 'Public Health Office'),
+    '33.2': ('Who Administers Immunizations', 'Primary Care'),
+    '33.3': ('Who Administers Immunizations', 'Community Health Centre'),
+    '33.4': ('Who Administers Immunizations', 'School'),
+    '33.5': ('Who Administers Immunizations', 'Pharmacy'),
+    '33.6': ('Who Administers Immunizations', 'Acute Care Facilities'),
+    '33.7': ('Who Administers Immunizations', 'Long Term Care Facilities'),
+    '33.8': ('Who Administers Immunizations', 'Other'),
 
-    '34.1': ('Q19 – Care Settings by Immunization Type', 'Childhood Immunizations'),
-    '34.2': ('Q19 – Care Settings by Immunization Type', 'Flu / COVID Immunizations'),
-    '34.3': ('Q19 – Care Settings by Immunization Type', 'Travel Immunizations'),
-    '34.4': ('Q19 – Care Settings by Immunization Type', 'Adult Immunizations'),
-    '34.5': ('Q19 – Care Settings by Immunization Type', 'Adolescent Immunizations'),
-    '34.6': ('Q19 – Care Settings by Immunization Type', 'High Risk Immunizations'),
-    '34.7': ('Q19 – Care Settings by Immunization Type', 'Post-Exposure Immunizations'),
+    '34.1': ('Care Settings by Immunization Type', 'Childhood Immunizations'),
+    '34.2': ('Care Settings by Immunization Type', 'Flu / COVID Immunizations'),
+    '34.3': ('Care Settings by Immunization Type', 'Travel Immunizations'),
+    '34.4': ('Care Settings by Immunization Type', 'Adult Immunizations'),
+    '34.5': ('Care Settings by Immunization Type', 'Adolescent Immunizations'),
+    '34.6': ('Care Settings by Immunization Type', 'High Risk Immunizations'),
+    '34.7': ('Care Settings by Immunization Type', 'Post-Exposure Immunizations'),
 
-    '35':   ('Q20 – Adverse Events & Vaccine Issues',
+    '35':   ('Adverse Events & Vaccine Issues',
              'How are adverse events recorded and shared with providers?'),
-    '36':   ('Q20 – Adverse Events & Vaccine Issues',
+    '36':   ('Adverse Events & Vaccine Issues',
              'How are vaccine inventory issues (spoilage, wastage) recorded?'),
 
-    '37':   ('Q21 – Policies & Agreements',
+    '37':   ('Policies & Agreements',
              'Policies, procedures or agreements guiding data sharing'),
-    '38':   ('Q22 – Challenges',
+    '38':   ('Challenges',
              'Clinical / business / technical challenges in sharing immunization data'),
 }
 
 # ─────────────────────────── Q4 CAPTURE MATRIX ──────────────────────
-# The survey encodes a 5-setting × 3-frequency matrix using column suffixes:
-#   no suffix → Public Health | .1 → Primary Care | .2 → Pharmacy
-#   .3 → Hospital             | .4 → Other
 _CARE_SETTINGS  = ['Public Health', 'Primary Care', 'Pharmacy', 'Hospital', 'Other']
 _FREQ_SUFFIXES  = ['', '.1', '.2', '.3', '.4']
 _FREQ_LABELS    = ['routinely captured', 'occasionally captured', 'rarely captured']
 
-# Pre-build the column names for every (setting, freq) combination
 _FREQ_COLS = {
     sfx: {lbl: f'8.1: 1_Immunization events are {lbl}{sfx}' for lbl in _FREQ_LABELS}
     for sfx in _FREQ_SUFFIXES
@@ -372,22 +548,18 @@ _FREQ_STYLE = {
 }
 
 def _setting_freq(row_s, sfx):
-    """Return the checked frequency word for a care-setting column suffix, or None."""
     for lbl in _FREQ_LABELS:
         col = _FREQ_COLS[sfx][lbl]
         v = row_s.get(col)
         try:
             if pd.notna(v) and float(v) == 1.0:
-                return lbl.replace(' captured', '')   # 'routinely' / 'occasionally' / 'rarely'
+                return lbl.replace(' captured', '')
         except Exception:
             pass
     return None
 
 def render_imm_capture_table(rows_list):
-    """Render the Q4 immunization-capture question as a readable grid."""
     is_diff = len(rows_list) > 1
-
-    # Column headers
     th_style = {'padding': '5px 10px', 'fontSize': 11, 'fontWeight': '700',
                 'backgroundColor': '#F5F8FB', 'borderBottom': f'2px solid {LIGHT}'}
     header_cells = [html.Th('Care Setting', style={**th_style, 'textAlign': 'left', 'color': GREY})]
@@ -398,8 +570,6 @@ def render_imm_capture_table(rows_list):
     else:
         header_cells.append(html.Th('Capture Frequency',
                                     style={**th_style, 'textAlign': 'center', 'color': GREY}))
-
-    # Data rows
     trows = []
     for setting, sfx in zip(_CARE_SETTINGS, _FREQ_SUFFIXES):
         cells = [html.Td(setting,
@@ -436,7 +606,6 @@ def get_col_label(col):
     meta = COL_META.get(prefix)
     if meta and meta[1]:
         return meta[1]
-    # fallback: strip the numeric prefix
     parts = col.split(':', 1)
     return parts[1].strip() if len(parts) == 2 and parts[1].strip() else col
 
@@ -445,11 +614,21 @@ def get_checkbox_label(col):
     return parts[1].strip() if len(parts) == 2 and parts[1].strip() else col
 
 # ─────────────────────────── VIEWER ─────────────────────────────────
-def _field_row(label, val_cells, is_diff, rows_list):
-    label_el = html.Div(label, style={
-        'flex': '0 0 30%', 'fontSize': 12, 'color': '#2E75B6',
-        'fontWeight': '600', 'wordBreak': 'break-word', 'paddingTop': 2,
+def _field_row(label, val_cells, is_diff, rows_list, badge=None):
+    """
+    badge: an html element (score_badge) to append after the label, or None.
+    """
+    label_content = [
+        html.Span(label, style={'fontSize': 12, 'color': '#2E75B6', 'fontWeight': '600'}),
+    ]
+    if badge is not None:
+        label_content.append(badge)
+
+    label_el = html.Div(label_content, style={
+        'flex': '0 0 30%', 'wordBreak': 'break-word', 'paddingTop': 2,
+        'display': 'flex', 'flexWrap': 'wrap', 'alignItems': 'center', 'gap': 4,
     })
+
     if is_diff:
         val_el = html.Div([
             html.Div(cell, style={
@@ -463,10 +642,12 @@ def _field_row(label, val_cells, is_diff, rows_list):
         val_el = html.Div(val_cells[0], style={
             'flex': 1, 'fontSize': 12, 'color': '#111', 'wordBreak': 'break-word'
         })
+
     return html.Div([label_el, val_el], style={
         'display': 'flex', 'padding': '7px 14px',
         'borderBottom': f'1px solid #F0F4F8', 'gap': 12, 'alignItems': 'flex-start',
     })
+
 
 def render_viewer(rows_list, raw_df, selected_sections):
     if not rows_list:
@@ -474,6 +655,9 @@ def render_viewer(rows_list, raw_df, selected_sections):
                         style={'color': GREY, 'padding': 20, 'fontStyle': 'italic', 'fontSize': 13})
 
     is_diff = len(rows_list) > 1
+
+    # Compute scoring breakdown for each respondent row
+    breakdowns = [score_row_breakdown(row_s) for row_s, _, _ in rows_list]
 
     # Identify pure-binary checkbox columns (0/1 only)
     binary_cols = set()
@@ -494,12 +678,17 @@ def render_viewer(rows_list, raw_df, selected_sections):
     if selected_sections:
         sections_order = [s for s in sections_order if s in selected_sections]
 
+    # Track which score keys have already had a badge shown (per-section render pass)
+    # so we don't show the badge on every sub-column of the same scored question.
+    # We reset this per section card.
+
     cards = []
     for sec in sections_order:
         cols = sections_map.get(sec, [])
         row_els = []
         rendered_bin_groups = set()
         imm_capture_rendered = False
+        shown_score_keys = set()   # reset per section card
 
         for col in cols:
             prefix = col.split(':')[0].strip()
@@ -517,7 +706,18 @@ def render_viewer(rows_list, raw_df, selected_sections):
                     ], style={'display': 'flex', 'padding': '10px 14px',
                                'borderBottom': f'1px solid #F0F4F8', 'gap': 12,
                                'alignItems': 'flex-start'}))
-                continue  # skip the individual raw 8.1 columns
+                continue
+
+            # Determine if this column has a scoring badge to show.
+            # q6 and q10 are handled in the section header — skip them here.
+            _HEADER_BADGE_KEYS = {'q6', 'q10'}
+            score_key = PREFIX_TO_SCORE_KEY.get(prefix)
+            badge = None
+            if score_key and score_key not in shown_score_keys and score_key not in _HEADER_BADGE_KEYS:
+                shown_score_keys.add(score_key)
+                def _sig_from(v): return 'positive' if v > 0 else ('negative' if v < 0 else 'neutral')
+                tup = breakdowns[0].get(score_key, (0, 0, 'neutral'))
+                badge = score_badges(_sig_from(tup[0]), _sig_from(tup[1]))
 
             # ── Checkbox groups ──────────────────────────────────────
             if col in binary_cols:
@@ -528,7 +728,6 @@ def render_viewer(rows_list, raw_df, selected_sections):
                 group_members = [c for c in cols
                                  if c in binary_cols and c.split(':')[0].strip() == prefix]
 
-                # Use the field label from COL_META if available, else fall back
                 label = get_col_label(group_members[0])
 
                 val_cells = []
@@ -545,10 +744,10 @@ def render_viewer(rows_list, raw_df, selected_sections):
                         cell = html.Div([
                             html.Span(c, style={
                                 'display': 'inline-block', 'padding': '2px 8px',
-                                'borderRadius': 10, 'fontSize': 11, 'fontWeight': '600',
-                                'background': _lighten(accent, 0.75),
-                                'color': accent,
-                                'border': f'1px solid {_lighten(accent, 0.4)}',
+                                'borderRadius': 10, 'fontSize': 11, 'fontWeight': '500',
+                                'background': '#F2F2F2',
+                                'color': '#444',
+                                'border': '1px solid #D0D0D0',
                                 'margin': '2px 3px 2px 0',
                             }) for c in checked
                         ], style={'display': 'flex', 'flexWrap': 'wrap', 'gap': 2})
@@ -557,7 +756,7 @@ def render_viewer(rows_list, raw_df, selected_sections):
                                                       'fontStyle': 'italic'})
                     val_cells.append(cell)
 
-                row_els.append(_field_row(label, val_cells, is_diff, rows_list))
+                row_els.append(_field_row(label, val_cells, is_diff, rows_list, badge=badge))
 
             # ── Free-text / single-value fields ──────────────────────
             else:
@@ -573,7 +772,6 @@ def render_viewer(rows_list, raw_df, selected_sections):
                                                          'wordBreak': 'break-word'})
                     val_cells.append(cell)
 
-                # Highlight diffs between two respondents
                 if is_diff and len(val_cells) == 2:
                     v0 = str(rows_list[0][0].get(col, '')).strip()
                     v1 = str(rows_list[1][0].get(col, '')).strip()
@@ -586,15 +784,34 @@ def render_viewer(rows_list, raw_df, selected_sections):
                                                            'borderRadius': 4, 'padding': '2px 4px'}),
                         ]
 
-                row_els.append(_field_row(label, val_cells, is_diff, rows_list))
+                row_els.append(_field_row(label, val_cells, is_diff, rows_list, badge=badge))
 
         if row_els:
+            # For sections whose score combines multiple columns (q6, q10),
+            # show the DCC/OC badge in the section header instead of a field row.
+            _SECTION_BADGE_KEYS = {
+                'Security & Logging': 'q6',
+                'API & Data Exchange': 'q10',
+            }
+            def _sig_from(v): return 'positive' if v > 0 else ('negative' if v < 0 else 'neutral')
+            sec_badge = None
+            sec_score_key = _SECTION_BADGE_KEYS.get(sec)
+            if sec_score_key:
+                tup = breakdowns[0].get(sec_score_key, (0, 0, 'neutral'))
+                sec_badge = score_badges(_sig_from(tup[0]), _sig_from(tup[1]))
+
+            header_children = [
+                html.Span(sec, style={'textTransform': 'uppercase', 'letterSpacing': '0.04em'}),
+            ]
+            if sec_badge:
+                header_children.append(sec_badge)
+
             cards.append(html.Div([
-                html.Div(sec, style={
+                html.Div(header_children, style={
                     'background': '#EDF4FB', 'padding': '6px 14px',
                     'fontSize': 11, 'fontWeight': '700', 'color': BLUE,
-                    'textTransform': 'uppercase', 'letterSpacing': '0.04em',
                     'borderBottom': f'1px solid {LIGHT}',
+                    'display': 'flex', 'alignItems': 'center', 'gap': 8,
                 }),
                 html.Div(row_els),
             ], style={
@@ -602,8 +819,31 @@ def render_viewer(rows_list, raw_df, selected_sections):
                 'borderRadius': 6, 'marginBottom': 8, 'background': WHITE, 'overflow': 'hidden',
             }))
 
-    return html.Div(cards) if cards else html.Div("No sections selected.",
-                                                    style={'color': GREY, 'padding': 16})
+    # ── Scoring legend ───────────────────────────────────────────────
+    legend = html.Div([
+        html.Span("DCC / OC score impact: ", style={'fontSize': 11, 'color': GREY, 'fontWeight': '600', 'marginRight': 6}),
+        *[html.Span(
+            [html.Span(cfg['icon'], style={'marginRight': 3}), cfg['label']],
+            style={
+                'display': 'inline-flex', 'alignItems': 'center',
+                'padding': '1px 8px', 'borderRadius': 10, 'fontSize': 10,
+                'border': f"1px solid {cfg['border']}",
+                'backgroundColor': cfg['bg'], 'color': cfg['color'],
+                'fontWeight': '700', 'marginRight': 6,
+            }
+        ) for cfg in _SIGNAL_CFG.values()],
+        html.Span("·", style={'color': '#ccc', 'margin': '0 6px'}),
+        html.Span("Badges appear on scored questions only.", style={'fontSize': 10, 'color': '#aaa', 'marginLeft': 8}),
+    ], style={
+        'display': 'flex', 'flexWrap': 'wrap', 'alignItems': 'center',
+        'padding': '8px 14px', 'marginBottom': 10,
+        'background': '#FAFCFF', 'border': f'1px solid {LIGHT}',
+        'borderRadius': 6, 'gap': 4,
+    })
+
+    return html.Div([legend] + cards) if cards else html.Div(
+        "No sections selected.", style={'color': GREY, 'padding': 16}
+    )
 
 # ─────────────────────────── PARSE / LOAD ───────────────────────────
 def parse_upload(contents, filename):
@@ -718,18 +958,18 @@ app.layout = html.Div([
     html.Hr(style={'borderColor': LIGHT, 'margin': '0 0 20px 0'}),
 
     # ── SCORES TABLE ────────────────────────────────────────────────
-    html.H3("Technical Readiness Scores",
+    html.H3("Technical Readiness Scores (normalized −1 to +1)",
             style={'marginTop': 0, 'color': BLUE, 'fontFamily': 'Arial',
                    'fontSize': 16, 'marginBottom': 8}),
 
     dash_table.DataTable(
         id='summary-table',
         columns=[
-            {'name': 'Jurisdiction',               'id': 'Jurisdiction'},
-            {'name': 'Respondent',                 'id': 'Respondent'},
-            {'name': 'Data Connection Complexity', 'id': 'Data Connection Complexity'},
-            {'name': 'Operational Complexity',     'id': 'Operational Complexity'},
-            {'name': 'Readiness Band',             'id': 'Readiness Band'},
+            {'name': 'Jurisdiction',                        'id': 'Jurisdiction'},
+            {'name': 'Respondent',                          'id': 'Respondent'},
+            {'name': 'Data Connection Complexity',          'id': 'Data Connection Complexity'},
+            {'name': 'Operational Complexity',              'id': 'Operational Complexity'},
+            {'name': 'Readiness Band',                      'id': 'Readiness Band'},
         ],
         style_header={'backgroundColor': BLUE, 'color': WHITE, 'fontWeight': 'bold',
                       'fontSize': 12, 'textAlign': 'center'},
