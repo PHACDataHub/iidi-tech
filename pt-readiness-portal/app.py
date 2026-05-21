@@ -111,16 +111,9 @@ def readiness_band(dcc_s, oc_s):
 
 # ─────────────────────────── DEDUPLICATION ───────────────────────────
 def deduplicate(df):
-    """
-    Same respondent + same jurisdiction → keep latest only.
-    Different respondents + same jurisdiction → keep all.
-    No jurisdiction → fill with UNKNOWN_JUR sentinel so they still appear.
-    """
     df = df.copy()
     df['Date'] = pd.to_datetime(df['Date'], dayfirst=True, errors='coerce')
-    # Fill missing jurisdiction with sentinel
     df[JUR_COL] = df[JUR_COL].fillna(UNKNOWN_JUR)
-    # Sort by date, dedup on (Respondent, Jurisdiction) keeping latest
     df = (df.sort_values('Date')
             .drop_duplicates(subset=['Respondent', JUR_COL], keep='last'))
     df['Date'] = df['Date'].dt.strftime('%d/%m/%Y %H:%M:%S').fillna('')
@@ -133,18 +126,13 @@ def calculate_scores(df):
 
     for _, row in df.iterrows():
         jur = str(row.get(JUR_COL, UNKNOWN_JUR)).strip()
-
-        # Skip scoring for unknown jurisdiction rows
         if jur == UNKNOWN_JUR:
             continue
-
         dcc_val, oc_val = score_row(row)
         respondent = str(row.get('Respondent', '')).strip()
-
         if jur not in jur_color_idx:
             jur_color_idx[jur] = color_counter[0]
             color_counter[0] += 1
-
         records.append({
             'Jurisdiction': jur,
             'Short': short(jur),
@@ -158,33 +146,23 @@ def calculate_scores(df):
     scores = pd.DataFrame(records)
     if scores.empty:
         return scores
-
-    # Apply jitter to overlapping points so all are visible
     scores = apply_jitter(scores)
     return scores
 
 def apply_jitter(scores):
-    """
-    For rows that share the exact same (DCC, OC) coordinates,
-    spread them in a small arc so each bubble is visible.
-    Jitter is small enough to not mislead (< 0.4 units).
-    """
     scores = scores.copy()
     scores['_x'] = scores['Data Connection Complexity'].astype(float)
     scores['_y'] = scores['Operational Complexity'].astype(float)
-
     coord_groups = scores.groupby(['_x', '_y'])
     for (x, y), idx in coord_groups.groups.items():
         n = len(idx)
         if n == 1:
             continue
-        # Spread in a circle of radius 0.35 around the true point
         radius = 0.35
         for i, row_idx in enumerate(idx):
             angle = (2 * np.pi * i) / n
             scores.at[row_idx, '_x'] = x + radius * np.cos(angle)
             scores.at[row_idx, '_y'] = y + radius * np.sin(angle)
-
     return scores
 
 # ─────────────────────────── HELPERS ───────────────────────────────
@@ -196,7 +174,6 @@ def _lighten(hex_color, factor=0.45):
 # ─────────────────────────── BUBBLE CHART ───────────────────────────
 def create_bubble_chart(scores):
     fig = go.Figure()
-
     if scores.empty:
         fig.add_annotation(text="Upload a CSV or Excel file to get started.",
                            xref="paper", yref="paper", x=0.5, y=0.5,
@@ -207,12 +184,11 @@ def create_bubble_chart(scores):
     max_abs_x = max(np.ceil(scores['Data Connection Complexity'].abs().max() * 1.3), 5)
     max_abs_y = max(np.ceil(scores['Operational Complexity'].abs().max() * 1.3), 5)
 
-    # Quadrant shading
-    for x0, y0, x1, y1, color, label, lx, ly in [
-        (-max_abs_x, 0,          0,         max_abs_y, 'rgba(255,242,204,0.22)', 'Moderate DCC\nHigh OC',    -max_abs_x*0.85, max_abs_y*0.88),
-        (0,          0,          max_abs_x, max_abs_y, 'rgba(213,232,212,0.22)', 'High DCC\nHigh OC',         max_abs_x*0.75,  max_abs_y*0.88),
-        (-max_abs_x, -max_abs_y, 0,         0,         'rgba(252,228,214,0.22)', 'Low DCC\nLow OC',          -max_abs_x*0.85, -max_abs_y*0.88),
-        (0,          -max_abs_y, max_abs_x, 0,         'rgba(244,204,204,0.22)', 'High DCC\nLow OC',          max_abs_x*0.75, -max_abs_y*0.88),
+    for x0, y0, x1, y1, color in [
+        (-max_abs_x, 0,          0,         max_abs_y, 'rgba(255,242,204,0.22)'),
+        (0,          0,          max_abs_x, max_abs_y, 'rgba(213,232,212,0.22)'),
+        (-max_abs_x, -max_abs_y, 0,         0,         'rgba(252,228,214,0.22)'),
+        (0,          -max_abs_y, max_abs_x, 0,         'rgba(244,204,204,0.22)'),
     ]:
         fig.add_shape(type='rect', x0=x0, y0=y0, x1=x1, y1=y1,
                       fillcolor=color, line_width=0, layer='below')
@@ -226,23 +202,19 @@ def create_bubble_chart(scores):
         y_pos = row.get('_y', row['Operational Complexity'])
         true_x = row['Data Connection Complexity']
         true_y = row['Operational Complexity']
-        jur_full = row['Jurisdiction']
-        resp = row.get('Respondent', '')
 
-        # Show connector line from jittered pos to true position if jittered
         if abs(x_pos - true_x) > 0.01 or abs(y_pos - true_y) > 0.01:
             fig.add_shape(type='line',
                 x0=true_x, y0=true_y, x1=x_pos, y1=y_pos,
                 line=dict(color=color, width=1, dash='dot'), layer='below')
 
         hover = (
-            f"<b>{jur_full}</b><br>"
+            f"<b>{row['Jurisdiction']}</b><br>"
             f"DCC: {true_x:.0f} &nbsp; OC: {true_y:.0f}<br>"
             f"Readiness: {row['Readiness Band']}<br>"
-            f"Respondent: {resp}"
+            f"Respondent: {row.get('Respondent','')}"
             "<extra></extra>"
         )
-
         fig.add_trace(go.Scatter(
             x=[x_pos], y=[y_pos],
             mode='markers+text',
@@ -252,101 +224,265 @@ def create_bubble_chart(scores):
             text=[row['Short']],
             textposition='middle center',
             textfont=dict(color=WHITE, size=12, family='Arial Black'),
-            name=jur_full,
+            name=row['Jurisdiction'],
             hovertemplate=hover,
             showlegend=True,
         ))
 
     fig.update_layout(
-        xaxis=dict(
-            title='Data Connection Complexity →', zeroline=False,
-            gridcolor='#EEEEEE', range=[-max_abs_x, max_abs_x],
-            title_font=dict(size=12), tickfont=dict(size=11),
-        ),
-        yaxis=dict(
-            title='Operational Complexity →', zeroline=False,
-            gridcolor='#EEEEEE', range=[-max_abs_y, max_abs_y],
-            title_font=dict(size=12), tickfont=dict(size=11),
-        ),
+        xaxis=dict(title='Data Connection Complexity →', zeroline=False,
+                   gridcolor='#EEEEEE', range=[-max_abs_x, max_abs_x],
+                   title_font=dict(size=12), tickfont=dict(size=11)),
+        yaxis=dict(title='Operational Complexity →', zeroline=False,
+                   gridcolor='#EEEEEE', range=[-max_abs_y, max_abs_y],
+                   title_font=dict(size=12), tickfont=dict(size=11)),
         plot_bgcolor=WHITE, paper_bgcolor=WHITE,
-        legend=dict(
-            title='Jurisdiction', font=dict(size=11),
-            bgcolor='rgba(255,255,255,0.9)', bordercolor=LIGHT, borderwidth=1,
-            x=1.01, xanchor='left', y=1, yanchor='top',
-        ),
+        legend=dict(title='Jurisdiction', font=dict(size=11),
+                    bgcolor='rgba(255,255,255,0.9)', bordercolor=LIGHT, borderwidth=1,
+                    x=1.01, xanchor='left', y=1, yanchor='top'),
         height=600,
         margin=dict(l=60, r=180, t=30, b=60),
         hovermode='closest',
     )
     return fig
 
-# ─────────────────────────── SECTION DEFS ───────────────────────────
-QUESTION_SECTIONS = [
-    ('Respondent & Jurisdiction',   ['Respondent','Date','1:','2.0:']),
-    ('Q1 – Information Systems',    ['3:']),
-    ('Q2 – Registry Existence',     ['4:']),
-    ('Q3 – Panorama',               ['5:','6:','7:']),
-    ('Q4 – Immunization Capture',   ['8.']),
-    ('Q5 – Hosting',                ['9:']),
-    ('Q6 – Security & Logging',     ['10:','11:']),
-    ('Q7 – Backup & Recovery',      ['12:']),
-    ('Q8 – Citizen Access',         ['13:','14:']),
-    ('Q9 – API & Protocols',        ['15:','16:','17:','18:']),
-    ('Q10 – System Integration',    ['19:','20:','21:']),
-    ('Q11 – Standards',             ['22:']),
-    ('Q12 – Data Sharing',          ['23:']),
-    ('Q13–14 – Upgrades & Roadmap', ['24:','25:','26:']),
-    ('Q15–16 – Data Quality',       ['27:','28:']),
-    ('Q17–18 – Patient Updates',    ['29:','30:','31:']),
-    ('Q19–21 – Governance',         ['32:','33.','34.']),
-    ('Q22–25 – Admin & Policies',   ['35:','36:','37:','38:']),
-]
+# ─────────────────────────── SECTION / COLUMN METADATA ──────────────
+# Maps column prefix → (section_label, field_label)
+# field_label = None means it's handled with special rendering (e.g. Q4 matrix)
+COL_META = {
+    'Respondent': ('Respondent & Jurisdiction', 'Respondent ID'),
+    'Date':       ('Respondent & Jurisdiction', 'Submission Date'),
+    '1':          ('Respondent & Jurisdiction', 'Name / Email'),
+    '2.0':        ('Respondent & Jurisdiction', 'Jurisdiction'),
 
+    '3':    ('Q1 – Information Systems',
+             'What types of information systems capture immunization data?'),
+
+    '4':    ('Q2 – Registry',
+             'Does your jurisdiction have an official immunization registry/repository?'),
+
+    '5':    ('Q3 – Panorama', 'Is your registry implemented using Panorama?'),
+    '6':    ('Q3 – Panorama', 'Panorama version'),
+    '7':    ('Q3 – Panorama', 'Non-Panorama system name(s) and version(s)'),
+
+    # 8.1 columns rendered as a matrix — field_label=None flags special handling
+    '8.1':  ('Q4 – Immunization Capture by Care Setting', None),
+    '8.2.1':('Q4 – Immunization Capture by Care Setting', 'Public Health – additional notes'),
+    '8.2.2':('Q4 – Immunization Capture by Care Setting', 'Primary Care – additional notes'),
+    '8.2.3':('Q4 – Immunization Capture by Care Setting', 'Pharmacy – additional notes'),
+    '8.2.4':('Q4 – Immunization Capture by Care Setting', 'Hospital – additional notes'),
+    '8.2.5':('Q4 – Immunization Capture by Care Setting', 'Other – additional notes'),
+
+    '9':    ('Q5 – Hosting', 'Where is the registry/repository hosted?'),
+
+    '10':   ('Q6 – Security & Logging', 'Auditing of logins in place?'),
+    '11':   ('Q6 – Security & Logging', 'Logging of user activities in place?'),
+
+    '12':   ('Q7 – Backup & Disaster Recovery',
+             'Backups and disaster recovery mechanisms in place?'),
+
+    '13':   ('Q8 – Citizen Access',
+             'Digital tool for citizens to access their immunization records?'),
+    '14':   ('Q8 – Citizen Access', 'Alternative citizen access methods'),
+
+    '15':   ('Q9 – API & Data Exchange',
+             'Does the registry have externally accessible APIs?'),
+    '16':   ('Q9 – API & Data Exchange', 'API protocol(s) used'),
+    '17':   ('Q9 – API & Data Exchange', 'API authentication method(s)'),
+    '18':   ('Q9 – API & Data Exchange',
+             'If no APIs, other data exchange interfaces/protocols supported?'),
+
+    '19':   ('Q10 – System Integration',
+             'Which systems report immunization data to the registry?'),
+    '20':   ('Q10 – System Integration', 'Reporting mechanism(s)'),
+    '21':   ('Q10 – System Integration', 'Data exchange formats/standards used'),
+
+    '22':   ('Q11 – Terminology & Standards',
+             'Terminology and data exchange standards used'),
+
+    '23':   ('Q12 – Data Sharing Processes',
+             'Immunization data sharing/transfer processes in place'),
+
+    '24':   ('Q13 – Upgrades & Roadmap',
+             'Currently upgrading or replacing registry components?'),
+    '25':   ('Q13 – Upgrades & Roadmap',
+             'Plans to upgrade or replace registry components in future?'),
+    '26':   ('Q13 – Upgrades & Roadmap',
+             'Participating in Interoperability Roadmap (PS-CA / Pan-Canadian HDCF / CA:FeX)?'),
+
+    '27':   ('Q14 – Data Quality', 'How is registry data quality assessed?'),
+    '28':   ('Q14 – Data Quality',
+             'How are provider-identified data quality issues remediated?'),
+
+    '29':   ('Q15 – Patient Data Updates',
+             'How can patients update or correct their immunization record?'),
+
+    '30':   ('Q16 – Archiving', 'Is immunization data ever archived?'),
+    '31':   ('Q16 – Archiving', 'When and how is data archived?'),
+
+    '32':   ('Q17 – Governance & Custodianship',
+             'Who is the custodian/business owner of immunization data?'),
+
+    '33.1': ('Q18 – Who Administers Immunizations', 'Public Health Office'),
+    '33.2': ('Q18 – Who Administers Immunizations', 'Primary Care'),
+    '33.3': ('Q18 – Who Administers Immunizations', 'Community Health Centre'),
+    '33.4': ('Q18 – Who Administers Immunizations', 'School'),
+    '33.5': ('Q18 – Who Administers Immunizations', 'Pharmacy'),
+    '33.6': ('Q18 – Who Administers Immunizations', 'Acute Care Facilities'),
+    '33.7': ('Q18 – Who Administers Immunizations', 'Long Term Care Facilities'),
+    '33.8': ('Q18 – Who Administers Immunizations', 'Other'),
+
+    '34.1': ('Q19 – Care Settings by Immunization Type', 'Childhood Immunizations'),
+    '34.2': ('Q19 – Care Settings by Immunization Type', 'Flu / COVID Immunizations'),
+    '34.3': ('Q19 – Care Settings by Immunization Type', 'Travel Immunizations'),
+    '34.4': ('Q19 – Care Settings by Immunization Type', 'Adult Immunizations'),
+    '34.5': ('Q19 – Care Settings by Immunization Type', 'Adolescent Immunizations'),
+    '34.6': ('Q19 – Care Settings by Immunization Type', 'High Risk Immunizations'),
+    '34.7': ('Q19 – Care Settings by Immunization Type', 'Post-Exposure Immunizations'),
+
+    '35':   ('Q20 – Adverse Events & Vaccine Issues',
+             'How are adverse events recorded and shared with providers?'),
+    '36':   ('Q20 – Adverse Events & Vaccine Issues',
+             'How are vaccine inventory issues (spoilage, wastage) recorded?'),
+
+    '37':   ('Q21 – Policies & Agreements',
+             'Policies, procedures or agreements guiding data sharing'),
+    '38':   ('Q22 – Challenges',
+             'Clinical / business / technical challenges in sharing immunization data'),
+}
+
+# ─────────────────────────── Q4 CAPTURE MATRIX ──────────────────────
+# The survey encodes a 5-setting × 3-frequency matrix using column suffixes:
+#   no suffix → Public Health | .1 → Primary Care | .2 → Pharmacy
+#   .3 → Hospital             | .4 → Other
+_CARE_SETTINGS  = ['Public Health', 'Primary Care', 'Pharmacy', 'Hospital', 'Other']
+_FREQ_SUFFIXES  = ['', '.1', '.2', '.3', '.4']
+_FREQ_LABELS    = ['routinely captured', 'occasionally captured', 'rarely captured']
+
+# Pre-build the column names for every (setting, freq) combination
+_FREQ_COLS = {
+    sfx: {lbl: f'8.1: 1_Immunization events are {lbl}{sfx}' for lbl in _FREQ_LABELS}
+    for sfx in _FREQ_SUFFIXES
+}
+
+_FREQ_STYLE = {
+    'routinely':    ('#375623', '#D5E8D4'),
+    'occasionally': ('#7F4800', '#FFF2CC'),
+    'rarely':       ('#C00000', '#FFDCE1'),
+}
+
+def _setting_freq(row_s, sfx):
+    """Return the checked frequency word for a care-setting column suffix, or None."""
+    for lbl in _FREQ_LABELS:
+        col = _FREQ_COLS[sfx][lbl]
+        v = row_s.get(col)
+        try:
+            if pd.notna(v) and float(v) == 1.0:
+                return lbl.replace(' captured', '')   # 'routinely' / 'occasionally' / 'rarely'
+        except Exception:
+            pass
+    return None
+
+def render_imm_capture_table(rows_list):
+    """Render the Q4 immunization-capture question as a readable grid."""
+    is_diff = len(rows_list) > 1
+
+    # Column headers
+    th_style = {'padding': '5px 10px', 'fontSize': 11, 'fontWeight': '700',
+                'backgroundColor': '#F5F8FB', 'borderBottom': f'2px solid {LIGHT}'}
+    header_cells = [html.Th('Care Setting', style={**th_style, 'textAlign': 'left', 'color': GREY})]
+    if is_diff:
+        for _, suffix, accent in rows_list:
+            header_cells.append(html.Th(suffix or 'Response',
+                                        style={**th_style, 'textAlign': 'center', 'color': accent}))
+    else:
+        header_cells.append(html.Th('Capture Frequency',
+                                    style={**th_style, 'textAlign': 'center', 'color': GREY}))
+
+    # Data rows
+    trows = []
+    for setting, sfx in zip(_CARE_SETTINGS, _FREQ_SUFFIXES):
+        cells = [html.Td(setting,
+                         style={'padding': '5px 10px', 'fontSize': 12,
+                                'fontWeight': '600', 'color': '#222'})]
+        for row_s, _, _ in rows_list:
+            freq = _setting_freq(row_s, sfx)
+            if freq:
+                fg, bg = _FREQ_STYLE.get(freq, (GREY, LGREY))
+                cells.append(html.Td(
+                    freq.capitalize(),
+                    style={'textAlign': 'center', 'padding': '4px 10px', 'fontSize': 11,
+                           'fontWeight': '700', 'color': fg, 'backgroundColor': bg,
+                           'borderRadius': 4}
+                ))
+            else:
+                cells.append(html.Td('—', style={'textAlign': 'center', 'color': '#ccc',
+                                                  'fontSize': 11, 'padding': '4px 10px'}))
+        trows.append(html.Tr(cells, style={'borderBottom': f'1px solid #F0F4F8'}))
+
+    return html.Table(
+        [html.Thead(html.Tr(header_cells)), html.Tbody(trows)],
+        style={'width': '100%', 'borderCollapse': 'collapse', 'fontSize': 12, 'marginBottom': 4}
+    )
+
+# ─────────────────────────── COLUMN HELPERS ─────────────────────────
 def assign_section(col):
-    for label, prefixes in QUESTION_SECTIONS:
-        for pfx in prefixes:
-            if col.startswith(pfx): return label
-    return 'Other'
+    prefix = col.split(':')[0].strip()
+    meta = COL_META.get(prefix)
+    return meta[0] if meta else 'Other'
+
+def get_col_label(col):
+    prefix = col.split(':')[0].strip()
+    meta = COL_META.get(prefix)
+    if meta and meta[1]:
+        return meta[1]
+    # fallback: strip the numeric prefix
+    parts = col.split(':', 1)
+    return parts[1].strip() if len(parts) == 2 and parts[1].strip() else col
 
 def get_checkbox_label(col):
-    parts = col.split(':',1)
-    return parts[1].strip() if len(parts)==2 and parts[1].strip() else col
+    parts = col.split(':', 1)
+    return parts[1].strip() if len(parts) == 2 and parts[1].strip() else col
 
-# ─────────────────────────── VIEWER ───────────────────────────────
+# ─────────────────────────── VIEWER ─────────────────────────────────
 def _field_row(label, val_cells, is_diff, rows_list):
     label_el = html.Div(label, style={
-        'flex':'0 0 30%','fontSize':12,'color':'#2E75B6',
-        'fontWeight':'600','wordBreak':'break-word','paddingTop':2,
+        'flex': '0 0 30%', 'fontSize': 12, 'color': '#2E75B6',
+        'fontWeight': '600', 'wordBreak': 'break-word', 'paddingTop': 2,
     })
     if is_diff:
         val_el = html.Div([
             html.Div(cell, style={
-                'flex':1,
-                'borderLeft':f'3px solid {rows_list[i][2]}',
-                'paddingLeft':8,
+                'flex': 1,
+                'borderLeft': f'3px solid {rows_list[i][2]}',
+                'paddingLeft': 8,
                 'marginLeft': 4 if i > 0 else 0,
             }) for i, cell in enumerate(val_cells)
-        ], style={'display':'flex','flex':1,'gap':8})
+        ], style={'display': 'flex', 'flex': 1, 'gap': 8})
     else:
-        val_el = html.Div(val_cells[0], style={'flex':1,'fontSize':12,'color':'#111','wordBreak':'break-word'})
+        val_el = html.Div(val_cells[0], style={
+            'flex': 1, 'fontSize': 12, 'color': '#111', 'wordBreak': 'break-word'
+        })
     return html.Div([label_el, val_el], style={
-        'display':'flex','padding':'7px 14px',
-        'borderBottom':f'1px solid #F0F4F8','gap':12,'alignItems':'flex-start',
+        'display': 'flex', 'padding': '7px 14px',
+        'borderBottom': f'1px solid #F0F4F8', 'gap': 12, 'alignItems': 'flex-start',
     })
 
 def render_viewer(rows_list, raw_df, selected_sections):
     if not rows_list:
         return html.Div("Select a jurisdiction to view responses.",
-                        style={'color':GREY,'padding':20,'fontStyle':'italic','fontSize':13})
+                        style={'color': GREY, 'padding': 20, 'fontStyle': 'italic', 'fontSize': 13})
 
     is_diff = len(rows_list) > 1
 
+    # Identify pure-binary checkbox columns (0/1 only)
     binary_cols = set()
     for col in raw_df.columns:
         vals = raw_df[col].dropna().unique()
-        if len(vals) <= 2 and all(v in [0,1,0.0,1.0] for v in vals):
+        if len(vals) <= 2 and all(v in [0, 1, 0.0, 1.0] for v in vals):
             binary_cols.add(col)
 
+    # Build ordered section → columns map
     sections_order, sections_map = [], {}
     for col in raw_df.columns:
         sec = assign_section(col)
@@ -363,14 +499,37 @@ def render_viewer(rows_list, raw_df, selected_sections):
         cols = sections_map.get(sec, [])
         row_els = []
         rendered_bin_groups = set()
+        imm_capture_rendered = False
 
         for col in cols:
+            prefix = col.split(':')[0].strip()
+
+            # ── Q4 immunization capture matrix ───────────────────────
+            if prefix == '8.1':
+                if not imm_capture_rendered:
+                    imm_capture_rendered = True
+                    table = render_imm_capture_table(rows_list)
+                    row_els.append(html.Div([
+                        html.Div('Immunization events capture frequency by care setting',
+                                 style={'flex': '0 0 30%', 'fontSize': 12, 'color': '#2E75B6',
+                                        'fontWeight': '600', 'paddingTop': 4}),
+                        html.Div(table, style={'flex': 1}),
+                    ], style={'display': 'flex', 'padding': '10px 14px',
+                               'borderBottom': f'1px solid #F0F4F8', 'gap': 12,
+                               'alignItems': 'flex-start'}))
+                continue  # skip the individual raw 8.1 columns
+
+            # ── Checkbox groups ──────────────────────────────────────
             if col in binary_cols:
-                prefix = col.split(':')[0].strip()
                 gkey = (sec, prefix)
-                if gkey in rendered_bin_groups: continue
+                if gkey in rendered_bin_groups:
+                    continue
                 rendered_bin_groups.add(gkey)
-                group_members = [c for c in cols if c in binary_cols and c.split(':')[0].strip()==prefix]
+                group_members = [c for c in cols
+                                 if c in binary_cols and c.split(':')[0].strip() == prefix]
+
+                # Use the field label from COL_META if available, else fall back
+                label = get_col_label(group_members[0])
 
                 val_cells = []
                 for (row_s, suffix, accent) in rows_list:
@@ -378,73 +537,79 @@ def render_viewer(rows_list, raw_df, selected_sections):
                     for c in group_members:
                         v = row_s.get(c)
                         try:
-                            if pd.notna(v) and float(v)==1.0:
+                            if pd.notna(v) and float(v) == 1.0:
                                 checked.append(get_checkbox_label(c))
-                        except: pass
+                        except Exception:
+                            pass
                     if checked:
                         cell = html.Div([
                             html.Span(c, style={
-                                'display':'inline-block','padding':'2px 8px',
-                                'borderRadius':10,'fontSize':11,'fontWeight':'600',
-                                'background':_lighten(accent, 0.75),
-                                'color':accent,
-                                'border':f'1px solid {_lighten(accent, 0.4)}',
-                                'margin':'2px 3px 2px 0',
+                                'display': 'inline-block', 'padding': '2px 8px',
+                                'borderRadius': 10, 'fontSize': 11, 'fontWeight': '600',
+                                'background': _lighten(accent, 0.75),
+                                'color': accent,
+                                'border': f'1px solid {_lighten(accent, 0.4)}',
+                                'margin': '2px 3px 2px 0',
                             }) for c in checked
-                        ], style={'display':'flex','flexWrap':'wrap','gap':2})
+                        ], style={'display': 'flex', 'flexWrap': 'wrap', 'gap': 2})
                     else:
-                        cell = html.Span("—", style={'fontSize':12,'color':'#bbb','fontStyle':'italic'})
+                        cell = html.Span("—", style={'fontSize': 12, 'color': '#bbb',
+                                                      'fontStyle': 'italic'})
                     val_cells.append(cell)
 
-                row_els.append(_field_row(f"Q{prefix} (check all)", val_cells, is_diff, rows_list))
+                row_els.append(_field_row(label, val_cells, is_diff, rows_list))
 
+            # ── Free-text / single-value fields ──────────────────────
             else:
-                parts = col.split(':',1)
-                clean_label = parts[1].strip() if len(parts)==2 else col
-
+                label = get_col_label(col)
                 val_cells = []
                 for (row_s, suffix, accent) in rows_list:
                     v = row_s.get(col)
-                    if pd.isna(v) or str(v).strip() in ['','nan']:
-                        cell = html.Span("—", style={'fontSize':12,'color':'#ccc','fontStyle':'italic'})
+                    if pd.isna(v) or str(v).strip() in ['', 'nan']:
+                        cell = html.Span("—", style={'fontSize': 12, 'color': '#ccc',
+                                                      'fontStyle': 'italic'})
                     else:
-                        cell = html.Span(str(v), style={'fontSize':12,'color':'#111','wordBreak':'break-word'})
+                        cell = html.Span(str(v), style={'fontSize': 12, 'color': '#111',
+                                                         'wordBreak': 'break-word'})
                     val_cells.append(cell)
 
-                # Highlight diffs
-                if is_diff and len(val_cells)==2:
-                    v0 = str(rows_list[0][0].get(col,'')).strip()
-                    v1 = str(rows_list[1][0].get(col,'')).strip()
-                    neither_empty = not (v0 in ['','nan'] and v1 in ['','nan'])
+                # Highlight diffs between two respondents
+                if is_diff and len(val_cells) == 2:
+                    v0 = str(rows_list[0][0].get(col, '')).strip()
+                    v1 = str(rows_list[1][0].get(col, '')).strip()
+                    neither_empty = not (v0 in ['', 'nan'] and v1 in ['', 'nan'])
                     if v0 != v1 and neither_empty:
                         val_cells = [
-                            html.Div(val_cells[0], style={'background':'#FFF9E6','borderRadius':4,'padding':'2px 4px'}),
-                            html.Div(val_cells[1], style={'background':'#FFF9E6','borderRadius':4,'padding':'2px 4px'}),
+                            html.Div(val_cells[0], style={'background': '#FFF9E6',
+                                                           'borderRadius': 4, 'padding': '2px 4px'}),
+                            html.Div(val_cells[1], style={'background': '#FFF9E6',
+                                                           'borderRadius': 4, 'padding': '2px 4px'}),
                         ]
 
-                row_els.append(_field_row(clean_label, val_cells, is_diff, rows_list))
+                row_els.append(_field_row(label, val_cells, is_diff, rows_list))
 
         if row_els:
             cards.append(html.Div([
                 html.Div(sec, style={
-                    'background':'#EDF4FB','padding':'6px 14px',
-                    'fontSize':11,'fontWeight':'700','color':BLUE,
-                    'textTransform':'uppercase','letterSpacing':'0.04em',
-                    'borderBottom':f'1px solid {LIGHT}',
+                    'background': '#EDF4FB', 'padding': '6px 14px',
+                    'fontSize': 11, 'fontWeight': '700', 'color': BLUE,
+                    'textTransform': 'uppercase', 'letterSpacing': '0.04em',
+                    'borderBottom': f'1px solid {LIGHT}',
                 }),
                 html.Div(row_els),
             ], style={
-                'border':f'1px solid {LIGHT}','borderLeft':f'4px solid {BLUE}',
-                'borderRadius':6,'marginBottom':8,'background':WHITE,'overflow':'hidden',
+                'border': f'1px solid {LIGHT}', 'borderLeft': f'4px solid {BLUE}',
+                'borderRadius': 6, 'marginBottom': 8, 'background': WHITE, 'overflow': 'hidden',
             }))
 
-    return html.Div(cards) if cards else html.Div("No sections selected.", style={'color':GREY,'padding':16})
+    return html.Div(cards) if cards else html.Div("No sections selected.",
+                                                    style={'color': GREY, 'padding': 16})
 
 # ─────────────────────────── PARSE / LOAD ───────────────────────────
 def parse_upload(contents, filename):
     _, cs = contents.split(',')
     decoded = base64.b64decode(cs)
-    if filename.lower().endswith(('.xlsx','.xls')):
+    if filename.lower().endswith(('.xlsx', '.xls')):
         return pd.read_excel(io.BytesIO(decoded))
     try:    return pd.read_csv(io.StringIO(decoded.decode('utf-8')))
     except: return pd.read_csv(io.StringIO(decoded.decode('latin-1')))
@@ -454,17 +619,18 @@ DEFAULT_CSV = os.environ.get('SURVEY_CSV', '')
 def try_load_default():
     if DEFAULT_CSV and os.path.exists(DEFAULT_CSV):
         try:
-            return pd.read_excel(DEFAULT_CSV) if DEFAULT_CSV.lower().endswith(('.xlsx','.xls')) \
+            return pd.read_excel(DEFAULT_CSV) if DEFAULT_CSV.lower().endswith(('.xlsx', '.xls')) \
                    else pd.read_csv(DEFAULT_CSV)
-        except Exception: pass
+        except Exception:
+            pass
     return pd.DataFrame()
 
 def prepare_data(raw_df):
     if raw_df.empty:
         empty = pd.DataFrame(columns=[
-            'Jurisdiction','Short','Respondent',
-            'Data Connection Complexity','Operational Complexity',
-            'Readiness Band','_color_idx','_x','_y',
+            'Jurisdiction', 'Short', 'Respondent',
+            'Data Connection Complexity', 'Operational Complexity',
+            'Readiness Band', '_color_idx', '_x', '_y',
         ])
         return raw_df, empty
     clean = deduplicate(raw_df)
@@ -473,7 +639,7 @@ def prepare_data(raw_df):
 
 initial_raw, initial_scores = prepare_data(try_load_default())
 
-# ─────────────────────────── LAYOUT ───────────────────────────────
+# ─────────────────────────── LAYOUT ─────────────────────────────────
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
 server = app.server
 
@@ -485,38 +651,38 @@ def build_section_filter(sections_present):
     options = [{'label': s, 'value': s} for s in sections_present]
     return html.Details([
         html.Summary("⚙ Filter question sections", style={
-            'cursor':'pointer','fontWeight':'600','color':BLUE,'fontSize':13,
-            'padding':'7px 12px','backgroundColor':'#EDF4FB',
-            'borderRadius':'5px 5px 0 0','listStyle':'none','userSelect':'none',
+            'cursor': 'pointer', 'fontWeight': '600', 'color': BLUE, 'fontSize': 13,
+            'padding': '7px 12px', 'backgroundColor': '#EDF4FB',
+            'borderRadius': '5px 5px 0 0', 'listStyle': 'none', 'userSelect': 'none',
         }),
         html.Div([
             html.Span("Select which sections to display:", style={
-                'fontSize':11,'color':GREY,'display':'block','marginBottom':6,
+                'fontSize': 11, 'color': GREY, 'display': 'block', 'marginBottom': 6,
             }),
             dcc.Checklist(
                 id='section-checklist',
                 options=options,
                 value=[s['value'] for s in options],
-                labelStyle={'display':'inline-flex','alignItems':'center',
-                            'marginRight':14,'marginBottom':4,
-                            'fontSize':12,'cursor':'pointer','color':'#222'},
-                inputStyle={'marginRight':4,'accentColor':BLUE},
+                labelStyle={'display': 'inline-flex', 'alignItems': 'center',
+                            'marginRight': 14, 'marginBottom': 4,
+                            'fontSize': 12, 'cursor': 'pointer', 'color': '#222'},
+                inputStyle={'marginRight': 4, 'accentColor': BLUE},
             ),
-        ], style={'padding':'10px 14px','border':f'1px solid {LIGHT}',
-                  'borderTop':'none','borderRadius':'0 0 5px 5px','background':'#FAFCFF'}),
-    ], style={'border':f'1px solid {LIGHT}','borderRadius':6,'marginBottom':12})
+        ], style={'padding': '10px 14px', 'border': f'1px solid {LIGHT}',
+                  'borderTop': 'none', 'borderRadius': '0 0 5px 5px', 'background': '#FAFCFF'}),
+    ], style={'border': f'1px solid {LIGHT}', 'borderRadius': 6, 'marginBottom': 12})
 
 app.layout = html.Div([
     html.H1("PT Readiness Dashboard",
-            style={'color':BLUE,'textAlign':'center','fontFamily':'Arial',
-                   'fontSize':22,'marginBottom':16,'marginTop':12}),
+            style={'color': BLUE, 'textAlign': 'center', 'fontFamily': 'Arial',
+                   'fontSize': 22, 'marginBottom': 16, 'marginTop': 12}),
 
     dcc.Upload(id='upload-data',
                children=html.Div(['Drag & drop or ', html.A('select a CSV / Excel file')]),
-               style={'width':'100%','height':'50px','lineHeight':'50px',
-                      'borderWidth':'1.5px','borderStyle':'dashed','borderRadius':6,
-                      'textAlign':'center','marginBottom':16,'color':GREY,
-                      'backgroundColor':'#FAFAFA','fontSize':13},
+               style={'width': '100%', 'height': '50px', 'lineHeight': '50px',
+                      'borderWidth': '1.5px', 'borderStyle': 'dashed', 'borderRadius': 6,
+                      'textAlign': 'center', 'marginBottom': 16, 'color': GREY,
+                      'backgroundColor': '#FAFAFA', 'fontSize': 13},
                multiple=False),
 
     dcc.Store(id='scores-store',   data=initial_scores.to_json(date_format='iso', orient='split')),
@@ -524,76 +690,88 @@ app.layout = html.Div([
 
     # ── VIEWER ──────────────────────────────────────────────────────
     html.H3("Survey Response Viewer",
-            style={'color':BLUE,'marginTop':4,'marginBottom':8,'fontFamily':'Arial','fontSize':16}),
+            style={'color': BLUE, 'marginTop': 4, 'marginBottom': 8,
+                   'fontFamily': 'Arial', 'fontSize': 16}),
     html.Div([
         html.Div([
-            html.Label("Jurisdiction:", style={'fontWeight':'bold','marginRight':8,'fontSize':13,'color':GREY}),
+            html.Label("Jurisdiction:", style={'fontWeight': 'bold', 'marginRight': 8,
+                                               'fontSize': 13, 'color': GREY}),
             dcc.Dropdown(
                 id='raw-jurisdiction-dropdown',
-                options=[{'label':j,'value':j} for j in (
+                options=[{'label': j, 'value': j} for j in (
                     initial_raw[JUR_COL].unique() if not initial_raw.empty else []
                 )],
                 value=None, placeholder="Choose a jurisdiction...",
                 clearable=False,
-                style={'width':'320px','display':'inline-block','fontSize':13},
+                style={'width': '320px', 'display': 'inline-block', 'fontSize': 13},
             ),
-        ], style={'marginBottom':10}),
+        ], style={'marginBottom': 10}),
         html.Div(id='section-filter-container'),
-    ], style={'fontFamily':'Arial'}),
+    ], style={'fontFamily': 'Arial'}),
 
     html.Div(id='raw-data-table', style={
-        'maxHeight':'580px','overflowY':'auto',
-        'border':f'1px solid {LIGHT}','borderRadius':6,
-        'backgroundColor':WHITE,'marginBottom':24,'fontFamily':'Arial',
+        'maxHeight': '580px', 'overflowY': 'auto',
+        'border': f'1px solid {LIGHT}', 'borderRadius': 6,
+        'backgroundColor': WHITE, 'marginBottom': 24, 'fontFamily': 'Arial',
     }),
 
-    html.Hr(style={'borderColor':LIGHT,'margin':'0 0 20px 0'}),
+    html.Hr(style={'borderColor': LIGHT, 'margin': '0 0 20px 0'}),
 
     # ── SCORES TABLE ────────────────────────────────────────────────
     html.H3("Technical Readiness Scores",
-            style={'marginTop':0,'color':BLUE,'fontFamily':'Arial','fontSize':16,'marginBottom':8}),
+            style={'marginTop': 0, 'color': BLUE, 'fontFamily': 'Arial',
+                   'fontSize': 16, 'marginBottom': 8}),
 
     dash_table.DataTable(
         id='summary-table',
         columns=[
-            {'name':'Jurisdiction',               'id':'Jurisdiction'},
-            {'name':'Respondent',                 'id':'Respondent'},
-            {'name':'Data Connection Complexity', 'id':'Data Connection Complexity'},
-            {'name':'Operational Complexity',     'id':'Operational Complexity'},
-            {'name':'Readiness Band',             'id':'Readiness Band'},
+            {'name': 'Jurisdiction',               'id': 'Jurisdiction'},
+            {'name': 'Respondent',                 'id': 'Respondent'},
+            {'name': 'Data Connection Complexity', 'id': 'Data Connection Complexity'},
+            {'name': 'Operational Complexity',     'id': 'Operational Complexity'},
+            {'name': 'Readiness Band',             'id': 'Readiness Band'},
         ],
-        style_header={'backgroundColor':BLUE,'color':WHITE,'fontWeight':'bold','fontSize':12,'textAlign':'center'},
-        style_data={'fontSize':11,'textAlign':'center','padding':'5px 10px'},
+        style_header={'backgroundColor': BLUE, 'color': WHITE, 'fontWeight': 'bold',
+                      'fontSize': 12, 'textAlign': 'center'},
+        style_data={'fontSize': 11, 'textAlign': 'center', 'padding': '5px 10px'},
         style_data_conditional=[
-            {'if':{'filter_query':'{Data Connection Complexity} > 0','column_id':'Data Connection Complexity'},'color':GREEN,'fontWeight':'bold'},
-            {'if':{'filter_query':'{Data Connection Complexity} < 0','column_id':'Data Connection Complexity'},'color':RED,'fontWeight':'bold'},
-            {'if':{'filter_query':'{Operational Complexity} > 0','column_id':'Operational Complexity'},'color':GREEN,'fontWeight':'bold'},
-            {'if':{'filter_query':'{Operational Complexity} < 0','column_id':'Operational Complexity'},'color':RED,'fontWeight':'bold'},
-            {'if':{'filter_query':'{Readiness Band} = "High"',    'column_id':'Readiness Band'},'backgroundColor':LGREEN,'color':'black'},
-            {'if':{'filter_query':'{Readiness Band} = "Moderate"','column_id':'Readiness Band'},'backgroundColor':'#FFF2CC','color':'black'},
-            {'if':{'filter_query':'{Readiness Band} = "Low"',     'column_id':'Readiness Band'},'backgroundColor':'#FCE4D6','color':'black'},
-            {'if':{'filter_query':'{Readiness Band} = "Very Low"','column_id':'Readiness Band'},'backgroundColor':'#F4CCCC','color':'black'},
-            {'if':{'row_index':'odd'},'backgroundColor':LGREY},
+            {'if': {'row_index': 'odd'}, 'backgroundColor': LGREY},
+            {'if': {'filter_query': '{Data Connection Complexity} > 0',
+                    'column_id': 'Data Connection Complexity'}, 'color': GREEN, 'fontWeight': 'bold'},
+            {'if': {'filter_query': '{Data Connection Complexity} < 0',
+                    'column_id': 'Data Connection Complexity'}, 'color': RED, 'fontWeight': 'bold'},
+            {'if': {'filter_query': '{Operational Complexity} > 0',
+                    'column_id': 'Operational Complexity'}, 'color': GREEN, 'fontWeight': 'bold'},
+            {'if': {'filter_query': '{Operational Complexity} < 0',
+                    'column_id': 'Operational Complexity'}, 'color': RED, 'fontWeight': 'bold'},
+            {'if': {'filter_query': '{Readiness Band} = "High"',
+                    'column_id': 'Readiness Band'}, 'backgroundColor': LGREEN, 'color': 'black'},
+            {'if': {'filter_query': '{Readiness Band} = "Moderate"',
+                    'column_id': 'Readiness Band'}, 'backgroundColor': '#FFF2CC', 'color': 'black'},
+            {'if': {'filter_query': '{Readiness Band} = "Low"',
+                    'column_id': 'Readiness Band'}, 'backgroundColor': '#FCE4D6', 'color': 'black'},
+            {'if': {'filter_query': '{Readiness Band} = "Very Low"',
+                    'column_id': 'Readiness Band'}, 'backgroundColor': '#F4CCCC', 'color': 'black'},
         ],
         style_cell_conditional=[
-            {'if':{'column_id':'Jurisdiction'},'textAlign':'left'},
-            {'if':{'column_id':'Respondent'},'textAlign':'left','fontSize':11},
+            {'if': {'column_id': 'Jurisdiction'}, 'textAlign': 'left'},
+            {'if': {'column_id': 'Respondent'},   'textAlign': 'left', 'fontSize': 11},
         ],
-        style_table={'overflowX':'auto'},
+        style_table={'overflowX': 'auto'},
     ),
 
-    html.Hr(style={'borderColor':LIGHT,'margin':'20px 0'}),
+    html.Hr(style={'borderColor': LIGHT, 'margin': '20px 0'}),
 
     # ── CHART ───────────────────────────────────────────────────────
     html.H3("Adoption Complexity Matrix",
-            style={'marginTop':0,'color':BLUE,'fontFamily':'Arial','fontSize':16,
-                   'marginBottom':4,'textAlign':'center'}),
+            style={'marginTop': 0, 'color': BLUE, 'fontFamily': 'Arial', 'fontSize': 16,
+                   'marginBottom': 4, 'textAlign': 'center'}),
     dcc.Graph(id='bubble-chart', figure=create_bubble_chart(initial_scores),
-              style={'width':'100%'}),
+              style={'width': '100%'}),
 
-], style={'maxWidth':'1100px','margin':'0 auto','padding':'0 20px','fontFamily':'Arial'})
+], style={'maxWidth': '1100px', 'margin': '0 auto', 'padding': '0 20px', 'fontFamily': 'Arial'})
 
-# ─────────────────────────── CALLBACKS ───────────────────────────────
+# ─────────────────────────── CALLBACKS ──────────────────────────────
 @app.callback(
     Output('scores-store',   'data'),
     Output('raw-data-store', 'data'),
@@ -610,7 +788,8 @@ def on_upload(contents, filename):
     raw_df = parse_upload(contents, filename) if contents else initial_raw
     clean_df, scores = prepare_data(raw_df)
 
-    display_cols = ['Jurisdiction','Respondent','Data Connection Complexity','Operational Complexity','Readiness Band']
+    display_cols = ['Jurisdiction', 'Respondent', 'Data Connection Complexity',
+                    'Operational Complexity', 'Readiness Band']
     table_rows = scores[display_cols].to_dict('records') if not scores.empty else []
 
     fig = create_bubble_chart(scores)
@@ -622,7 +801,8 @@ def on_upload(contents, filename):
     seen_sections = []
     for col in (clean_df.columns if not clean_df.empty else []):
         sec = assign_section(col)
-        if sec not in seen_sections: seen_sections.append(sec)
+        if sec not in seen_sections:
+            seen_sections.append(sec)
     section_ui = build_section_filter(seen_sections)
 
     return (
@@ -643,26 +823,23 @@ def on_upload(contents, filename):
 def update_viewer(jurisdiction, selected_sections, raw_json):
     if not raw_json or not jurisdiction:
         return html.Div("Upload a file and select a jurisdiction.",
-                        style={'color':GREY,'padding':20,'fontStyle':'italic','fontSize':13})
+                        style={'color': GREY, 'padding': 20, 'fontStyle': 'italic', 'fontSize': 13})
 
-    raw_df = pd.read_json(raw_json, orient='split')
+    raw_df  = pd.read_json(raw_json, orient='split')
     matched = raw_df[raw_df[JUR_COL] == jurisdiction]
 
     if matched.empty:
-        return html.Div(f"No data for {jurisdiction}.", style={'color':GREY,'padding':16})
+        return html.Div(f"No data for {jurisdiction}.", style={'color': GREY, 'padding': 16})
 
-    # Build colour map consistent with graph
     jur_color_map = {}
     for ci, jur in enumerate(raw_df[JUR_COL].unique()):
         jur_color_map[str(jur).strip()] = PALETTE[ci % len(PALETTE)]
     accent = jur_color_map.get(str(jurisdiction).strip(), BLUE)
 
-    # Single row — plain view
     if len(matched) == 1:
         rows_list = [(matched.iloc[0], '', accent)]
         header = None
     else:
-        # Two different respondents for same province — side-by-side diff
         shades = [accent, _lighten(accent, 0.40)]
         rows_list = []
         for i, (_, row_s) in enumerate(matched.iterrows()):
@@ -670,18 +847,17 @@ def update_viewer(jurisdiction, selected_sections, raw_json):
             rows_list.append((row_s, f"Respondent {i+1} ({date_str})", shades[i % len(shades)]))
 
         header = html.Div([
-            html.Div("Two respondents submitted for this province — differences highlighted", style={
-                'background':'#F0F7FF','border':f'1px solid {MID}',
-                'borderRadius':5,'padding':'7px 14px','marginBottom':8,
-                'fontSize':12,'color':BLUE,'fontWeight':'600',
-            }),
+            html.Div("Two respondents submitted for this province — differences highlighted",
+                     style={'background': '#F0F7FF', 'border': f'1px solid {MID}',
+                            'borderRadius': 5, 'padding': '7px 14px', 'marginBottom': 8,
+                            'fontSize': 12, 'color': BLUE, 'fontWeight': '600'}),
             html.Div([
                 html.Div([
-                    html.Span("●", style={'color':rows_list[i][2],'marginRight':5,'fontSize':16}),
-                    html.Span(rows_list[i][1], style={'fontSize':12,'fontWeight':'600'}),
-                ], style={'flex':1,'paddingLeft': 8 if i>0 else 0})
+                    html.Span("●", style={'color': rows_list[i][2], 'marginRight': 5, 'fontSize': 16}),
+                    html.Span(rows_list[i][1], style={'fontSize': 12, 'fontWeight': '600'}),
+                ], style={'flex': 1, 'paddingLeft': 8 if i > 0 else 0})
                 for i in range(len(rows_list))
-            ], style={'display':'flex','gap':8,'marginBottom':8,'paddingLeft':'30%'}),
+            ], style={'display': 'flex', 'gap': 8, 'marginBottom': 8, 'paddingLeft': '30%'}),
         ])
 
     content = render_viewer(rows_list, raw_df, selected_sections or [])
