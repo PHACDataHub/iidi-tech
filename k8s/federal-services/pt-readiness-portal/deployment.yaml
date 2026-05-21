@@ -54,11 +54,3 @@ spec:
           periodSeconds: 20
           timeoutSeconds: 3
           failureThreshold: 3
-        volumeMounts:
-        - name: private-key-volume
-          mountPath: "/secrets"
-          readOnly: true
-      volumes:
-      - name: private-key-volume
-        secret:
-          secretName: pt-readiness-portal-private-key
