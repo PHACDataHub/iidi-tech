@@ -278,24 +278,24 @@ def calculate_scores(df):
     scores = pd.DataFrame(records)
     if scores.empty:
         return scores
-    scores = apply_jitter(scores)
+    # scores = apply_jitter(scores)
     return scores
 
-def apply_jitter(scores):
-    scores = scores.copy()
-    scores['_x'] = scores['_dcc_norm'].astype(float)
-    scores['_y'] = scores['_oc_norm'].astype(float)
-    coord_groups = scores.groupby(['_x', '_y'])
-    for (x, y), idx in coord_groups.groups.items():
-        n = len(idx)
-        if n == 1:
-            continue
-        radius = 0.05   # Scaled down since axis is now [-1, 1]
-        for i, row_idx in enumerate(idx):
-            angle = (2 * np.pi * i) / n
-            scores.at[row_idx, '_x'] = x + radius * np.cos(angle)
-            scores.at[row_idx, '_y'] = y + radius * np.sin(angle)
-    return scores
+# def apply_jitter(scores):
+#     scores = scores.copy()
+#     scores['_x'] = scores['_dcc_norm'].astype(float)
+#     scores['_y'] = scores['_oc_norm'].astype(float)
+#     coord_groups = scores.groupby(['_x', '_y'])
+#     for (x, y), idx in coord_groups.groups.items():
+#         n = len(idx)
+#         if n == 1:
+#             continue
+#         radius = 0.05   # Scaled down since axis is now [-1, 1]
+#         for i, row_idx in enumerate(idx):
+#             angle = (2 * np.pi * i) / n
+#             scores.at[row_idx, '_x'] = x + radius * np.cos(angle)
+#             scores.at[row_idx, '_y'] = y + radius * np.sin(angle)
+#     return scores
 
 # ─────────────────────────── HELPERS ───────────────────────────────
 def _lighten(hex_color, factor=0.45):
