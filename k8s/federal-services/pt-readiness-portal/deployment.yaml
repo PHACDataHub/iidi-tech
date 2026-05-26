@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
       - name: pt-readiness-portal
-        image: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-pt-readiness-portal:v2
+        image: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-pt-readiness-portal:v2.2
         imagePullPolicy: Always
         ports:
         - containerPort: 8050
@@ -33,12 +33,12 @@ spec:
         - name: CSV_PATH
           value: "/data/responses.csv"
         resources:
-          requests:
-            memory: "256Mi"
-            cpu: "200m"
-          limits:
-            memory: "1Gi"
-            cpu: "1"
+          # requests:
+          #   memory: "256Mi"
+          #   cpu: "200m"
+          # limits:
+          #   memory: "1Gi"
+          #   cpu: "1"
         readinessProbe:
           httpGet:
             path: /healthcheck
