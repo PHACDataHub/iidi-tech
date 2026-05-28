@@ -25,14 +25,14 @@ spec:
     spec:
       containers:
       - name: pt-readiness-portal
-        image: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-pt-readiness-portal:v2.2
+        image: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-pt-readiness-portal:v2.3
         imagePullPolicy: Always
         ports:
         - containerPort: 8050
         env:
         - name: CSV_PATH
           value: "/data/responses.csv"
-        resources:
+        # resources:
           # requests:
           #   memory: "256Mi"
           #   cpu: "200m"

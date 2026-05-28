@@ -5,6 +5,7 @@ import dash
 from dash import dcc, html, dash_table
 from dash.dependencies import Input, Output, State
 import plotly.graph_objects as go
+from summary_tables import build_summary_section, register_callbacks
 
 # ─────────────────────────── CONSTANTS ───────────────────────────
 JUR_COL = '2.0: Please indicate which jurisdiction you are representing'
@@ -1789,6 +1790,8 @@ app.layout = html.Div([
         style_table={'overflowX': 'auto'},
     ),
 
+    html.Div(id='summary-tables-container'),
+
     html.Hr(style={'borderColor': LIGHT, 'margin': '20px 0'}),
 
     # ── CHART ───────────────────────────────────────────────────────
@@ -1801,6 +1804,8 @@ app.layout = html.Div([
 ], style={'maxWidth': '1100px', 'margin': '0 auto', 'padding': '0 20px', 'fontFamily': 'Arial'})
 
 # ─────────────────────────── CALLBACKS ──────────────────────────────
+register_callbacks(app)
+
 @app.callback(
     Output('scores-store',   'data'),
     Output('raw-data-store', 'data'),
@@ -1809,6 +1814,7 @@ app.layout = html.Div([
     Output('raw-jurisdiction-dropdown', 'options'),
     Output('raw-jurisdiction-dropdown', 'value'),
     Output('section-filter-container',  'children'),
+    Output('summary-tables-container',  'children'),
     Input('upload-data', 'contents'),
     State('upload-data', 'filename'),
     prevent_initial_call=False,
@@ -1835,11 +1841,14 @@ def on_upload(contents, filename):
             seen_sections.append(sec)
     section_ui = build_section_filter(seen_sections)
 
+    summary_div = build_summary_section(clean_df)
+
     return (
         scores.to_json(date_format='iso', orient='split'),
         clean_df.to_json(date_format='iso', orient='split'),
         table_rows, fig,
         jur_options, jur_value, section_ui,
+        summary_div,
     )
 
 
