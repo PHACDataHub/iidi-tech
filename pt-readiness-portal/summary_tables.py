@@ -75,12 +75,14 @@ def _pct(n, total):
 
 # ─────────────────────────── TABLE PRIMITIVES ────────────────────────
 
-def _th(txt):
+def _th(txt, wrap=False):
     return html.Th(txt, style={
         'backgroundColor': HDR_BG, 'color': HDR_FG,
         'padding': '7px 12px', 'fontSize': 12, 'fontWeight': '600',
-        'borderRight': f'1px solid {DARK_BLUE}', 'whiteSpace': 'nowrap',
-        'textAlign': 'left',
+        'borderRight': f'1px solid {DARK_BLUE}',
+        'whiteSpace': 'normal' if wrap else 'nowrap',
+        'textAlign': 'left', 'verticalAlign': 'bottom',
+        'minWidth': '80px',
     })
 
 
@@ -93,9 +95,9 @@ def _td(txt, alt=False):
     })
 
 
-def _tbl(headers, rows):
+def _tbl(headers, rows, wrap_headers=False):
     """Build a full table. headers: list of str. rows: list of list of values."""
-    head = html.Thead(html.Tr([_th(h) for h in headers]))
+    head = html.Thead(html.Tr([_th(h, wrap=wrap_headers) for h in headers]))
     body = html.Tbody([
         html.Tr([_td(cell, alt=(i % 2 == 1)) for cell in row])
         for i, row in enumerate(rows)
@@ -103,6 +105,7 @@ def _tbl(headers, rows):
     return html.Table([head, body], style={
         'width': '100%', 'borderCollapse': 'collapse',
         'border': f'1px solid {BORDER}', 'marginBottom': 12,
+        'tableLayout': 'fixed' if wrap_headers else 'auto',
     })
 
 
@@ -139,17 +142,57 @@ def _sec_header(text):
 def _build_section1(df, n):
     """Section 1 — Immunization Data Collection"""
 
-    # Q1 — free-text system types
+    # Q1 — bucket free-text responses
     COL_Q1 = '3: 1. What types of information systems or tools capture/document information on immunizations administered in your jurisdiction (E.g., EMRs, Pharmacy Systems, Hospital Systems, CANImmunize, Direct Entry into immunization registry/repository, etc.? Please specify.'
-    q1_responses = df[COL_Q1].dropna().reset_index(drop=True) if COL_Q1 in df.columns else pd.Series([], dtype=str)
+    import re as _re
+    Q1_BUCKETS = {
+        'EMRs / Clinical Information Systems': [
+            'ehr', 'emr', 'panorama', 'paris', 'cedar', 'telus chr', 'ism',
+            'physician', 'clinical information',
+        ],
+        'Pharmacy Systems': [
+            'pharmacy', 'drug information system', 'mckesson', 'kroll',
+        ],
+        'Hospital / Acute Care Systems': [
+            'hospital', 'cerner', 'acute care',
+        ],
+        'Direct Entry into Registry': [
+            'direct entry', 'direct batch', 'idsm', 'direct submission',
+            'public health nurs', 'clerk', 'pharmacist',
+        ],
+        'Long Term Care / Home Care Systems': [
+            'long term care', 'long-term care', 'home care', 'alayacare',
+            'peoplesoft', 'employee health', 'community care',
+        ],
+        'Citizen / Patient Reporting Tools (e.g. CANImmunize)': [
+            'canimmunize', 'mobile', 'm-imms', 'yellow card',
+            'paper reciprocal', 'patient portal',
+        ],
+        'Reconciliation / Exchange Tools': [
+            'phix', 'stix', 'icon', 'immunizations connecting',
+            'public health information exchange', 'fax', 'csv file', 'batch submission',
+        ],
+    }
+    if COL_Q1 in df.columns:
+        q1_responses = df[COL_Q1].dropna().astype(str).str.lower()
+        bucket_counts = {}
+        for bucket, keywords in Q1_BUCKETS.items():
+            count = int(q1_responses.apply(
+                lambda r: any(kw in r for kw in keywords)
+            ).sum())
+            bucket_counts[bucket] = count
+    else:
+        bucket_counts = {b: 0 for b in Q1_BUCKETS}
     q1_tbl = _tbl(
-        ['System Class', 'Count'],
+        ['System Class', 'Function', 'Count'],
         [
-            ['EMRs',             '—'],
-            ['Pharmacy Systems', '—'],
-            ['Hospitals',        '—'],
-            ['Long Term Care',   '—'],
-            ['Other',            '—'],
+            ['EMRs / Clinical Information Systems',       'Capture & Document', bucket_counts.get('EMRs / Clinical Information Systems', 0)],
+            ['Pharmacy Systems',                          'Capture & Document', bucket_counts.get('Pharmacy Systems', 0)],
+            ['Hospital / Acute Care Systems',             'Capture & Document', bucket_counts.get('Hospital / Acute Care Systems', 0)],
+            ['Direct Entry into Registry',                'Document',           bucket_counts.get('Direct Entry into Registry', 0)],
+            ['Long Term Care / Home Care Systems',        'Capture & Document', bucket_counts.get('Long Term Care / Home Care Systems', 0)],
+            ['Citizen / Patient Reporting Tools',         'Document',           bucket_counts.get('Citizen / Patient Reporting Tools (e.g. CANImmunize)', 0)],
+            ['Reconciliation / Exchange Tools',           'Exchange',           bucket_counts.get('Reconciliation / Exchange Tools', 0)],
         ]
     )
 
@@ -263,7 +306,8 @@ def _build_section2(df, n):
          'Q #6a — Is there Auditing of Logins in place for all registry/repository access?',
          'Q #6b — Is there logging of user activities in place for all registry/repository transactions?',
          'Q #7 — Are there backups and mechanisms for disaster recovery?'],
-        ctrl_rows
+        ctrl_rows,
+        wrap_headers=True,
     )
 
     return html.Div([

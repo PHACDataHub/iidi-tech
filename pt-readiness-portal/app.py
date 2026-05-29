@@ -5,7 +5,10 @@ import dash
 from dash import dcc, html, dash_table
 from dash.dependencies import Input, Output, State
 import plotly.graph_objects as go
-from summary_tables import build_summary_section, register_callbacks
+from appendix_b import build_appendix_b
+from appendix_c import build_appendix_c, register_callbacks_c
+from appendix_d import build_appendix_d, register_callbacks_d
+from sidebar    import build_sidebar
 
 # ─────────────────────────── CONSTANTS ───────────────────────────
 JUR_COL = '2.0: Please indicate which jurisdiction you are representing'
@@ -1658,7 +1661,7 @@ def prepare_data(raw_df):
 initial_raw, initial_scores = prepare_data(try_load_default())
 
 # ─────────────────────────── LAYOUT ─────────────────────────────────
-app = dash.Dash(__name__, suppress_callback_exceptions=True)
+app = dash.Dash(__name__, title='PT Readiness Dashboard', suppress_callback_exceptions=True)
 server = app.server
 
 @server.route('/healthcheck')
@@ -1692,119 +1695,191 @@ def build_section_filter(sections_present):
                   'borderTop': 'none', 'borderRadius': '0 0 5px 5px', 'background': '#FAFCFF'}),
     ], style={'border': f'1px solid {LIGHT}', 'borderRadius': 6, 'marginBottom': 12})
 
-app.layout = html.Div([
-    html.H1("PT Readiness Dashboard",
-            style={'color': BLUE, 'textAlign': 'center', 'fontFamily': 'Arial',
-                   'fontSize': 22, 'marginBottom': 16, 'marginTop': 12}),
-
-    dcc.Upload(id='upload-data',
-               children=html.Div(['Drag & drop or ', html.A('select a CSV / Excel file')]),
-               style={'width': '100%', 'height': '50px', 'lineHeight': '50px',
-                      'borderWidth': '1.5px', 'borderStyle': 'dashed', 'borderRadius': 6,
-                      'textAlign': 'center', 'marginBottom': 16, 'color': GREY,
-                      'backgroundColor': '#FAFAFA', 'fontSize': 13},
-               multiple=False),
-
+# ── Shared stores (persist across all panels) ───────────────────────
+_stores = html.Div([
     dcc.Store(id='scores-store',   data=initial_scores.to_json(date_format='iso', orient='split')),
     dcc.Store(id='raw-data-store', data=initial_raw.to_json(date_format='iso', orient='split')),
+    # legacy stubs needed by existing callbacks
+    html.Div(id='raw-data-table',            style={'display': 'none'}),
+    html.Div(id='section-filter-container',  style={'display': 'none'}),
+    dcc.Dropdown(id='raw-jurisdiction-dropdown',        style={'display': 'none'}),
+    dcc.Dropdown(id='raw-jurisdiction-dropdown-hidden', style={'display': 'none'}),
+    html.Div(dash_table.DataTable(id='summary-table'), style={'display': 'none'}),
+    dcc.Graph(id='bubble-chart',
+              figure=create_bubble_chart(initial_scores),
+              style={'display': 'none'}),
+], style={'display': 'none'})
 
-    # ── VIEWER ──────────────────────────────────────────────────────
-    html.H3("Survey Response Viewer",
-            style={'color': BLUE, 'marginTop': 4, 'marginBottom': 8,
-                   'fontFamily': 'Arial', 'fontSize': 16}),
+# ── Upload status indicator ──────────────────────────────────────────
+_upload_bar = html.Div([
+    dcc.Upload(
+        id='upload-data',
+        children=html.Div([
+            '📂  Drag & drop or ',
+            html.A('select a CSV / Excel file',
+                   style={'color': BLUE, 'textDecoration': 'underline'}),
+        ]),
+        style={
+            'flex': 1, 'height': '42px', 'lineHeight': '42px',
+            'borderWidth': '1.5px', 'borderStyle': 'dashed', 'borderRadius': 6,
+            'textAlign': 'center', 'color': GREY,
+            'backgroundColor': '#FAFAFA', 'fontSize': 13,
+            'cursor': 'pointer',
+        },
+        multiple=False,
+    ),
+    html.Div(id='upload-status', style={
+        'fontSize': 12, 'color': '#375623', 'fontWeight': '600',
+        'padding': '0 14px', 'whiteSpace': 'nowrap',
+        'alignSelf': 'center',
+    }),
+], style={
+    'display': 'flex', 'gap': 12, 'alignItems': 'stretch',
+    'padding': '10px 28px',
+    'backgroundColor': '#EDF4FB',
+    'borderBottom': f'1px solid {LIGHT}',
+})
+
+# ── Section panels ───────────────────────────────────────────────────
+_panel_b = html.Div([
+    build_appendix_b(),
+], id='panel-b', style={'display': 'block'})
+
+_panel_c = html.Div([
+    html.Div(id='summary-tables-container'),
+], id='panel-c', style={'display': 'none'})
+
+_panel_d = html.Div([
+    build_appendix_d(initial_scores, initial_raw, JUR_COL),
+], id='panel-d', style={'display': 'none'})
+
+
+app.layout = html.Div([
+    dcc.Location(id='url', refresh=False),
+    _stores,
+
+    # ── Top header bar ───────────────────────────────────────────────
     html.Div([
-        html.Div([
-            html.Label("Jurisdiction:", style={'fontWeight': 'bold', 'marginRight': 8,
-                                               'fontSize': 13, 'color': GREY}),
-            dcc.Dropdown(
-                id='raw-jurisdiction-dropdown',
-                options=[{'label': j, 'value': j} for j in (
-                    initial_raw[JUR_COL].unique() if not initial_raw.empty else []
-                )],
-                value=None, placeholder="Choose a jurisdiction...",
-                clearable=False,
-                style={'width': '320px', 'display': 'inline-block', 'fontSize': 13},
-            ),
-        ], style={'marginBottom': 10}),
-        html.Div(id='section-filter-container'),
-    ], style={'fontFamily': 'Arial'}),
-
-    html.Div(id='raw-data-table', style={
-        'maxHeight': '580px', 'overflowY': 'auto',
-        'border': f'1px solid {LIGHT}', 'borderRadius': 6,
-        'backgroundColor': WHITE, 'marginBottom': 24, 'fontFamily': 'Arial',
+        html.H1('PT Readiness Dashboard', style={
+            'color': WHITE, 'margin': 0, 'fontSize': 22,
+            'fontWeight': '700', 'letterSpacing': '0.02em',
+        }),
+    ], style={
+        'background': f'linear-gradient(135deg, #1A3A5C 0%, {BLUE} 100%)',
+        'padding': '14px 28px',
     }),
 
-    html.Hr(style={'borderColor': LIGHT, 'margin': '0 0 20px 0'}),
+    # ── Persistent upload bar (always visible) ───────────────────────
+    _upload_bar,
 
-    # ── SCORES TABLE ────────────────────────────────────────────────
-    html.H3("Technical Readiness Scores — Raw & Normalized (−1 to +1)",
-            style={'marginTop': 0, 'color': BLUE, 'fontFamily': 'Arial',
-                   'fontSize': 16, 'marginBottom': 8}),
+    # ── Body: content + right sidebar ───────────────────────────────
+    html.Div([
 
-    dash_table.DataTable(
-        id='summary-table',
-        columns=[
-            {'name': 'Jurisdiction',                        'id': 'Jurisdiction'},
-            {'name': 'Respondent',                          'id': 'Respondent'},
-            {'name': 'DCC (raw)',                           'id': 'Data Connection Complexity'},
-            {'name': 'OC (raw)',                            'id': 'Operational Complexity'},
-            {'name': 'DCC (normalized)',                    'id': 'DCC (normalized)'},
-            {'name': 'OC (normalized)',                     'id': 'OC (normalized)'},
-            {'name': 'Readiness Band',                      'id': 'Readiness Band'},
-        ],
-        style_header={'backgroundColor': BLUE, 'color': WHITE, 'fontWeight': 'bold',
-                      'fontSize': 12, 'textAlign': 'center'},
-        style_data={'fontSize': 11, 'textAlign': 'center', 'padding': '5px 10px'},
-        style_data_conditional=[
-            {'if': {'row_index': 'odd'}, 'backgroundColor': LGREY},
-            {'if': {'filter_query': '{Data Connection Complexity} > 0',
-                    'column_id': 'Data Connection Complexity'}, 'color': GREEN, 'fontWeight': 'bold'},
-            {'if': {'filter_query': '{Data Connection Complexity} < 0',
-                    'column_id': 'Data Connection Complexity'}, 'color': RED, 'fontWeight': 'bold'},
-            {'if': {'filter_query': '{Operational Complexity} > 0',
-                    'column_id': 'Operational Complexity'}, 'color': GREEN, 'fontWeight': 'bold'},
-            {'if': {'filter_query': '{Operational Complexity} < 0',
-                    'column_id': 'Operational Complexity'}, 'color': RED, 'fontWeight': 'bold'},
-            {'if': {'filter_query': '{DCC (normalized)} > 0',
-                    'column_id': 'DCC (normalized)'}, 'color': GREEN, 'fontWeight': 'bold'},
-            {'if': {'filter_query': '{DCC (normalized)} < 0',
-                    'column_id': 'DCC (normalized)'}, 'color': RED, 'fontWeight': 'bold'},
-            {'if': {'filter_query': '{OC (normalized)} > 0',
-                    'column_id': 'OC (normalized)'}, 'color': GREEN, 'fontWeight': 'bold'},
-            {'if': {'filter_query': '{OC (normalized)} < 0',
-                    'column_id': 'OC (normalized)'}, 'color': RED, 'fontWeight': 'bold'},
-            {'if': {'filter_query': '{Readiness Band} = "High"',
-                    'column_id': 'Readiness Band'}, 'backgroundColor': LGREEN, 'color': 'black'},
-            {'if': {'filter_query': '{Readiness Band} = "Moderate"',
-                    'column_id': 'Readiness Band'}, 'backgroundColor': '#FFF2CC', 'color': 'black'},
-            {'if': {'filter_query': '{Readiness Band} = "Low"',
-                    'column_id': 'Readiness Band'}, 'backgroundColor': '#FCE4D6', 'color': 'black'},
-            {'if': {'filter_query': '{Readiness Band} = "Very Low"',
-                    'column_id': 'Readiness Band'}, 'backgroundColor': '#F4CCCC', 'color': 'black'},
-        ],
-        style_cell_conditional=[
-            {'if': {'column_id': 'Jurisdiction'}, 'textAlign': 'left'},
-            {'if': {'column_id': 'Respondent'},   'textAlign': 'left', 'fontSize': 11},
-        ],
-        style_table={'overflowX': 'auto'},
-    ),
+        # Main content panels
+        html.Div([
+            _panel_b,
+            _panel_c,
+            _panel_d,
+        ], style={'flex': 1, 'minWidth': 0, 'padding': '20px 0'}),
 
-    html.Div(id='summary-tables-container'),
+        # Right sidebar
+        build_sidebar(),
 
-    html.Hr(style={'borderColor': LIGHT, 'margin': '20px 0'}),
+    ], style={
+        'display': 'flex', 'gap': 0, 'alignItems': 'flex-start',
+        'maxWidth': 1320, 'margin': '0 auto', 'padding': '0 20px',
+    }),
 
-    # ── CHART ───────────────────────────────────────────────────────
-    html.H3("Adoption Complexity Matrix",
-            style={'marginTop': 0, 'color': BLUE, 'fontFamily': 'Arial', 'fontSize': 16,
-                   'marginBottom': 4, 'textAlign': 'center'}),
-    dcc.Graph(id='bubble-chart', figure=create_bubble_chart(initial_scores),
-              style={'width': '100%'}),
-
-], style={'maxWidth': '1100px', 'margin': '0 auto', 'padding': '0 20px', 'fontFamily': 'Arial'})
+], style={'fontFamily': "'Segoe UI', Arial, sans-serif",
+          'backgroundColor': '#F5F7FA', 'minHeight': '100vh'})
 
 # ─────────────────────────── CALLBACKS ──────────────────────────────
-register_callbacks(app)
+register_callbacks_c(app)
+register_callbacks_d(app, render_viewer, score_row_breakdown,
+                     calculate_scores, JUR_COL,
+                     scores_store_id='scores-store',
+                     raw_store_id='raw-data-store')
+
+
+# URL → panel mapping
+_ROUTE_MAP = {
+    '/':           'b',
+    '/appendix-b': 'b',
+    '/appendix-c': 'c',
+    '/appendix-d': 'd',
+}
+_BTN_MAP = {
+    'sidebar-btn-b': 'b',
+    'sidebar-btn-c': 'c',
+    'sidebar-btn-d': 'd',
+}
+
+BTN_ACTIVE = {
+    'width': '100%', 'textAlign': 'left', 'border': 'none',
+    'padding': '9px 14px', 'fontSize': 13, 'fontWeight': '700',
+    'cursor': 'pointer', 'borderRadius': 6, 'marginBottom': 4,
+    'backgroundColor': '#2E75B6', 'color': '#FFFFFF',
+    'borderLeft': '4px solid #1A3A5C',
+}
+BTN_IDLE = {
+    'width': '100%', 'textAlign': 'left', 'border': 'none',
+    'padding': '9px 14px', 'fontSize': 13, 'fontWeight': '400',
+    'cursor': 'pointer', 'borderRadius': 6, 'marginBottom': 4,
+    'backgroundColor': '#EDF4FB', 'color': '#1F4E79',
+    'borderLeft': '4px solid transparent',
+}
+
+@app.callback(
+    Output('panel-b', 'style'),
+    Output('panel-c', 'style'),
+    Output('panel-d', 'style'),
+    Output('sidebar-btn-b', 'style'),
+    Output('sidebar-btn-c', 'style'),
+    Output('sidebar-btn-d', 'style'),
+    Input('url', 'pathname'),
+    Input('sidebar-btn-b', 'n_clicks'),
+    Input('sidebar-btn-c', 'n_clicks'),
+    Input('sidebar-btn-d', 'n_clicks'),
+    prevent_initial_call=False,
+)
+def switch_panel(pathname, nb, nc, nd):
+    from dash import ctx
+    triggered = ctx.triggered_id if ctx.triggered_id else 'url'
+
+    # Determine which panel to show
+    if triggered == 'url':
+        panel = _ROUTE_MAP.get(pathname or '/', 'b')
+    else:
+        panel = _BTN_MAP.get(triggered, 'b')
+
+    SHOW = {'display': 'block'}
+    HIDE = {'display': 'none'}
+
+    panels = {
+        'b': (SHOW, HIDE, HIDE, BTN_ACTIVE, BTN_IDLE, BTN_IDLE),
+        'c': (HIDE, SHOW, HIDE, BTN_IDLE, BTN_ACTIVE, BTN_IDLE),
+        'd': (HIDE, HIDE, SHOW, BTN_IDLE, BTN_IDLE, BTN_ACTIVE),
+    }
+    return panels.get(panel, panels['b'])
+
+
+@app.callback(
+    Output('url', 'pathname'),
+    Input('sidebar-btn-b', 'n_clicks'),
+    Input('sidebar-btn-c', 'n_clicks'),
+    Input('sidebar-btn-d', 'n_clicks'),
+    prevent_initial_call=True,
+)
+def update_url(nb, nc, nd):
+    from dash import ctx
+    routes = {
+        'sidebar-btn-b': '/appendix-b',
+        'sidebar-btn-c': '/appendix-c',
+        'sidebar-btn-d': '/appendix-d',
+    }
+    return routes.get(ctx.triggered_id, '/appendix-b')
+
+
 
 @app.callback(
     Output('scores-store',   'data'),
@@ -1815,6 +1890,7 @@ register_callbacks(app)
     Output('raw-jurisdiction-dropdown', 'value'),
     Output('section-filter-container',  'children'),
     Output('summary-tables-container',  'children'),
+    Output('upload-status',             'children'),
     Input('upload-data', 'contents'),
     State('upload-data', 'filename'),
     prevent_initial_call=False,
@@ -1826,7 +1902,14 @@ def on_upload(contents, filename):
     display_cols = ['Jurisdiction', 'Respondent', 'Data Connection Complexity',
                     'Operational Complexity', 'DCC (normalized)', 'OC (normalized)',
                     'Readiness Band']
-    table_rows = scores[display_cols].to_dict('records') if not scores.empty else []
+    if not scores.empty:
+        disp = scores[display_cols].copy()
+        for c in ['DCC (normalized)', 'OC (normalized)']:
+            if c in disp.columns:
+                disp[c] = disp[c].round(3)
+        table_rows = disp.to_dict('records')
+    else:
+        table_rows = []
 
     fig = create_bubble_chart(scores)
 
@@ -1841,14 +1924,18 @@ def on_upload(contents, filename):
             seen_sections.append(sec)
     section_ui = build_section_filter(seen_sections)
 
-    summary_div = build_summary_section(clean_df)
+    summary_div = build_appendix_c(clean_df)
+
+    n_jurs = len(all_jurs)
+    status = (f'✅  {filename}  —  {n_jurs} jurisdiction{"s" if n_jurs != 1 else ""} loaded'
+              if contents and filename else '')
 
     return (
         scores.to_json(date_format='iso', orient='split'),
         clean_df.to_json(date_format='iso', orient='split'),
         table_rows, fig,
         jur_options, jur_value, section_ui,
-        summary_div,
+        summary_div, status,
     )
 
 
