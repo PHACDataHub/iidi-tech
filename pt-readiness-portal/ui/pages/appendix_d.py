@@ -97,10 +97,10 @@ def build_appendix_d(initial_scores, initial_raw, jur_col):
 
     return html.Div([
 
-        # ── D3: Jurisdiction Viewer (top) ────────────────────────────
+        # ── D1: Jurisdiction Viewer (top) ────────────────────────────
         html.Div([
             _section_header(
-                'D3 \u00a0 Jurisdiction Survey Response Viewer',
+                'D1 \u00a0 Jurisdiction Survey Response Viewer',
                 'Select a jurisdiction to view their full survey responses with rubric annotations',
             ),
             html.Div([
@@ -130,10 +130,10 @@ def build_appendix_d(initial_scores, initial_raw, jur_col):
             }),
         ], style={'marginBottom': 28}),
 
-        # ── D1: Scoring Grid ─────────────────────────────────────────
+        # ── D2: Scoring Grid ─────────────────────────────────────────
         html.Div([
             _section_header(
-                'D1 \u00a0 Technical Readiness Scores',
+                'D2 \u00a0 Technical Readiness Scores',
                 'Raw and normalized DCC / OC scores per jurisdiction',
             ),
             html.Div(
@@ -146,10 +146,10 @@ def build_appendix_d(initial_scores, initial_raw, jur_col):
             ),
         ], style={'marginBottom': 28}),
 
-        # ── D2: Adoption Complexity Matrix ───────────────────────────
+        # ── D3: Adoption Complexity Matrix ───────────────────────────
         html.Div([
             _section_header(
-                'D2 \u00a0 Adoption Complexity Matrix',
+                'D3 \u00a0 Adoption Complexity Matrix',
                 'DCC vs OC \u2014 bubble size proportional to normalized score magnitude',
             ),
             html.Div(
@@ -193,7 +193,7 @@ def register_callbacks_d(app, render_viewer_fn, score_row_breakdown_fn,
             rows = disp.to_dict('records')
         else:
             rows = []
-        from app import create_bubble_chart
+        from ui.chart import create_bubble_chart
         return rows, create_bubble_chart(scores)
 
     @app.callback(
@@ -215,14 +215,14 @@ def register_callbacks_d(app, render_viewer_fn, score_row_breakdown_fn,
         Output('d-section-filter',  'children'),
         Output('d-viewer-content',  'children'),
         Input('d-jurisdiction-dropdown', 'value'),
-        State(raw_store_id,    'data'),
-        State(scores_store_id, 'data'),
+        Input(raw_store_id, 'data'),
         prevent_initial_call=False,
     )
-    def update_d_viewer(jur, raw_json, scores_json):
+    def update_d_viewer(jur, raw_json):
+        scores_json = None  # not needed for viewer
         if not jur or not raw_json:
             return '', html.Div(
-                'Upload a file to view jurisdiction responses.',
+                'Select a jurisdiction above to view responses.',
                 style={'padding': 20, 'color': '#888', 'fontStyle': 'italic', 'fontSize': 13},
             )
         raw  = pd.read_json(raw_json, orient='split')
@@ -231,7 +231,8 @@ def register_callbacks_d(app, render_viewer_fn, score_row_breakdown_fn,
             return '', html.P('No data for this jurisdiction.',
                               style={'padding': 16, 'color': '#888'})
 
-        from app import COL_META, SECTION_ORDER, PALETTE, _lighten, BLUE as APP_BLUE
+        from core.constants import COL_META, SECTION_ORDER, PALETTE, BLUE as APP_BLUE
+        from ui.viewer import _lighten
 
         jur_color_map = {}
         for ci, j in enumerate(raw[jur_col].unique()):

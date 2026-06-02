@@ -5,7 +5,9 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY *.py .
+COPY app.py .
+COPY core/ ./core/
+COPY ui/ ./ui/
 
 COPY ["PTReadinessQuestions-01-10_with ab3.xlsx", "."]
 

@@ -6,7 +6,7 @@ Matches the structure and question titles from the PT Readiness Sub-Report
 appendices (Word doc). Import and call build_summary_section(df) + register_callbacks(app).
 
 Usage in app.py:
-    from summary_tables import build_summary_section, register_callbacks
+    from ui.pages.summary_tables import build_summary_section, register_callbacks
     register_callbacks(app)
     # In on_upload return: build_summary_section(clean_df)
 """

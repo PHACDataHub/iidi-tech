@@ -45,9 +45,9 @@ _SECTIONS = [
         'Part 2 — Governance',
     ]),
     ('sidebar-btn-d', 'Appendix D', 'Jurisdiction-Level Breakdown', [
-        'D1 — Scoring Grid',
-        'D2 — Complexity Matrix',
-        'D3 — Response Viewer',
+        'D1 — Response Viewer',
+        'D2 — Scoring Grid',
+        'D3 — Complexity Matrix',
     ]),
 ]
 

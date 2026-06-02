@@ -6,7 +6,7 @@ Renders the scoring methodology as a styled Dash component,
 matching the notebook Cell 0 HTML design exactly.
 
 Usage in app.py:
-    from appendix_b import build_appendix_b
+    from ui.pages.appendix_b import build_appendix_b
     # place build_appendix_b() in layout
 """
 
