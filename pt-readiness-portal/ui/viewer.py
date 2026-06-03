@@ -281,8 +281,9 @@ def _rubric_block(options, final_dcc=None, final_oc=None,
 
     # Section-level final block (Q10c only)
     if section_final is not None:
-        formula    = section_final.get('formula', '')
-        if_yes     = section_final.get('if_yes')
+        yes_formula = section_final.get('yes_formula', 'min(10a, 10b)')
+        no_formula  = section_final.get('no_formula',  'max(−2, 10c)')
+        if_yes      = section_final.get('if_yes')
         if_no      = section_final.get('if_no', -2)
         actual_dcc = section_final.get('actual_dcc')
         actual_oc  = section_final.get('actual_oc')
@@ -291,21 +292,37 @@ def _rubric_block(options, final_dcc=None, final_oc=None,
         yes_active = active == 'Yes'
         no_active  = active == 'No'
 
-        def _sf_row(label, dcc_v, oc_v, bold=False, greyed=False):
-            text_color  = '#C8B89A' if greyed else ('#5C3A00' if bold else '#7A5C00')
+        def _sf_row(label, dcc_v, oc_v, bold=False, greyed=False, highlighted=False):
+            if greyed:
+                text_color = '#C8B89A'
+            elif highlighted:
+                text_color = '#3A2000'
+            elif bold:
+                text_color = '#5C3A00'
+            else:
+                text_color = '#7A5C00'
             pill_or_dash = (lambda v: html.Span(
                 '—', style={'fontSize': 11, 'color': '#D4C4A0', 'textAlign': 'center',
                                   'display': 'block'})
             ) if greyed else _score_cell
+            row_style = {
+                'display': 'flex', 'gap': 4, 'alignItems': 'center', 'padding': '3px 4px',
+                'borderRadius': 3,
+            }
+            if highlighted:
+                row_style['backgroundColor'] = '#FFE680'
+                row_style['borderLeft'] = '3px solid #C8A000'
+                row_style['paddingLeft'] = '6px'
             return html.Div([
                 html.Span(label, style={
                     'flex': 1, 'fontSize': 10, 'color': text_color,
-                    'fontWeight': '700' if bold else '400',
-                    'fontStyle': 'italic' if not bold and not greyed else 'normal',
+                    'fontWeight': '700' if (bold or highlighted) else '400',
+                    'fontStyle': 'italic' if not bold and not greyed and not highlighted else 'normal',
                 }),
                 html.Div(pill_or_dash(dcc_v), style=COL_W),
                 html.Div(pill_or_dash(oc_v),  style=COL_W),
-            ], style={'display': 'flex', 'gap': 4, 'alignItems': 'center', 'padding': '2px 0'})
+            ], style=row_style)
+
 
         children.append(html.Div([
             html.Span('Q10 Final Score', style={
@@ -321,8 +338,10 @@ def _rubric_block(options, final_dcc=None, final_oc=None,
                                         'color': '#7A5C00', 'letterSpacing': '0.05em'}),
             ], style={'display': 'flex', 'gap': 4,
                       'paddingBottom': 3, 'borderBottom': '1px solid #E8D070', 'marginBottom': 3}),
-            _sf_row('If Yes: %s' % formula, if_yes, if_yes, greyed=no_active),
-            _sf_row('If No', if_no, if_no, greyed=yes_active),
+            _sf_row('If Yes: %s' % yes_formula if yes_active else 'If Yes',
+                    if_yes, if_yes, highlighted=yes_active, greyed=no_active),
+            _sf_row('If No: %s'  % no_formula  if no_active  else 'If No',
+                    if_no,  if_no,  highlighted=no_active,  greyed=yes_active),
             html.Div(style={'borderTop': '1px solid #C8A000', 'margin': '4px 0'}),
             _sf_row('Final Score', actual_dcc, actual_oc, bold=True),
         ], style={
@@ -613,13 +632,13 @@ def _api_checkboxes(row_s):
         row_s.get('17: Other, please specify')
     )
     s10c = score_10c(
-        row_s.get('18: No '), row_s.get('18: No sure'), row_s.get('18: Yes')
+        row_s.get('18: No'), row_s.get('18: No sure'), row_s.get('18: Yes')
     )
 
-    if q10_val == 'No':
-        q10_final = -2
-    elif q10_val == 'Yes':
-        q10_final = min(s10a, s10b, s10c)
+    if q10_val == 'Yes':
+        q10_final = min(s10a, s10b)
+    elif q10_val == 'No':
+        q10_final = max(-2, s10c)
     else:
         q10_final = 0
 
@@ -632,7 +651,9 @@ def _api_checkboxes(row_s):
             'Q10 — API exists?',
             _checkboxes(('Yes', q10_val == 'Yes'), ('No', q10_val == 'No')),
             _rubric_block(
-                [('Yes → min(10a, 10b, 10c)', None, None), ('No', -2, -2), ('Blank', 0, 0)],
+                [('Yes → min(10a, 10b)', None, None),
+                 ('No  → max(−2, 10c)', None, None),
+                 ('Blank', 0, 0)],
             ),
         ),
         (
@@ -670,21 +691,22 @@ def _api_checkboxes(row_s):
             'Q10c — If no APIs, other data exchange interfaces/protocols supported?',
             _checkboxes(
                 ('Yes',      bool(yes_desc), yes_desc) if yes_desc else ('Yes', False),
-                ('No',       _is_checked('18: No ')),
+                ('No',       _is_checked('18: No')),
                 ('Not sure', _is_checked('18: No sure')),
             ),
             _rubric_block(
-                [('Yes', 2, 2), ('No', -2, -2), ('Not sure', -2, -2)],
-                final_dcc=s10c if q10_val == 'Yes' else None,
-                final_oc=s10c if q10_val == 'Yes' else None,
+                [('Yes', 0, 0), ('No', -2, -2), ('Not sure', -2, -2)],
+                final_dcc=s10c if q10_val == 'No' else None,
+                final_oc=s10c if q10_val == 'No' else None,
                 score_label='Sub-score',
                 section_final={
-                    'formula': 'min(%s, %s, %s)' % (s10a, s10b, s10c) if q10_val == 'Yes' else 'N/A',
-                    'if_yes': min(s10a, s10b, s10c) if q10_val == 'Yes' else None,
-                    'if_no': -2,
+                    'yes_formula': 'min(%s, %s)' % (s10a, s10b),
+                    'no_formula':  'max(−2, %s)'  % s10c,
+                    'if_yes': min(s10a, s10b) if q10_val == 'Yes' else None,
+                    'if_no': max(-2, s10c) if q10_val == 'No' else -2,
                     'actual_dcc': final_dcc,
                     'actual_oc':  final_oc,
-                    'active': q10_val,  # 'Yes', 'No', or ''
+                    'active': q10_val,
                 },
             ),
         ),

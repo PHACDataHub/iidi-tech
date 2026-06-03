@@ -401,15 +401,30 @@ def _build_section3(df, n):
         'marginBottom': 8,
     })
 
-    # Q10c — alternate access methods note + table
-    q10c_tbl = _tbl(
-        ['Alternate Exchange Supported', 'Count', '% of non-API respondents'],
-        [
-            ['Yes — alternate interfaces available', alt_yes,     _pct(alt_yes,     api_no)],
-            ['No — no alternate interfaces',         alt_no,      _pct(alt_no,      api_no)],
-            ['Not sure',                             alt_notsure, _pct(alt_notsure, api_no)],
-        ]
-    )
+    # Q10c — list alternate exchange methods per non-API province, sorted alphabetically
+    from core.constants import JUR_COL as _JUR, PROVINCE_SHORT as _SHORT
+    q10c_rows = []
+    no_api = df[df[COL_Q10].astype(str).str.strip() == 'No'].copy()
+    for _, row in no_api.iterrows():
+        short = _SHORT.get(str(row[_JUR]).strip(), str(row[_JUR])[:3].upper())
+        alt_text = row.get('18: Yes')
+        no_val   = row.get('18: No')
+        ns_val   = row.get('18: No sure')
+        if pd.notna(alt_text) and str(alt_text).strip() not in ('', 'nan', '0', '0.0'):
+            method = str(alt_text).strip()
+        elif pd.notna(ns_val) and float(ns_val) == 1.0:
+            method = 'Not sure'
+        elif pd.notna(no_val) and float(no_val) == 1.0:
+            method = 'No alternate exchange interfaces'
+        else:
+            method = '—'
+        q10c_rows.append([short, method])
+    q10c_rows.sort(key=lambda r: r[0])
+
+    if q10c_rows:
+        q10c_list = _tbl(['Province', 'Alternate Exchange Method'], q10c_rows)
+    else:
+        q10c_list = _note('No respondents reported absence of API access.')
 
     return html.Div([
         _q_title('Q #8 & Q #9 — Does your jurisdiction currently have a digital tool that allows citizens to access their immunization information? If no, how can citizens access their immunization information?'),
@@ -417,7 +432,7 @@ def _build_section3(df, n):
         _q_title('Q #10 — API Access 10a, API Authentication 10b, alternate access methods 10c'),
         q10_combined,
         _note(f'{api_no} respondent(s) reported no API access. Alternative access methods are listed below.'),
-        q10c_tbl,
+        q10c_list,
     ])
 
 
@@ -724,7 +739,7 @@ def _build_part2(df, n):
 def _collapsible(section_id, title, content, bg_color=BLUE):
     return html.Div([
         html.Button(
-            [html.Span('\u25b8 ', id=f'arrow-{section_id}'), title],
+            [html.Span('\u25be ', id=f'arrow-{section_id}'), title],
             id=f'btn-{section_id}',
             n_clicks=0,
             style={
@@ -740,7 +755,7 @@ def _collapsible(section_id, title, content, bg_color=BLUE):
             content,
             id=f'body-{section_id}',
             style={
-                'display': 'none', 'padding': '14px 16px',
+                'display': 'block', 'padding': '14px 16px',
                 'border': f'1px solid {BORDER}', 'borderTop': 'none',
                 'borderRadius': '0 0 4px 4px', 'backgroundColor': '#FAFCFF',
             }
@@ -800,11 +815,11 @@ def build_summary_section(df):
     inner = html.Div(
         [part1_header, *part1_cards, part2_header, *part2_cards],
         id='summary-body',
-        style={'display': 'none', 'marginTop': 8}
+        style={'display': 'block', 'marginTop': 8}
     )
 
     toggle_btn = html.Button(
-        [html.Span('\u25b8 ', id='summary-arrow'),
+        [html.Span('\u25be ', id='summary-arrow'),
          'Summary Tables \u2014 Survey Response Counts (Appendix C)'],
         id='summary-toggle',
         n_clicks=0,
@@ -834,9 +849,9 @@ def register_callbacks(app):
         prevent_initial_call=True,
     )
     def toggle_summary(n, style):
-        if style and style.get('display') == 'none':
-            return {'display': 'block', 'marginTop': 8}, '\u25be '
-        return {'display': 'none', 'marginTop': 8}, '\u25b8 '
+        if style and style.get('display') == 'block':
+            return {'display': 'none', 'marginTop': 8}, '\u25b8 '
+        return {'display': 'block', 'marginTop': 8}, '\u25be '
 
     for sid in SECTION_IDS:
         @app.callback(
@@ -853,6 +868,6 @@ def register_callbacks(app):
                 'borderRadius': '0 0 4px 4px', 'backgroundColor': '#FAFCFF',
             }
             closed_style = {**open_style, 'display': 'none'}
-            if style and style.get('display') == 'none':
-                return open_style, '\u25be '
-            return closed_style, '\u25b8 '
+            if style and style.get('display') == 'block':
+                return closed_style, '\u25b8 '
+            return open_style, '\u25be '

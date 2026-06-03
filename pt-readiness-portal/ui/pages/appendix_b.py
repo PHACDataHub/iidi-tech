@@ -316,8 +316,8 @@ def build_appendix_b():
     ])
 
     q10_top = _scoring_table([
-        ('No',  -2, -2, 'Custom connectors will be required for all data exchange.'),
-        ('Yes', None, None, 'Aggregate score derived from three sub-components. Final score = min(10a, 10b, 10c).'),
+        ('Yes', None, None, 'Score = min(10a, 10b) — minimum of protocol and authentication sub-scores.'),
+        ('No',  None, None, 'Score = max(\u22122, 10c) — lifted to 0 if alternate exchange exists, otherwise \u22122.'),
     ])
 
     q10_sub = _subscore_table([
@@ -331,10 +331,10 @@ def build_appendix_b():
          'App extension: recognised as standard auth.'),
         ('', 'Custom / Other or blank', -2,
          'Custom connectors will be required.'),
-        ('Q10c \u2014 Alternative Exchange', 'Yes (e.g., SFTP, flat files)', 2,
-         'Platform supports upload via alternative mechanisms.'),
+        ('Q10c \u2014 Alternative Exchange\n(Q10 = No only)', 'Yes — alternate interface described', 0,
+         'Alternate mechanism exists; penalty lifted.'),
         ('', 'No / Not sure', -2,
-         'Custom connectors will be required.'),
+         'No confirmed alternate data exchange mechanism.'),
     ])
 
     q14 = html.Table([
@@ -458,11 +458,16 @@ def build_appendix_b():
         q10_sub,
         _callout([
             html.Strong('Calculation logic: '),
-            'The final Q10 score is the ',
+            'When Q10 = Yes, the final score is the ',
             html.Strong('minimum'),
-            ' of the three sub-component scores (10a, 10b, 10c). '
-            'This conservative approach ensures that a single weak component (e.g., custom '
-            'authentication) appropriately constrains the overall readiness indicator.',
+            ' of sub-components 10a and 10b — a single weak component (e.g., custom authentication) '
+            'appropriately constrains the overall score. '
+            'When Q10 = No, sub-component 10c is evaluated: if an alternate exchange interface is '
+            'confirmed the score is ',
+            _code('max(\u22122, 0) = 0'),
+            '; otherwise it remains ',
+            _code('\u22122'),
+            '.',
         ], 'blue'),
 
         _subsection('Q15 & Q15a \u2014 System Upgrading Plans'),
@@ -480,11 +485,14 @@ def build_appendix_b():
         # 5 Methodological notes
         _section_header(5, 'Methodological Notes'),
         _callout([
-            html.Strong('Q10c \u201cNot sure\u201d responses '),
-            'are scored as ',
+            html.Strong('Q10c scoring '),
+            '— applicable only when Q10 = No. A confirmed alternate exchange interface scores ',
+            _code('0'),
+            ' (penalty lifted via ',
+            _code('max(\u22122, 0)'),
+            '). \u201cNot sure\u201d and \u201cNo\u201d responses score ',
             _code('\u22122'),
-            ' to reflect the absence of a confirmed alternative data exchange mechanism, '
-            'consistent with a conservative risk posture.',
+            ', reflecting the absence of a confirmed alternative.',
         ], 'orange'),
         _callout([
             html.Strong('Missing or incomplete responses '),

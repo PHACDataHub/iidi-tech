@@ -190,6 +190,7 @@ def register_callbacks_d(app, render_viewer_fn, score_row_breakdown_fn,
             for c in ['DCC (normalized)', 'OC (normalized)']:
                 if c in disp.columns:
                     disp[c] = disp[c].round(3)
+            disp = disp.sort_values('Jurisdiction').reset_index(drop=True)
             rows = disp.to_dict('records')
         else:
             rows = []

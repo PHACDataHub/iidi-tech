@@ -80,12 +80,12 @@ def score_auth(saml, oauth, other):
 
 
 def score_10c(no_val, not_sure, yes_val):
-    """Q10c — other exchange interfaces. Yes → +2, No/Not sure/blank → -2."""
+    """Q10c — other exchange interfaces. Yes → 0, No/Not sure/blank → -2."""
     if pd.notna(yes_val) and str(yes_val).strip() not in ('', '0', 'nan', '0.0'):
         try:
-            return 2 if float(yes_val) != 0 else -2
+            return 0 if float(yes_val) != 0 else -2
         except (ValueError, TypeError):
-            return 2
+            return 0
     if pd.notna(no_val)   and no_val   == 1: return -2
     if pd.notna(not_sure) and not_sure == 1: return -2
     return -2
@@ -121,7 +121,10 @@ def _q5_score(row):
 
 
 def _q6_scores(row):
-    """Returns (q6a_oc, q6b_oc) — each scored independently, DCC = 0."""
+    """
+    Q6a and Q6b — Audit & Logging. DCC = 0, OC = ±2 each, scored independently.
+    Both Yes → +4 OC total. Either No → that question contributes -2.
+    """
     audit   = str(row.get(_Q6A, '')).strip()
     logging = str(row.get(_Q6B, '')).strip()
     return (2 if audit == 'Yes' else -2), (2 if logging == 'Yes' else -2)
@@ -133,9 +136,13 @@ def _q7_oc(row):
 
 
 def _q10_score(row):
-    """Q10 final = min(10a, 10b, 10c) when API = Yes."""
+    """
+    Q10 scoring:
+      Yes → min(10a, 10b)            — must have both valid protocol and auth
+      No  → max(-2, 10c)             — 0 if alternate interfaces exist, -2 otherwise
+      Blank/other → 0
+    """
     val = str(row.get(_Q10, '')).strip()
-    if val == 'No':  return -2
     if val == 'Yes':
         s10a = score_api_protocol(
             row.get('16: REST'), row.get('16: SOAP'),
@@ -145,8 +152,10 @@ def _q10_score(row):
             row.get('17: SAML'), row.get('17: OAuth'),
             row.get('17: Other, please specify'),
         )
-        s10c = score_10c(row.get('18: No '), row.get('18: No sure'), row.get('18: Yes'))
-        return min(s10a, s10b, s10c)
+        return min(s10a, s10b)
+    if val == 'No':
+        s10c = score_10c(row.get('18: No'), row.get('18: No sure'), row.get('18: Yes'))
+        return max(-2, s10c)
     return 0
 
 
@@ -174,17 +183,17 @@ def score_row(row):
     Score a single survey row.
     Returns (dcc_raw, oc_raw) as integers.
     """
-    q2       = _q2_score(row)
-    q3       = _q3_score(row)
-    q5       = _q5_score(row)
-    q6a, q6b = _q6_scores(row)
-    q7       = _q7_oc(row)
-    q10      = _q10_score(row)
+    q2        = _q2_score(row)
+    q3        = _q3_score(row)
+    q5        = _q5_score(row)
+    q6a, q6b  = _q6_scores(row)
+    q7        = _q7_oc(row)
+    q10       = _q10_score(row)
     q14, q14a = _q14_scores(row)
-    q16      = _q16_score(row)
+    q16       = _q16_score(row)
 
-    dcc = q2 + q3 + q5 + 0   + 0  + q10 + q14 + q14a + q16
-    oc  = q2 + q3 + q5 + q6a + q6b + q7 + q10 + q14 + q14a + q16
+    dcc = q2 + q3 + q5 + 0   + 0   + q10 + q14 + q14a + q16
+    oc  = q2 + q3 + q5 + q6a + q6b + q7  + q10 + q14  + q14a + q16
     return dcc, oc
 
 
@@ -202,14 +211,14 @@ def score_row_breakdown(row):
             val = (dcc_v + oc_v) / 2
         return 'positive' if val > 0 else ('negative' if val < 0 else 'neutral')
 
-    q2       = _q2_score(row)
-    q3       = _q3_score(row)
-    q5       = _q5_score(row)
-    q6a, q6b = _q6_scores(row)
-    q7       = _q7_oc(row)
-    q10      = _q10_score(row)
+    q2        = _q2_score(row)
+    q3        = _q3_score(row)
+    q5        = _q5_score(row)
+    q6a, q6b  = _q6_scores(row)
+    q7        = _q7_oc(row)
+    q10       = _q10_score(row)
     q14, q14a = _q14_scores(row)
-    q16      = _q16_score(row)
+    q16       = _q16_score(row)
 
     return {
         'q2':   (q2,  q2,  _sig(q2,  q2)),
@@ -217,7 +226,7 @@ def score_row_breakdown(row):
         'q5':   (q5,  q5,  _sig(q5,  q5)),
         'q6a':  (0,   q6a, _sig(None, q6a)),
         'q6b':  (0,   q6b, _sig(None, q6b)),
-        'q6':   (0,   q6a + q6b, _sig(None, q6a + q6b)),  # section badge
+        'q6':   (0,   q6a + q6b, _sig(None, q6a + q6b)),
         'q7':   (0,   q7,  _sig(None, q7)),
         'q10':  (q10, q10, _sig(q10, q10)),
         'q14':  (q14,  q14,  _sig(q14,  q14)),
@@ -285,4 +294,28 @@ def calculate_scores(df):
             '_color_idx':                jur_color_idx[jur],
         })
 
-    return pd.DataFrame(records)
+    result = pd.DataFrame(records)
+    if result.empty:
+        return result
+
+    # ── Radial jitter for overlapping bubbles ─────────────────────────
+    # Bubbles at identical (dcc_norm, oc_norm) are fanned out in a circle
+    # so each label remains readable. A dotted line in chart.py connects
+    # the jittered position back to the true position.
+    import math
+    JITTER_RADIUS = 0.08   # normalised units — small enough to stay in quadrant
+
+    result['_x'] = result['_dcc_norm']
+    result['_y'] = result['_oc_norm']
+
+    groups = result.groupby(['_dcc_norm', '_oc_norm'])
+    for (cx, cy), idx in groups.groups.items():
+        if len(idx) < 2:
+            continue
+        n = len(idx)
+        for i, row_i in enumerate(idx):
+            angle = (2 * math.pi * i / n) - (math.pi / 2)   # start at top
+            result.at[row_i, '_x'] = cx + JITTER_RADIUS * math.cos(angle)
+            result.at[row_i, '_y'] = cy + JITTER_RADIUS * math.sin(angle)
+
+    return result
