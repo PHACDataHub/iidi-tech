@@ -338,28 +338,86 @@ def _build_section3(df, n):
         ]
     )
 
-    # Q10 API — exact notebook Cell 9 logic
-    api_no = int((df['15: 9. Does your registry/repository have externally accessible Application Programming Interfaces (API) covering functionality needed to access and exchange immunization data?'].astype(str).str.strip() == 'No').sum()) if '15: 9. Does your registry/repository have externally accessible Application Programming Interfaces (API) covering functionality needed to access and exchange immunization data?' in df.columns else 0
-    q10_tbl = _tbl(
-        ['API Access', 'Count'],
+    # Q10 — top-level Yes / No summary
+    COL_Q10 = '15: 9. Does your registry/repository have externally accessible Application Programming Interfaces (API) covering functionality needed to access and exchange immunization data?'
+    api_yes, api_no, api_blank = _yes_no_count(df, COL_Q10)
+
+    # counts for sub-questions
+    rest  = _count_col(df, '16: REST')
+    soap  = _count_col(df, '16: SOAP')
+    amqp  = _count_col(df, '16: AMQP')
+    other_proto = _count_col(df, '16: Other, please specify')
+    saml  = _count_col(df, '17: SAML')
+    oauth = _count_col(df, '17: OAuth')
+    other_auth  = _count_col(df, '17: Other, please specify')
+    alt_yes     = _count_col(df, '18: Yes')
+    alt_no      = _count_col(df, '18: No')
+    alt_notsure = _count_col(df, '18: No sure')
+
+    # Q10 combined table — merged column headers matching the image
+    th_api  = html.Th('API Access',        colSpan=4, style={
+        'backgroundColor': HDR_BG, 'color': HDR_FG,
+        'padding': '7px 12px', 'fontSize': 12, 'fontWeight': '600',
+        'textAlign': 'center', 'borderRight': f'2px solid {DARK_BLUE}',
+        'borderBottom': f'1px solid {DARK_BLUE}',
+    })
+    th_auth = html.Th('API Authentication', colSpan=3, style={
+        'backgroundColor': HDR_BG, 'color': HDR_FG,
+        'padding': '7px 12px', 'fontSize': 12, 'fontWeight': '600',
+        'textAlign': 'center',
+        'borderBottom': f'1px solid {DARK_BLUE}',
+    })
+
+    def _th2(txt):
+        return html.Th(txt, style={
+            'backgroundColor': HDR_BG, 'color': HDR_FG,
+            'padding': '6px 10px', 'fontSize': 11, 'fontWeight': '600',
+            'textAlign': 'center', 'whiteSpace': 'normal',
+            'borderRight': f'1px solid {DARK_BLUE}',
+            'minWidth': '60px',
+        })
+
+    def _tdc(val, alt=False):
+        return html.Td(str(val), style={
+            'padding': '6px 10px', 'fontSize': 12,
+            'textAlign': 'center',
+            'borderBottom': f'1px solid {BORDER}',
+            'borderRight': f'1px solid {BORDER}',
+            'backgroundColor': ROW_ALT if alt else ROW_NORM,
+        })
+
+    q10_combined = html.Table([
+        html.Thead([
+            html.Tr([th_api, th_auth]),
+            html.Tr([_th2('REST'), _th2('SOAP'), _th2('AMQP'), _th2('Other'),
+                     _th2('SAML'), _th2('OAuth'), _th2('Custom / Other')]),
+        ]),
+        html.Tbody([
+            html.Tr([_tdc(rest), _tdc(soap), _tdc(amqp), _tdc(other_proto),
+                     _tdc(saml), _tdc(oauth), _tdc(other_auth)]),
+        ]),
+    ], style={
+        'borderCollapse': 'collapse', 'border': f'1px solid {BORDER}',
+        'marginBottom': 8,
+    })
+
+    # Q10c — alternate access methods note + table
+    q10c_tbl = _tbl(
+        ['Alternate Exchange Supported', 'Count', '% of non-API respondents'],
         [
-            ['REST',           _count_col(df, '16: REST')],
-            ['SOAP',           _count_col(df, '16: SOAP')],
-            ['AMQP',           _count_col(df, '16: AMQP')],
-            ['Other protocol', _count_col(df, '16: Other, please specify')],
-            ['SAML auth',      _count_col(df, '17: SAML')],
-            ['OAuth auth',     _count_col(df, '17: OAuth')],
-            ['Custom / Other auth', _count_col(df, '17: Other, please specify')],
-            ['No API access',  api_no],
+            ['Yes — alternate interfaces available', alt_yes,     _pct(alt_yes,     api_no)],
+            ['No — no alternate interfaces',         alt_no,      _pct(alt_no,      api_no)],
+            ['Not sure',                             alt_notsure, _pct(alt_notsure, api_no)],
         ]
     )
 
     return html.Div([
         _q_title('Q #8 & Q #9 — Does your jurisdiction currently have a digital tool that allows citizens to access their immunization information? If no, how can citizens access their immunization information?'),
         q89_tbl,
-        _q_title('Q #10 — Does your registry/repository have externally accessible APIs covering functionality needed to access and exchange immunization data? (Q #10a — API Protocol, Q #10b — API Authentication, Q #10c — Alternate access methods)'),
-        q10_tbl,
-        _note(f'{api_no} respondent(s) reported no API access.'),
+        _q_title('Q #10 — API Access 10a, API Authentication 10b, alternate access methods 10c'),
+        q10_combined,
+        _note(f'{api_no} respondent(s) reported no API access. Alternative access methods are listed below.'),
+        q10c_tbl,
     ])
 
 
@@ -447,7 +505,7 @@ def _build_section4(df, n):
     else:
         currently = planning = neither = 0
     q15_tbl = _tbl(
-        ['Currently Upgrading', 'Planning to Upgrade', 'Not Upgrading or Planning to Upgrade'],
+        ['Currently Upgrading', 'Planning to Upgrade', 'Neither Upgrading nor Planning to Upgrade'],
         [[currently, planning, neither]]
     )
 
@@ -483,14 +541,18 @@ def _build_section4(df, n):
 def _build_section5(df, n):
     """Section 5 — Immunization Data Maintenance"""
 
-    # Q17 — free text, listed verbatim as in notebook Cell 17
+    # Q17 — free text with province label, sorted alphabetically by short code
     COL_Q17 = '27: 16. How is the quality of data recorded in your Immunization Registry/repository assessed?'
     if COL_Q17 in df.columns:
-        q17_responses = df[COL_Q17].dropna().reset_index(drop=True)
-        q17_tbl = _tbl(
-            ['Response'],
-            [[str(v)] for v in q17_responses]
+        from core.constants import JUR_COL as _JUR, PROVINCE_SHORT as _SHORT
+        q17_rows = sorted(
+            [
+                [_SHORT.get(str(row[_JUR]).strip(), str(row[_JUR])[:3].upper()), str(row[COL_Q17])]
+                for _, row in df[[_JUR, COL_Q17]].dropna(subset=[COL_Q17]).iterrows()
+            ],
+            key=lambda r: r[0]
         )
+        q17_tbl = _tbl(['Province', 'Response'], q17_rows)
     else:
         q17_tbl = _note('No Q17 data found.')
 
@@ -542,11 +604,18 @@ def _build_section6(df, n):
         ]
     )
 
-    # Q21 free text
-    COL_Q21 = '31: 20. When and how is data archived in the immunization registry/repository?'
+    # Q21 free text with province label, sorted alphabetically by short code
+    COL_Q21 = '31: 20. If you answered yes to the previous question, when and how is immunization data archived? Please describe'
     if COL_Q21 in df.columns:
-        q21_responses = df[COL_Q21].dropna().reset_index(drop=True)
-        q21_tbl = _tbl(['Response'], [[str(v)] for v in q21_responses])
+        from core.constants import JUR_COL as _JUR, PROVINCE_SHORT as _SHORT
+        q21_rows = sorted(
+            [
+                [_SHORT.get(str(row[_JUR]).strip(), str(row[_JUR])[:3].upper()), str(row[COL_Q21])]
+                for _, row in df[[_JUR, COL_Q21]].dropna(subset=[COL_Q21]).iterrows()
+            ],
+            key=lambda r: r[0]
+        )
+        q21_tbl = _tbl(['Province', 'Response'], q21_rows)
     else:
         q21_tbl = _note('No Q21 data found.')
 

@@ -488,6 +488,65 @@ def _section4_checkboxes(row_s):
     ]
 
 
+def _section5_checkboxes(row_s):
+    """
+    Render Q18 and Q19 as checkbox groups matching the Section 4 pattern.
+    Returns [(label, checkbox_div, None), ...]
+    Q17 (free-text) and Q20/Q21 (archiving) are left to the default renderer.
+    """
+    def _is_checked(col):
+        v = row_s.get(col)
+        try:
+            return pd.notna(v) and float(v) == 1.0
+        except Exception:
+            return False
+
+    def _text(col):
+        v = row_s.get(col)
+        if pd.isna(v) or str(v).strip() in ['', 'nan', '0', '0.0']:
+            return None
+        return str(v).strip()
+
+    def _checkboxes(*items):
+        return html.Div(
+            [_checkbox_item(*item) for item in items],
+            style={'display': 'flex', 'flexDirection': 'column', 'gap': 2, 'width': '100%'}
+        )
+
+    other_q18 = _text('28: Other reconciliation processes, please specify')
+    other_q19 = _text('29: Other, please specify')
+
+    return [
+        (
+            'Q18 — When data quality issues are identified, how are they remediated?',
+            _checkboxes(
+                ('Provider corrections',
+                    _is_checked('28: Provider corrections')),
+                ('Manual updates made directly in the registry/repository',
+                    _is_checked('28: Manual updates made directly in the registry/repository')),
+                ('Automated/manual duplicate resolution',
+                    _is_checked('28: Automated/manual duplicate resolution')),
+                ('Other', bool(other_q18), other_q18) if other_q18 else ('Other', False),
+            ),
+            None,
+        ),
+        (
+            'Q19 — When a patient identifies data quality issues, how are they remediated?',
+            _checkboxes(
+                ('Patient can update their immunization record',
+                    _is_checked('29: Patient can update their immunization record')),
+                ('Patient can request a change to their immunization record',
+                    _is_checked('29: Patient can request a change to their immunization record')),
+                ('Patient cannot update or request a change',
+                    _is_checked('29: Patient cannot update or request a change')),
+                ('Other', bool(other_q19), other_q19) if other_q19 else ('Other', False),
+            ),
+            None,
+        ),
+    ]
+
+
+
 def _q16_checkboxes(row_s):
     """Render Q16 interoperability roadmap as checkboxes."""
     def _is_checked(col):
@@ -869,7 +928,7 @@ def render_viewer(rows_list, raw_df, selected_sections):
                     tup = breakdowns[0].get(sec_score_key, (0, 0, 'neutral'))
                     sec_badge = score_badges(_sig_from(tup[0]), _sig_from(tup[1]))
                 header_children = [
-                    html.Span(sec, style={'textTransform': 'uppercase', 'letterSpacing': '0.04em'}),
+                    html.Span(sec.replace('Part 2 — ', ''), style={'textTransform': 'uppercase', 'letterSpacing': '0.04em'}),
                 ]
                 if sec_badge:
                     header_children.append(sec_badge)
@@ -909,8 +968,25 @@ def render_viewer(rows_list, raw_df, selected_sections):
                                           badge=None, rubric=None))
             # fall through — let remaining cols (Q15, Q15a, Q16) render normally below
 
+        # ── Section 5: Data Quality — Q18/Q19 checkbox intercept ────────
+        _S5_CB_PREFIXES = {'28', '29'}
+        if sec == 'Section 5 — Data Quality' and any(
+            col.split(':')[0].strip() in _S5_CB_PREFIXES for col in cols
+        ):
+            per_s5 = [_section5_checkboxes(row_s) for row_s, _, _ in rows_list]
+            for qi in range(len(per_s5[0])):
+                q_label   = per_s5[0][qi][0]
+                val_cells = [per_s5[ri][qi][1] for ri in range(len(rows_list))]
+                row_els.append(_field_row(q_label, val_cells, is_diff, rows_list,
+                                          badge=None, rubric=None))
+            # fall through — let Q17 (prefix 27) render as free-text below
+
         for col in cols:
             prefix = col.split(':')[0].strip()
+
+            # skip prefixes already rendered as checkboxes in the S5 block
+            if sec == 'Section 5 — Data Quality' and prefix in _S5_CB_PREFIXES:
+                continue
 
             # skip prefixes already rendered as checkboxes in the S4 block
             if sec == 'Section 4 — System Integration' and prefix in _S4_PREFIXES:
@@ -927,6 +1003,65 @@ def render_viewer(rows_list, raw_df, selected_sections):
                         val_cells, is_diff, rows_list, badge=None, rubric=rubric_el,
                     ))
                 continue
+
+            # ── Q22 / Q27 / Q28: Part 2 checkbox groups ──────────────
+            _P2_CB_META = {
+                '32': ('Q22 — Who is the custodian/business owner of immunization data?',
+                       [('Ministry of Health',                                '32: Ministry of Health'),
+                        ('Public Health / Office of the Medical Health Officer', '32: Public Health/Office of the Medical Health Officer'),
+                        ('Central Health Authorities',                        '32: Central Health Authorities'),
+                        ('Other',                                             '32: Other, please specify')]),
+                '37': ('Q27 — Policies, procedures or agreements guiding data sharing',
+                       [('Provincial Immunization Manual',   '37: Provincial Immunization Manual'),
+                        ('Data Sharing Agreements',          '37: Data Sharing Agreements'),
+                        ('Immunization Data Policies',       '37: Immunization Data Policies'),
+                        ('Immunization Data Procedures',     '37: Immunization Data Procedures'),
+                        ('Other',                            '37: Other, please specify')]),
+                '38': ('Q28 — Clinical / business / technical challenges in sharing immunization data',
+                       [('Data completeness',                                   '38: Data completeness'),
+                        ('Siloed / disconnected approaches to data stewardship','38: Siloed/disconnected approaches to data stewardship'),
+                        ('Legislative limitations',                             '38: Legislative limitations'),
+                        ('Lack of system integration',                          '38: Lack of system integration'),
+                        ('Other',                                               '38: Other, please specify')]),
+            }
+            if prefix in _P2_CB_META and prefix not in rendered_bin_groups:
+                rendered_bin_groups.add(prefix)
+                q_label, option_cols = _P2_CB_META[prefix]
+
+                def _make_p2_cb(row_s, opts=option_cols):
+                    def _is_checked(c):
+                        v = row_s.get(c)
+                        try:    return pd.notna(v) and float(v) == 1.0
+                        except: return False
+                    def _text(c):
+                        v = row_s.get(c)
+                        if pd.isna(v) or str(v).strip() in ['', 'nan', '0', '0.0']:
+                            return None
+                        return str(v).strip()
+                    items = []
+                    for lbl, c in opts:
+                        raw_val = row_s.get(c)
+                        try:
+                            is_binary = pd.notna(raw_val) and float(raw_val) in (0.0, 1.0)
+                        except:
+                            is_binary = False
+                        if is_binary:
+                            items.append(_checkbox_item(lbl, _is_checked(c)))
+                        else:
+                            freetext = _text(c)
+                            items.append(_checkbox_item(lbl, bool(freetext), freetext))
+                    return html.Div(items,
+                                    style={'display': 'flex', 'flexDirection': 'column',
+                                           'gap': 2, 'width': '100%'})
+
+                val_cells = [_make_p2_cb(row_s) for row_s, _, _ in rows_list]
+                row_els.append(_field_row(q_label, val_cells, is_diff, rows_list,
+                                          badge=None, rubric=None))
+                continue
+
+            if prefix in _P2_CB_META:   # sibling columns of an already-rendered group
+                continue
+
 
             # ── Q4 immunization capture matrix ───────────────────────
             if prefix == '8.1':
@@ -1040,7 +1175,7 @@ def render_viewer(rows_list, raw_df, selected_sections):
                 sec_badge = score_badges(_sig_from(tup[0]), _sig_from(tup[1]))
 
             header_children = [
-                html.Span(sec, style={'textTransform': 'uppercase', 'letterSpacing': '0.04em'}),
+                html.Span(sec.replace('Part 2 — ', ''), style={'textTransform': 'uppercase', 'letterSpacing': '0.04em'}),
             ]
             if sec_badge:
                 header_children.append(sec_badge)
