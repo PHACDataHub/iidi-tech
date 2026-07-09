@@ -220,7 +220,7 @@ def _rubric_block(options, final_dcc=None, final_oc=None,
                       'actual'   int  the actual computed score
                     When supplied a full-width section-score block is appended.
     """
-    header = html.Div('RUBRIC', style={
+    header = html.Div('ADOPTION COMPLEXITY MEASUREMENT METHODOLOGY', style={
         'fontSize': 9, 'fontWeight': '700', 'color': '#7A5C00',
         'letterSpacing': '0.07em', 'marginBottom': 5,
     })

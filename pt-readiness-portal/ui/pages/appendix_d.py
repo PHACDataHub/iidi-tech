@@ -150,7 +150,7 @@ def build_appendix_d(initial_scores, initial_raw, jur_col):
         html.Div([
             _section_header(
                 'D3 \u00a0 Adoption Complexity Matrix',
-                'DCC vs OC \u2014 bubble size proportional to normalized score magnitude',
+                'Operational Simplicity vs Integration Simplicity \u2014 bubble size proportional to normalized score magnitude',
             ),
             html.Div(
                 dcc.Graph(id='d-bubble-chart', figure={},

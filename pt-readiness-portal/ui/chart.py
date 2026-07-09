@@ -95,13 +95,13 @@ def create_bubble_chart(scores: pd.DataFrame) -> go.Figure:
 
     fig.update_layout(
         xaxis=dict(
-            title='Data Connection Complexity (normalized) →',
+            title='Integration Simplicity →',
             zeroline=False, gridcolor='#EEEEEE', range=axis_range,
             tickvals=tick_vals, ticktext=tick_texts,
             title_font=dict(size=12), tickfont=dict(size=11),
         ),
         yaxis=dict(
-            title='Operational Complexity (normalized) →',
+            title='Operational Simplicity →',
             zeroline=False, gridcolor='#EEEEEE', range=axis_range,
             tickvals=tick_vals, ticktext=tick_texts,
             title_font=dict(size=12), tickfont=dict(size=11),
