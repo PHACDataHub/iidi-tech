@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
       - name: pt-readiness-portal
-        image: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-pt-readiness-portal:v2.7
+        image: northamerica-northeast1-docker.pkg.dev/gcdm022b-cobra/iidi/iidi-pt-readiness-portal:v2.8
         imagePullPolicy: Always
         ports:
         - containerPort: 8050
