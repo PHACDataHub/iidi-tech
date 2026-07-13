@@ -47,7 +47,7 @@ _SECTIONS = [
     ('sidebar-btn-d', 'Appendix D', 'Jurisdiction-Level Breakdown', [
         'D1 — Response Viewer',
         'D2 — Scoring Grid',
-        'D3 — Complexity Matrix',
+        'D3 — Simplicity Matrix',
     ]),
 ]
 

@@ -149,7 +149,7 @@ def build_appendix_d(initial_scores, initial_raw, jur_col):
         # ── D3: Adoption Complexity Matrix ───────────────────────────
         html.Div([
             _section_header(
-                'D3 \u00a0 Adoption Complexity Matrix',
+                'D3 \u00a0 Adoption Simplicity Matrix',
                 'Operational Simplicity vs Integration Simplicity \u2014 bubble size proportional to normalized score magnitude',
             ),
             html.Div(
